@@ -8,9 +8,14 @@
     },
     "hero": {
         "headline": "Barattoota Carraalee Freelance fi Intership Dhaan Gargaaruu",
-        "subheadline": "Bakka hojii gaggaarii waliin dhufuudhaan, dandeettii of duraan ijaaruu fi hojii keessan ofitti amanamummaan jalqabaa.",
-        "cta_login": "Seeni",
-        "cta_register": "Jalqabi",
+        "title_part1": "Barattoota Carraalee ",
+        "title_highlight1": "Freelance",
+        "title_and": " fi ",
+        "title_highlight2": "Internship",
+        "title_part2": " Dhaan Gargaaruu",
+        "subheadline": "Pilaatoformiin kun barattoota ciccimoo dhaabbilee guguddoo waliin walqunnamsiisa. Poortifooliioo keessan ijaaraa, muuxannoo argadhaa, hojii keessan jalqabaa.",
+        "cta_login": "Dashboordii Seeni",
+        "cta_register": "Amma Jalqabi",
         "cta_learn": "Dabalata Baradhu"
     },
     "how_it_works": {

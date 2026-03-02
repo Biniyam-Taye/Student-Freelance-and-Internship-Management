@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -17,9 +17,11 @@ if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-white">Loading...</div>}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </React.Suspense>
     </Provider>
   </StrictMode>
 );

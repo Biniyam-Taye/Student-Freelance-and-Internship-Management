@@ -8,9 +8,14 @@
     },
     "hero": {
         "headline": "Empowering Students Through Freelance & Internship Opportunities",
-        "subheadline": "Connect with top recruiters, build real-world skills, and launch your career with confidence.",
-        "cta_login": "Login",
-        "cta_register": "Get Started",
+        "title_part1": "Empowering Students Through ",
+        "title_highlight1": "Freelance",
+        "title_and": " & ",
+        "title_highlight2": "Internship",
+        "title_part2": " Opportunities",
+        "subheadline": "The ultimate platform connecting ambitious student talent with top companies. Build your portfolio, gain experience, and launch your career.",
+        "cta_login": "Log In to Dashboard",
+        "cta_register": "Get Started Now",
         "cta_learn": "Learn More"
     },
     "how_it_works": {
