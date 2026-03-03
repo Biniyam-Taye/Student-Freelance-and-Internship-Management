@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, Star, Users, TrendingUp } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Briefcase, ShieldCheck, CheckCircle2, Sun, Moon } from 'lucide-react';
 import { mockLogin } from '../../features/auth/authSlice';
-import Button from '../../components/ui/Button';
+import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
 
 const schema = yup.object().shape({
@@ -16,15 +16,16 @@ const schema = yup.object().shape({
 });
 
 const DEMO_ROLES = [
-    { role: 'student', label: 'Student', color: '#3b82f6', glow: 'rgba(59,130,246,0.3)', emoji: '🎓' },
-    { role: 'recruiter', label: 'Recruiter', color: '#8b5cf6', glow: 'rgba(139,92,246,0.3)', emoji: '💼' },
-    { role: 'admin', label: 'Admin', color: '#10b981', glow: 'rgba(16,185,129,0.3)', emoji: '⚙️' },
+    { role: 'student', label: 'Student', icon: GraduationCap, colorClass: 'text-blue-600 dark:text-blue-400', bgClass: 'bg-blue-50 dark:bg-blue-900/20', borderClass: 'border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-500' },
+    { role: 'recruiter', label: 'Recruiter', icon: Briefcase, colorClass: 'text-emerald-600 dark:text-emerald-400', bgClass: 'bg-emerald-50 dark:bg-emerald-900/20', borderClass: 'border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-500' },
+    { role: 'admin', label: 'Admin', icon: ShieldCheck, colorClass: 'text-purple-600 dark:text-purple-400', bgClass: 'bg-purple-50 dark:bg-purple-900/20', borderClass: 'border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-500' },
 ];
 
 export default function LoginPage() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const themeMode = useSelector(state => state.theme.mode);
     const [showPass, setShowPass] = useState(false);
     const [loginLoading, setLoginLoading] = useState(false);
 
@@ -52,135 +53,108 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex" style={{ fontFamily: "'Inter','Plus Jakarta Sans',system-ui,sans-serif" }}>
+        <div className="min-h-screen flex bg-white dark:bg-slate-900 font-sans transition-colors duration-300">
+            {/* Left Panel - Modern, Clean SaaS look */}
+            <div className="hidden lg:flex lg:w-1/2 relative bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col justify-between p-12 overflow-hidden">
+                {/* Subtle Grid Background */}
+                <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]"
+                    style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-            {/* ── Left decorative panel ── */}
-            <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden flex-col justify-between p-16">
-                {/* Background */}
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(145deg,#0d0521 0%,#1a0a42 50%,#06040f 100%)' }} />
+                {/* Blobs */}
+                <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
-                {/* Ambient orbs */}
-                <div className="absolute top-[-15%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-30"
-                    style={{ background: 'radial-gradient(circle,#7c3aed,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full opacity-20"
-                    style={{ background: 'radial-gradient(circle,#0ea5e9,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-                <div className="absolute top-1/2 right-0 w-[300px] h-[300px] rounded-full opacity-15"
-                    style={{ background: 'radial-gradient(circle,#ec4899,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-
-                {/* Subtle grid */}
-                <div className="absolute inset-0 opacity-[0.04]"
-                    style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '50px 50px', pointerEvents: 'none' }} />
-
-                {/* Content */}
-                <div className="relative z-10">
-                    <Link to="/" className="inline-flex items-center gap-2.5 mb-16">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
-                            style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7,#ec4899)', boxShadow: '0 0 20px rgba(168,85,247,0.5)' }}>
-                            <span className="text-white font-black">F</span>
+                <div className="relative z-10 flex-shrink-0">
+                    <Link to="/" className="flex items-center gap-2 mb-16">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                            <span className="font-extrabold text-white text-xl">F</span>
                         </div>
-                        <span className="font-extrabold text-white text-xl tracking-tight">
-                            Fre<span style={{ background: 'linear-gradient(90deg,#a855f7,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>launch</span>
-                        </span>
+                        <span className="font-extrabold text-2xl tracking-tight text-slate-800 dark:text-white">Frelaunch.</span>
                     </Link>
 
-                    <h2 className="text-5xl font-black text-white leading-tight mb-6">
-                        Welcome back to<br />
-                        <span style={{ background: 'linear-gradient(90deg,#c084fc,#818cf8,#38bdf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            your career journey
-                        </span>
+                    <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight mb-6">
+                        Welcome back to your <br />
+                        <span className="text-blue-600 dark:text-blue-400">career journey.</span>
                     </h2>
-                    <p className="text-purple-200/60 text-lg max-w-sm leading-relaxed">
-                        Connect with opportunities, build skills, and shape your future in Ethiopia's growing tech ecosystem.
+                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md leading-relaxed mb-12">
+                        Log in to connect with top recruiters, track your skill progression, and manage your tasks.
                     </p>
+
+                    <div className="space-y-6">
+                        {[
+                            { title: 'Smart matching', desc: 'AI connects you with the right opportunities.' },
+                            { title: 'Verified recruiters', desc: 'Work with established companies in Ethiopia.' },
+                            { title: 'Secure payments', desc: 'Guaranteed stipends and milestone tracking.' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-4">
+                                <div className="mt-1 bg-white dark:bg-slate-900 p-1.5 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 flex-shrink-0 text-blue-600 dark:text-blue-400">
+                                    <CheckCircle2 className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="text-base font-bold text-slate-900 dark:text-white">{item.title}</h4>
+                                    <p className="text-slate-600 dark:text-slate-400 text-sm">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Stats */}
-                <div className="relative z-10 grid grid-cols-3 gap-4">
-                    {[
-                        { icon: Users, val: '700+', label: 'Students', color: '#c084fc' },
-                        { icon: TrendingUp, val: '120+', label: 'Companies', color: '#38bdf8' },
-                        { icon: Star, val: '95%', label: 'Placement', color: '#34d399' },
-                    ].map(({ icon: Icon, val, label, color }) => (
-                        <div key={label} className="p-4 rounded-2xl border border-white/8"
-                            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
-                            <Icon size={18} className="mb-2" style={{ color }} />
-                            <div className="text-2xl font-black text-white">{val}</div>
-                            <div className="text-xs text-white/40 mt-0.5">{label}</div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Decorative floating card */}
-                <div className="absolute top-1/2 right-8 -translate-y-1/2 max-w-[200px] p-4 rounded-2xl border border-white/10"
-                    style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}>
-                    <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center text-sm"
-                            style={{ background: 'linear-gradient(135deg,#7c3aed,#ec4899)' }}>
-                            🎓
-                        </div>
-                        <div>
-                            <p className="text-white text-xs font-semibold">Bereket A.</p>
-                            <p className="text-white/40 text-[10px]">UI/UX Designer</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-0.5 mb-1">
-                        {[...Array(5)].map((_, i) => <Star key={i} size={10} className="fill-amber-400 text-amber-400" />)}
-                    </div>
-                    <p className="text-white/60 text-[10px] leading-relaxed">"Got my first internship within 2 weeks!"</p>
+                <div className="relative z-10 text-slate-500 dark:text-slate-400 text-sm font-medium mt-auto pt-10">
+                    &copy; 2026 Frelaunch Inc.
                 </div>
             </div>
 
-            {/* ── Right form panel ── */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 bg-gray-50 dark:bg-[#0b0718] overflow-y-auto">
-                <div className="w-full max-w-md">
+            {/* Right Panel - Form */}
+            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-y-auto">
+                {/* Theme Toggle */}
+                <button
+                    onClick={() => dispatch(toggleTheme())}
+                    type="button"
+                    className="absolute top-6 right-6 p-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-10 shadow-sm"
+                    aria-label="Toggle theme"
+                >
+                    {themeMode === 'dark' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
+                </button>
 
-                    {/* Mobile logo */}
-                    <Link to="/" className="inline-flex items-center gap-2 mb-10 lg:hidden">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                            style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)' }}>
-                            <span className="text-white font-black text-sm">F</span>
-                        </div>
-                        <span className="font-extrabold text-gray-900 dark:text-white text-lg">Frelaunch</span>
-                    </Link>
+                {/* Mobile Logo */}
+                <Link to="/" className="flex lg:hidden items-center gap-2 mb-10 w-full max-w-md">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                        <span className="font-extrabold text-white text-xl">F</span>
+                    </div>
+                    <span className="font-extrabold text-2xl tracking-tight text-slate-800 dark:text-white">Frelaunch.</span>
+                </Link>
 
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{t('auth.login_title')}</h1>
-                        <p className="text-gray-500 dark:text-gray-400">{t('auth.login_subtitle')}</p>
+                <div className="w-full max-w-md my-auto">
+                    <div className="text-left md:text-center mb-10">
+                        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{t('auth.login_title')}</h1>
+                        <p className="text-slate-600 dark:text-slate-400">{t('auth.login_subtitle')}</p>
                     </div>
 
-                    {/* Demo role buttons */}
-                    <div className="mb-6">
-                        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Quick Demo Access</p>
-                        <div className="grid grid-cols-3 gap-2">
-                            {DEMO_ROLES.map(({ role, label, color, glow, emoji }) => (
+                    {/* Quick Demo Access */}
+                    <div className="mb-8">
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 md:text-center">Quick Demo Login</p>
+                        <div className="grid grid-cols-3 gap-3">
+                            {DEMO_ROLES.map(({ role, label, icon: Icon, colorClass, bgClass, borderClass }) => (
                                 <button key={role} onClick={() => handleDemoLogin(role)} disabled={loginLoading}
-                                    className="group py-3 px-2 rounded-2xl border text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-50 flex flex-col items-center gap-1.5"
-                                    style={{
-                                        borderColor: `${color}30`,
-                                        background: `${color}10`,
-                                        color,
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.boxShadow = `0 8px 24px ${glow}`}
-                                    onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
-                                    <span className="text-lg">{emoji}</span>
-                                    {label}
+                                    className={`group py-3 px-2 rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-md disabled:opacity-50 flex flex-col items-center gap-2 ${bgClass} ${borderClass}`}>
+                                    <Icon className={`w-6 h-6 ${colorClass}`} />
+                                    <span className={`text-xs font-semibold ${colorClass}`}>{label}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Divider */}
-                    <div className="relative mb-6">
+                    <div className="relative mb-8">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-200 dark:border-gray-700/50" />
+                            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
                         </div>
-                        <div className="relative flex justify-center">
-                            <span className="bg-gray-50 dark:bg-[#0b0718] px-3 text-xs text-gray-400">or sign in with credentials</span>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 font-medium">or continue with email</span>
                         </div>
                     </div>
 
                     {/* Form */}
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                         <Input
                             label={t('auth.email')}
                             icon={Mail}
@@ -200,41 +174,35 @@ export default function LoginPage() {
                                 required
                                 rightIcon={() => (
                                     <button type="button" onClick={() => setShowPass(!showPass)}
-                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                                        {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1 relative z-10 w-8 h-8 flex items-center justify-center">
+                                        {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 )}
                                 {...register('password')}
                             />
                         </div>
 
-                        <div className="flex items-center justify-between text-sm">
-                            <label className="flex items-center gap-2 text-gray-500 dark:text-gray-400 cursor-pointer">
-                                <input type="checkbox" className="rounded accent-purple-600" />
+                        <div className="flex items-center justify-between text-sm py-2">
+                            <label className="flex items-center gap-2 font-medium text-slate-600 dark:text-slate-400 cursor-pointer">
+                                <input type="checkbox" className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 dark:bg-slate-800" />
                                 {t('auth.remember_me')}
                             </label>
                             <Link to="/forgot-password"
-                                className="text-sm font-medium transition-colors"
-                                style={{ color: '#a855f7' }}>
+                                className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                                 {t('auth.forgot_password')}
                             </Link>
                         </div>
 
-                        <Button
-                            type="submit"
-                            variant="gradient"
-                            size="lg"
-                            fullWidth
-                            loading={loginLoading}
-                            icon={ArrowRight}
-                            iconPosition="right">
-                            {t('auth.sign_in')}
-                        </Button>
+                        <button type="submit" disabled={loginLoading}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 disabled:opacity-70">
+                            {loginLoading ? 'Loading...' : t('auth.sign_in')}
+                            {!loginLoading && <ArrowRight className="w-5 h-5" />}
+                        </button>
                     </form>
 
-                    <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+                    <p className="text-left md:text-center font-medium text-slate-600 dark:text-slate-400 mt-8 pb-6">
                         {t('auth.no_account')}{' '}
-                        <Link to="/register" className="font-bold hover:underline" style={{ color: '#a855f7' }}>
+                        <Link to="/register" className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                             {t('auth.sign_up')}
                         </Link>
                     </p>

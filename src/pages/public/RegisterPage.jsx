@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Mail, Lock, User, GraduationCap, Briefcase, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, GraduationCap, Briefcase, ArrowRight, Eye, EyeOff, CheckCircle2, Sun, Moon } from 'lucide-react';
 import { mockLogin } from '../../features/auth/authSlice';
-import Button from '../../components/ui/Button';
+import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
 import clsx from 'clsx';
 
@@ -19,26 +19,20 @@ const schema = yup.object().shape({
     role: yup.string().oneOf(['student', 'recruiter']).required('Please select a role'),
 });
 
-const BENEFITS = [
-    'Build a portfolio with real projects',
-    'Connect with top Ethiopian companies',
-    'Get career guidance and support',
-    'Track your skill growth with analytics',
-];
-
 export default function RegisterPage() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const themeMode = useSelector(state => state.theme.mode);
     const [loading, setLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState('student');
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirmPass, setShowConfirmPass] = useState(false);
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
         defaultValues: { role: 'student' },
     });
-
-    const role = watch('role');
 
     const handleRoleSelect = (r) => {
         setSelectedRole(r);
@@ -54,141 +48,129 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex" style={{ fontFamily: "'Inter','Plus Jakarta Sans',system-ui,sans-serif" }}>
+        <div className="min-h-screen flex bg-white dark:bg-slate-900 font-sans transition-colors duration-300">
+            {/* Left Panel - Modern, Clean SaaS look */}
+            <div className="hidden lg:flex lg:w-1/2 relative bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col justify-between p-12 overflow-hidden">
+                {/* Subtle Grid Background */}
+                <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]"
+                    style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
-            {/* ── Left decorative panel ── */}
-            <div className="hidden lg:flex lg:w-[52%] relative overflow-hidden flex-col justify-between p-16">
-                {/* Background */}
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(145deg,#0d0521 0%,#200d4e 50%,#06040f 100%)' }} />
+                {/* Blobs */}
+                <div className="absolute top-0 left-0 -ml-24 -mt-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
+                <div className="absolute bottom-0 right-0 -mr-24 -mb-24 w-96 h-96 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
 
-                {/* Orbs */}
-                <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full opacity-25"
-                    style={{ background: 'radial-gradient(circle,#8b5cf6,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-                <div className="absolute bottom-0 left-[-10%] w-[400px] h-[400px] rounded-full opacity-20"
-                    style={{ background: 'radial-gradient(circle,#ec4899,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-                <div className="absolute top-1/2 left-1/3 w-[300px] h-[300px] rounded-full opacity-15"
-                    style={{ background: 'radial-gradient(circle,#0ea5e9,transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-
-                {/* Grid */}
-                <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
-                    style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '50px 50px' }} />
-
-                {/* Content */}
-                <div className="relative z-10">
-                    <Link to="/" className="inline-flex items-center gap-2.5 mb-16">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg"
-                            style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7,#ec4899)', boxShadow: '0 0 20px rgba(168,85,247,0.5)' }}>
-                            <span className="text-white font-black">F</span>
+                <div className="relative z-10 flex-shrink-0">
+                    <Link to="/" className="flex items-center gap-2 mb-16">
+                        <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                            <span className="font-extrabold text-white text-xl">F</span>
                         </div>
-                        <span className="font-extrabold text-white text-xl tracking-tight">
-                            Fre<span style={{ background: 'linear-gradient(90deg,#a855f7,#ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>launch</span>
-                        </span>
+                        <span className="font-extrabold text-2xl tracking-tight text-slate-800 dark:text-white">Frelaunch.</span>
                     </Link>
 
-                    <h2 className="text-5xl font-black text-white leading-tight mb-6">
-                        Start your<br />
-                        <span style={{ background: 'linear-gradient(90deg,#f9a8d4,#c084fc,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            journey today
-                        </span>
+                    <h2 className="text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white leading-tight tracking-tight mb-6">
+                        Join the future of <br />
+                        <span className="text-blue-600 dark:text-blue-400">talent connection.</span>
                     </h2>
-                    <p className="text-purple-200/60 text-lg max-w-sm leading-relaxed mb-10">
-                        Join a community of driven students and innovative companies across Ethiopia.
+                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md leading-relaxed mb-12">
+                        Create an account to build your portfolio, connect with leading companies, and launch your career in Ethiopia.
                     </p>
 
-                    {/* Benefits list */}
-                    <div className="space-y-4">
-                        {BENEFITS.map((item, i) => (
-                            <div key={item} className="flex items-center gap-3">
-                                <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-                                    style={{ background: 'rgba(168,85,247,0.2)', border: '1px solid rgba(168,85,247,0.4)' }}>
-                                    <CheckCircle2 size={14} className="text-purple-400" />
+                    <div className="space-y-6">
+                        {[
+                            { title: 'Build a portfolio', desc: 'Showcase real projects and skills.' },
+                            { title: 'Top Ethiopian companies', desc: 'Directly connect with industry leaders.' },
+                            { title: 'Track skill growth', desc: 'Get analytics on your progression.' }
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-4">
+                                <div className="mt-1 bg-white dark:bg-slate-900 p-1.5 rounded-full shadow-sm border border-slate-200 dark:border-slate-700 flex-shrink-0 text-blue-600 dark:text-blue-400">
+                                    <CheckCircle2 className="w-5 h-5" />
                                 </div>
-                                <span className="text-purple-200/70 text-sm">{item}</span>
+                                <div>
+                                    <h4 className="text-base font-bold text-slate-900 dark:text-white">{item.title}</h4>
+                                    <p className="text-slate-600 dark:text-slate-400 text-sm">{item.desc}</p>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Bottom decorative stat cards */}
-                <div className="relative z-10 grid grid-cols-2 gap-4">
-                    {[
-                        { val: '700+', label: 'Students Joined', color: '#c084fc' },
-                        { val: '120+', label: 'Companies', color: '#38bdf8' },
-                    ].map(({ val, label, color }) => (
-                        <div key={label} className="p-4 rounded-2xl border border-white/8 text-center"
-                            style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)' }}>
-                            <div className="text-2xl font-black mb-1" style={{ color }}>{val}</div>
-                            <div className="text-xs text-white/40">{label}</div>
-                        </div>
-                    ))}
+                <div className="relative z-10 text-slate-500 dark:text-slate-400 text-sm font-medium mt-auto pt-10">
+                    &copy; 2026 Frelaunch Inc.
                 </div>
             </div>
 
-            {/* ── Right form panel ── */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 bg-gray-50 dark:bg-[#0b0718] overflow-y-auto">
-                <div className="w-full max-w-md">
+            {/* Right Panel - Form */}
+            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 sm:p-12 relative overflow-y-auto">
+                {/* Theme Toggle */}
+                <button
+                    onClick={() => dispatch(toggleTheme())}
+                    type="button"
+                    className="absolute top-6 right-6 p-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors z-10 shadow-sm"
+                    aria-label="Toggle theme"
+                >
+                    {themeMode === 'dark' ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
+                </button>
 
-                    {/* Mobile logo */}
-                    <Link to="/" className="inline-flex items-center gap-2 mb-8 lg:hidden">
-                        <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                            style={{ background: 'linear-gradient(135deg,#7c3aed,#a855f7)' }}>
-                            <span className="text-white font-black text-sm">F</span>
-                        </div>
-                        <span className="font-extrabold text-gray-900 dark:text-white text-lg">Frelaunch</span>
-                    </Link>
+                {/* Mobile Logo */}
+                <Link to="/" className="flex lg:hidden items-center gap-2 mb-8 mt-4 w-full max-w-md">
+                    <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+                        <span className="font-extrabold text-white text-xl">F</span>
+                    </div>
+                    <span className="font-extrabold text-2xl tracking-tight text-slate-800 dark:text-white">Frelaunch.</span>
+                </Link>
 
-                    <div className="mb-7">
-                        <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{t('auth.register_title')}</h1>
-                        <p className="text-gray-500 dark:text-gray-400">{t('auth.register_subtitle')}</p>
+                <div className="w-full max-w-md my-auto flex flex-col">
+                    <div className="text-left md:text-center mb-8">
+                        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{t('auth.register_title')}</h1>
+                        <p className="text-slate-600 dark:text-slate-400">{t('auth.register_subtitle')}</p>
                     </div>
 
                     {/* Role selection */}
-                    <div className="mb-6">
-                        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
+                    <div className="mb-8">
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 md:text-center">
                             {t('auth.select_role')}
                         </p>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-4">
                             <button type="button" onClick={() => handleRoleSelect('student')}
                                 className={clsx(
-                                    'relative flex flex-col items-center gap-2.5 p-5 rounded-2xl border-2 transition-all duration-200 overflow-hidden group',
+                                    'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
                                     selectedRole === 'student'
-                                        ? 'border-[#3b82f6] bg-blue-50 dark:bg-blue-900/15 text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/15'
-                                        : 'border-gray-200 dark:border-gray-700/50 bg-white dark:bg-white/3 text-gray-500 dark:text-gray-400 hover:border-blue-300 dark:hover:border-blue-700'
+                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-md shadow-blue-500/10'
+                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                 )}>
-                                {selectedRole === 'student' && (
-                                    <div className="absolute inset-0 opacity-10"
-                                        style={{ background: 'radial-gradient(circle at 50% 100%,#3b82f6,transparent 70%)' }} />
-                                )}
-                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                                    style={selectedRole === 'student'
-                                        ? { background: 'linear-gradient(135deg,#3b82f6,#6366f1)', boxShadow: '0 8px 24px rgba(59,130,246,0.3)' }
-                                        : { background: 'rgba(59,130,246,0.1)' }}>
-                                    <GraduationCap size={24} style={{ color: selectedRole === 'student' ? 'white' : '#3b82f6' }} />
+                                <div className={`p-3 rounded-xl ${selectedRole === 'student' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                                    <GraduationCap className="w-6 h-6" />
                                 </div>
-                                <span className="font-bold text-sm">{t('auth.role_student')}</span>
-                                <span className="text-xs text-center opacity-60">Find internships &amp; freelance work</span>
+                                <div className="text-center">
+                                    <span className="font-bold block text-sm">{t('auth.role_student')}</span>
+                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Find work &amp; grow</span>
+                                </div>
                             </button>
 
                             <button type="button" onClick={() => handleRoleSelect('recruiter')}
                                 className={clsx(
-                                    'relative flex flex-col items-center gap-2.5 p-5 rounded-2xl border-2 transition-all duration-200 overflow-hidden',
+                                    'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
                                     selectedRole === 'recruiter'
-                                        ? 'border-[#8b5cf6] bg-violet-50 dark:bg-violet-900/15 text-violet-600 dark:text-violet-400 shadow-lg shadow-violet-500/15'
-                                        : 'border-gray-200 dark:border-gray-700/50 bg-white dark:bg-white/3 text-gray-500 dark:text-gray-400 hover:border-violet-300 dark:hover:border-violet-700'
+                                        ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 shadow-md shadow-emerald-500/10'
+                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                                 )}>
-                                {selectedRole === 'recruiter' && (
-                                    <div className="absolute inset-0 opacity-10"
-                                        style={{ background: 'radial-gradient(circle at 50% 100%,#8b5cf6,transparent 70%)' }} />
-                                )}
-                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                                    style={selectedRole === 'recruiter'
-                                        ? { background: 'linear-gradient(135deg,#8b5cf6,#ec4899)', boxShadow: '0 8px 24px rgba(139,92,246,0.3)' }
-                                        : { background: 'rgba(139,92,246,0.1)' }}>
-                                    <Briefcase size={24} style={{ color: selectedRole === 'recruiter' ? 'white' : '#8b5cf6' }} />
+                                <div className={`p-3 rounded-xl ${selectedRole === 'recruiter' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
+                                    <Briefcase className="w-6 h-6" />
                                 </div>
-                                <span className="font-bold text-sm">{t('auth.role_recruiter')}</span>
-                                <span className="text-xs text-center opacity-60">Post opportunities &amp; hire talent</span>
+                                <div className="text-center">
+                                    <span className="font-bold block text-sm">{t('auth.role_recruiter')}</span>
+                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Hire top talent</span>
+                                </div>
                             </button>
+                        </div>
+                    </div>
+
+                    <div className="relative mb-8">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 font-medium">account details</span>
                         </div>
                     </div>
 
@@ -197,17 +179,42 @@ export default function RegisterPage() {
                         <input type="hidden" {...register('role')} />
                         <Input label={t('auth.full_name')} icon={User} type="text" placeholder="Abebe Girma" error={errors.fullName?.message} required {...register('fullName')} />
                         <Input label={t('auth.email')} icon={Mail} type="email" placeholder="you@example.com" error={errors.email?.message} required {...register('email')} />
-                        <Input label={t('auth.password')} icon={Lock} type="password" placeholder="Min 6 characters" error={errors.password?.message} required {...register('password')} />
-                        <Input label={t('auth.confirm_password')} icon={Lock} type="password" placeholder="Repeat password" error={errors.confirmPassword?.message} required {...register('confirmPassword')} />
 
-                        <Button type="submit" variant="gradient" size="lg" fullWidth loading={loading} icon={ArrowRight} iconPosition="right">
-                            {t('auth.sign_up')}
-                        </Button>
+                        <div className="relative">
+                            <Input label={t('auth.password')} icon={Lock} type={showPass ? 'text' : 'password'} placeholder="Min 6 characters" error={errors.password?.message} required
+                                rightIcon={() => (
+                                    <button type="button" onClick={() => setShowPass(!showPass)}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1 relative z-10 w-8 h-8 flex items-center justify-center">
+                                        {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                )}
+                                {...register('password')}
+                            />
+                        </div>
+
+                        <div className="relative">
+                            <Input label={t('auth.confirm_password')} icon={Lock} type={showConfirmPass ? 'text' : 'password'} placeholder="Repeat password" error={errors.confirmPassword?.message} required
+                                rightIcon={() => (
+                                    <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors p-1 relative z-10 w-8 h-8 flex items-center justify-center">
+                                        {showConfirmPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
+                                )}
+                                {...register('confirmPassword')}
+                            />
+                        </div>
+
+                        <button type="submit" disabled={loading}
+                            className={`w-full text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70 mt-4
+                                ${selectedRole === 'student' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-500/25' : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/25'}`}>
+                            {loading ? 'Creating Account...' : t('auth.sign_up')}
+                            {!loading && <ArrowRight className="w-5 h-5" />}
+                        </button>
                     </form>
 
-                    <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
+                    <p className="text-left md:text-center font-medium text-slate-600 dark:text-slate-400 mt-8 pb-8">
                         {t('auth.have_account')}{' '}
-                        <Link to="/login" className="font-bold hover:underline" style={{ color: '#a855f7' }}>
+                        <Link to="/login" className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                             {t('auth.sign_in')}
                         </Link>
                     </p>
