@@ -1,0 +1,59 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+
+// Load environment variables
+dotenv.config();
+
+const app = express();
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(helmet());
+app.use(morgan('dev'));
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI).then(() => {
+    console.log('MongoDB successfully connected');
+}).catch((err) => {
+    console.error('MongoDB connection error:', err);
+    process.exit(1);
+});
+
+// Routes
+const userRoutes = require('./routes/userRoutes');
+const opportunityRoutes = require('./routes/opportunityRoutes');
+const applicationRoutes = require('./routes/applicationRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const aiRoutes = require('./routes/aiRoutes');
+
+app.use('/api/users', userRoutes);
+app.use('/api/opportunities', opportunityRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/messages', messageRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiRoutes);
+
+// Basic Route
+app.get('/', (req, res) => {
+    res.json({ message: 'Welcome to the Freelance Management API' });
+});
+
+// Error Middleware
+const { errorHandler } = require('./middlewares/errorMiddleware');
+app.use(errorHandler);
+
+// Port configuration
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
