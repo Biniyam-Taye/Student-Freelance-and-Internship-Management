@@ -13,6 +13,7 @@ export default function BrowseOpportunities() {
     const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState({});
+    const [sortBy, setSortBy] = useState('Newest');
     const [page, setPage] = useState(1);
     const [saved, setSaved] = useState(new Set());
     const [applyModal, setApplyModal] = useState(null);
@@ -23,6 +24,16 @@ export default function BrowseOpportunities() {
     const filtered = mockOpportunities.filter((o) => {
         if (search && !o.position.toLowerCase().includes(search.toLowerCase()) && !o.company.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
+    }).sort((a, b) => {
+        if (sortBy === 'Highest Stipend') {
+            const getVal = (s) => parseInt(s.replace(/\D/g, '')) || 0;
+            return getVal(b.stipend) - getVal(a.stipend);
+        }
+        if (sortBy === 'Best Match') {
+            // Mock sort by title length just to have a deterministic "match" shuffle
+            return b.position.length - a.position.length;
+        }
+        return 0; // Newest (default order in mock)
     });
 
     const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
@@ -52,19 +63,34 @@ export default function BrowseOpportunities() {
                 </p>
             </div>
 
-            {/* Quick type filter */}
-            <div className="flex gap-2 flex-wrap">
-                {['All', 'Internship', 'Freelance', 'Remote'].map((label) => (
-                    <button key={label}
-                        className={clsx(
-                            'px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 border',
-                            label === 'All'
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20'
-                                : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400'
-                        )}>
-                        {label}
-                    </button>
-                ))}
+            {/* Quick type filter & Sort */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex gap-2 flex-wrap">
+                    {['All', 'Internship', 'Freelance', 'Remote'].map((label) => (
+                        <button key={label}
+                            className={clsx(
+                                'px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 border',
+                                label === 'All'
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20'
+                                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400'
+                            )}>
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sort by:</span>
+                    <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block px-3 py-1.5 cursor-pointer outline-none"
+                    >
+                        <option>Newest</option>
+                        <option>Best Match</option>
+                        <option>Highest Stipend</option>
+                    </select>
+                </div>
             </div>
 
             <SearchFilter onSearch={setSearch} onFilterChange={setFilters} />

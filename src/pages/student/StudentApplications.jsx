@@ -86,16 +86,23 @@ export default function StudentApplications() {
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Track all your internship and freelance applications</p>
             </div>
 
-            {/* Status summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                     { label: 'Total', val: mockApplications.length, color: 'text-gray-700 dark:text-gray-200' },
                     { label: 'Pending', val: mockApplications.filter(a => a.status === 'pending').length, color: 'text-amber-600 dark:text-amber-400' },
                     { label: 'Shortlisted', val: mockApplications.filter(a => a.status === 'shortlisted').length, color: 'text-blue-600 dark:text-blue-400' },
-                    { label: 'Accepted', val: mockApplications.filter(a => a.status === 'accepted').length, color: 'text-emerald-600 dark:text-emerald-400' },
-                ].map(({ label, val, color }) => (
+                    {
+                        label: 'Accepted',
+                        val: mockApplications.filter(a => a.status === 'accepted').length,
+                        color: 'text-emerald-600 dark:text-emerald-400',
+                        subText: mockApplications.length > 0 ? `(${Math.round((mockApplications.filter(a => a.status === 'accepted').length / mockApplications.length) * 100)}% Success Rate)` : ''
+                    },
+                ].map(({ label, val, color, subText }) => (
                     <div key={label} className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-4 text-center shadow-sm">
-                        <div className={`text-2xl font-black ${color}`}>{val}</div>
+                        <div className={`text-2xl font-black flex items-center justify-center gap-1 ${color}`}>
+                            {val}
+                            {subText && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-full">{subText}</span>}
+                        </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">{label}</div>
                     </div>
                 ))}

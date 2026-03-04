@@ -18,7 +18,7 @@ export default function DashboardLayout() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300 overflow-x-hidden">
             <Navbar
                 onMenuToggle={() => setMobileOpen(!mobileOpen)}
                 sidebarOpen={mobileOpen}

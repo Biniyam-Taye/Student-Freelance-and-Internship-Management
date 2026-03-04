@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import {
@@ -15,7 +16,8 @@ import {
     Calendar,
     Briefcase,
     Plus,
-    X
+    X,
+    Sparkles
 } from 'lucide-react';
 
 export default function StudentOverview() {
@@ -58,23 +60,25 @@ export default function StudentOverview() {
                 {/* Left Sidebar */}
                 <div className="space-y-4 hidden md:block">
                     {/* Profile Card */}
-                    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-visible">
                         {/* Banner */}
-                        <div className="h-14 bg-[url('https://static.licdn.com/sc/h/5q92zj25macptill1tayvj6gq')] bg-cover bg-center"></div>
+                        <div className="h-14 bg-[url('https://static.licdn.com/sc/h/5q92zj25macptill1tayvj6gq')] bg-cover bg-center rounded-t-xl"></div>
 
-                        <div className="px-3 pb-4 relative">
-                            {/* Avatar */}
-                            <div className="absolute -top-9 left-1/2 -translate-x-1/2 w-[72px] h-[72px] rounded-full border-2 border-white dark:border-gray-900 bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden shadow-sm">
-                                {user?.avatar ? (
-                                    <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full bg-slate-100 text-slate-600 flex items-center justify-center text-2xl font-semibold">
-                                        {user?.name?.charAt(0) || 'B'}
-                                    </div>
-                                )}
+                        <div className="px-3 pb-4">
+                            {/* Avatar — sits on top of the banner via negative margin */}
+                            <div className="flex justify-center -mt-9 mb-2">
+                                <div className="w-[72px] h-[72px] rounded-full border-2 border-white dark:border-gray-900 bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0">
+                                    {user?.avatar ? (
+                                        <img src={user.avatar} alt={user?.name || 'User'} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-slate-100 text-slate-600 flex items-center justify-center text-2xl font-semibold">
+                                            {user?.name?.charAt(0) || 'B'}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="mt-12 text-center">
+                            <div className="text-center">
                                 <h2 className="text-base font-bold text-gray-900 dark:text-white hover:underline cursor-pointer">
                                     {user?.name || 'Biniyam Taye'}
                                 </h2>
@@ -232,64 +236,71 @@ export default function StudentOverview() {
                 </div>
 
                 {/* Right Sidebar */}
-                <div className="space-y-4 hidden lg:block">
-                    {/* Add to your feed / Recommendations */}
-                    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] p-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="font-semibold text-gray-900 dark:text-white text-base">Add to your feed</h2>
-                            <button className="w-6 h-6 rounded bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold hover:bg-gray-200 dark:hover:bg-gray-700">i</button>
-                        </div>
+                <div className="hidden lg:block">
+                    <div className="sticky top-[80px] space-y-4">
 
-                        <div className="space-y-4">
-                            {/* Recommend 1 */}
-                            <div className="flex gap-2">
-                                <img src="https://ui-avatars.com/api/?name=F+A&background=random&color=fff" className="w-12 h-12 rounded-full flex-shrink-0" alt="Avatar" />
-                                <div>
-                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Fitness Authority ®</h4>
-                                    <p className="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-snug">Company • Health, Wellness & Fitness</p>
-                                    <button className="mt-1.5 flex items-center gap-1 border border-gray-600 dark:border-gray-400 text-gray-600 dark:text-gray-300 rounded-full px-4 py-[3px] text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-900 hover:text-gray-900 dark:hover:border-white dark:hover:text-white transition-colors">
-                                        <Plus size={16} /> Follow
-                                    </button>
-                                </div>
+                        {/* AI Recommendations */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] p-4 border-t-2 border-blue-500">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="bg-blue-100 dark:bg-blue-900/40 p-1.5 rounded-lg text-blue-600 dark:text-blue-400">
+                                    <Sparkles size={16} />
+                                </span>
+                                <h2 className="font-bold text-gray-900 dark:text-white text-sm">AI Recommends</h2>
                             </div>
-
-                            {/* Recommend 2 */}
-                            <div className="flex gap-2">
-                                <img src="https://ui-avatars.com/api/?name=i+C&background=random&color=fff" className="w-12 h-12 rounded-full flex-shrink-0" alt="Avatar" />
-                                <div>
-                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white">iCog Labs</h4>
-                                    <p className="text-[12px] text-gray-500 mt-0.5 line-clamp-2 leading-snug">Company • Artificial Intelligence</p>
-                                    <button className="mt-1.5 flex items-center gap-1 border border-gray-600 dark:border-gray-400 text-gray-600 dark:text-gray-300 rounded-full px-4 py-[3px] text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 hover:border-gray-900 hover:text-gray-900 dark:hover:border-white dark:hover:text-white transition-colors">
-                                        <Plus size={16} /> Follow
-                                    </button>
-                                </div>
+                            <div className="space-y-4">
+                                {[
+                                    { title: 'Frontend Developer', company: 'iCog Labs', match: '98% Match', type: 'Internship', color: 'bg-violet-500' },
+                                    { title: 'UI/UX Designer', company: 'Kifiya Financial', match: '92% Match', type: 'Freelance', color: 'bg-emerald-500' },
+                                    { title: 'Mobile Developer', company: 'Ride Ethiopia', match: '85% Match', type: 'Part-time', color: 'bg-blue-500' },
+                                ].map(({ title, company, type, color, match }) => (
+                                    <div key={title} className="flex gap-3 items-start group cursor-pointer">
+                                        <div className={`w-10 h-10 rounded-lg ${color} flex-shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform`}>
+                                            {company.charAt(0)}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white leading-snug truncate group-hover:text-blue-600 transition-colors">{title}</h4>
+                                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">{match}</span>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-0.5">{company}</p>
+                                            <span className="inline-block mt-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-gray-50 dark:bg-gray-800 px-2 flex-shrink-0 rounded-full">{type}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+                                <Link to="/student/browse" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                    Browse all matches →
+                                </Link>
                             </div>
                         </div>
 
-                        <div className="mt-4 pt-1">
-                            <a href="#" className="flex items-center gap-1 text-[13px] font-semibold text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
-                                View all recommendations →
-                            </a>
+                        {/* Quick Links */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] p-4">
+                            <h2 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Quick Links</h2>
+                            <div className="space-y-1">
+                                {[
+                                    { label: 'My Applications', to: '/student/applications' },
+                                    { label: 'My Tasks', to: '/student/tasks' },
+                                    { label: 'My Skills', to: '/student/skills' },
+                                    { label: 'Messages', to: '/student/messages' },
+                                    { label: 'My Profile', to: '/student/profile' },
+                                ].map(({ label, to }) => (
+                                    <Link key={label} to={to} className="block px-2 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium">
+                                        {label}
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Footer Links */}
-                    <div className="text-center px-4 sticky top-[80px]">
-                        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-gray-500">
-                            <a href="#" className="hover:text-blue-600 hover:underline">About</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Accessibility</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Help Center</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Privacy & Terms</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Ad Choices</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Advertising</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Business Services</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">Get the App</a>
-                            <a href="#" className="hover:text-blue-600 hover:underline">More</a>
+                        {/* Platform Footer */}
+                        <div className="px-2 flex flex-wrap gap-x-3 gap-y-1">
+                            {['Privacy Policy', 'Terms of Service', 'Help Center'].map(link => (
+                                <a key={link} href="#" className="text-[11px] text-gray-400 hover:text-blue-500 hover:underline transition-colors">{link}</a>
+                            ))}
+                            <p className="w-full text-[11px] text-gray-400 mt-1">© 2026 Frelaunch Inc.</p>
                         </div>
-                        <p className="text-xs text-gray-900 dark:text-gray-300 mt-4 flex items-center justify-center gap-1">
-                            <span className="font-bold text-[#0a66c2] text-sm">Linked<span className="bg-[#0a66c2] text-white px-0.5 rounded-sm ml-0.5">in</span></span>
-                            LinkedIn Corporation © 2026
-                        </p>
+
                     </div>
                 </div>
 

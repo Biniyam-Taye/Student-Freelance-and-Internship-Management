@@ -1,16 +1,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { Send, Search, Paperclip, MoreVertical, Phone, Video } from 'lucide-react';
+import { Send, Search, Paperclip, MoreVertical, Phone, Video, MessageCircle } from 'lucide-react';
 import { setActiveConversation, sendMessage } from '../../features/chat/chatSlice';
 import clsx from 'clsx';
+
+// Mock chat data always uses 'u1' for the logged-in student
+const STUDENT_SENDER_ID = 'u1';
 
 export default function Messages() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const { conversations, activeConversationId } = useSelector((s) => s.chat);
-    const { user } = useSelector((s) => s.auth);
     const [message, setMessage] = useState('');
+    const [search, setSearch] = useState('');
     const messagesEndRef = useRef(null);
     const activeConv = conversations.find((c) => c.id === activeConversationId);
 
@@ -22,42 +25,60 @@ export default function Messages() {
         if (!message.trim() || !activeConversationId) return;
         dispatch(sendMessage({
             conversationId: activeConversationId,
-            message: { id: Date.now().toString(), senderId: user?.id || 'u1', text: message.trim(), time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) },
+            message: {
+                id: Date.now().toString(),
+                senderId: STUDENT_SENDER_ID,
+                text: message.trim(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            },
         }));
         setMessage('');
     };
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
     };
 
+    const filtered = conversations.filter((c) =>
+        c.user.name.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
-        <div className="page-enter">
-            <div className="mb-4">
+        <div className="page-enter flex flex-col" style={{ height: 'calc(100vh - 88px)' }}>
+
+            {/* Page Header */}
+            <div className="mb-4 flex-shrink-0">
                 <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.messages')}</h1>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Chat with recruiters and collaborators</p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm overflow-hidden flex h-[calc(100vh-220px)] min-h-[480px]">
-                {/* Conversations List */}
+            {/* Chat Container */}
+            <div className="flex-1 min-h-0 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-sm overflow-hidden flex">
+
+                {/* Left: Conversations List */}
                 <div className="w-72 flex-shrink-0 border-r border-gray-100 dark:border-gray-700/60 flex flex-col">
-                    <div className="p-4 border-b border-gray-100 dark:border-gray-700/60">
+                    {/* Search */}
+                    <div className="p-3 border-b border-gray-100 dark:border-gray-700/60 flex-shrink-0">
                         <div className="relative">
-                            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                            <input placeholder={t('common.search')} className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border-0" />
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                            <input
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search conversations..."
+                                className="w-full pl-8 pr-3 py-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 border-0"
+                            />
                         </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-700/30">
-                        {conversations.map((conv) => (
+
+                    {/* Conversation Items */}
+                    <div className="flex-1 overflow-y-auto">
+                        {filtered.map((conv) => (
                             <button
                                 key={conv.id}
                                 onClick={() => dispatch(setActiveConversation(conv.id))}
                                 className={clsx(
-                                    'w-full flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors text-left',
-                                    activeConversationId === conv.id && 'bg-blue-50 dark:bg-blue-900/20'
+                                    'w-full flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors text-left border-b border-gray-50 dark:border-gray-700/20',
+                                    activeConversationId === conv.id && 'bg-blue-50/80 dark:bg-blue-900/20 border-l-2 border-l-blue-500'
                                 )}
                             >
                                 <div className="relative flex-shrink-0">
@@ -69,13 +90,13 @@ export default function Messages() {
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-center justify-between mb-0.5">
                                         <p className={clsx('text-sm font-semibold truncate', activeConversationId === conv.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-800 dark:text-gray-200')}>
                                             {conv.user.name}
                                         </p>
                                         <span className="text-[10px] text-gray-400 flex-shrink-0 ml-1">{conv.time}</span>
                                     </div>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{conv.lastMessage}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{conv.lastMessage}</p>
                                 </div>
                                 {conv.unread > 0 && (
                                     <span className="flex-shrink-0 w-5 h-5 bg-blue-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -87,11 +108,12 @@ export default function Messages() {
                     </div>
                 </div>
 
-                {/* Chat Window */}
+                {/* Right: Chat Window */}
                 {activeConv ? (
                     <div className="flex-1 flex flex-col min-w-0">
-                        {/* Header */}
-                        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 dark:border-gray-700/60">
+
+                        {/* Chat Header */}
+                        <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 dark:border-gray-700/60 flex-shrink-0 bg-white dark:bg-gray-800/80">
                             <div className="relative">
                                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
                                     {activeConv.user.name[0]}
@@ -101,52 +123,60 @@ export default function Messages() {
                                 )}
                             </div>
                             <div className="flex-1">
-                                <p className="font-semibold text-gray-900 dark:text-white text-sm">{activeConv.user.name}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <p className="font-semibold text-gray-900 dark:text-white text-sm leading-tight">{activeConv.user.name}</p>
+                                <p className="text-xs flex items-center gap-1 mt-0.5">
                                     <span className={clsx('w-1.5 h-1.5 rounded-full', activeConv.user.online ? 'bg-emerald-400' : 'bg-gray-300')} />
-                                    {activeConv.user.online ? t('chat.online') : t('chat.offline')}
+                                    <span className={activeConv.user.online ? 'text-emerald-500' : 'text-gray-400'}>
+                                        {activeConv.user.online ? 'Online' : 'Offline'}
+                                    </span>
                                 </p>
                             </div>
                             <div className="flex items-center gap-1">
-                                <button className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors">
-                                    <Phone size={16} />
-                                </button>
-                                <button className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors">
-                                    <Video size={16} />
-                                </button>
-                                <button className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors">
-                                    <MoreVertical size={16} />
-                                </button>
+                                <button className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"><Phone size={16} /></button>
+                                <button className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"><Video size={16} /></button>
+                                <button className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 transition-colors"><MoreVertical size={16} /></button>
                             </div>
                         </div>
 
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+                        {/* Messages Area */}
+                        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 bg-gray-50/50 dark:bg-gray-900/20">
                             {activeConv.messages.map((msg) => {
-                                const isMine = msg.senderId === (user?.id || 'u1');
+                                const isMine = msg.senderId === STUDENT_SENDER_ID;
                                 return (
-                                    <div key={msg.id} className={clsx('flex', isMine ? 'justify-end' : 'justify-start')}>
+                                    <div key={msg.id} className={clsx('flex items-end gap-2', isMine ? 'justify-end' : 'justify-start')}>
                                         {!isMine && (
-                                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold mr-2 flex-shrink-0 mt-auto">
+                                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-400 to-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                                 {activeConv.user.name[0]}
                                             </div>
                                         )}
-                                        <div className="max-w-[72%]">
-                                            <div className={clsx('px-4 py-2.5 text-sm', isMine ? 'chat-bubble-sent' : 'chat-bubble-received bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200')}>
+                                        <div className="max-w-[65%]">
+                                            <div className={clsx(
+                                                'px-4 py-2.5 text-sm leading-relaxed',
+                                                isMine
+                                                    ? 'bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-2xl rounded-br-sm'
+                                                    : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-2xl rounded-bl-sm shadow-sm border border-gray-100 dark:border-gray-600'
+                                            )}>
                                                 {msg.text}
                                             </div>
-                                            <p className={clsx('text-[10px] text-gray-400 mt-1', isMine && 'text-right')}>{msg.time}</p>
+                                            <p className={clsx('text-[10px] text-gray-400 mt-1 px-1', isMine ? 'text-right' : 'text-left')}>
+                                                {msg.time}
+                                            </p>
                                         </div>
+                                        {isMine && (
+                                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0">
+                                                Me
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })}
                             <div ref={messagesEndRef} />
                         </div>
 
-                        {/* Input */}
-                        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700/60">
-                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 rounded-2xl px-3 py-1.5">
-                                <button className="p-1.5 text-gray-400 hover:text-blue-500 transition-colors">
+                        {/* Message Input */}
+                        <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700/60 flex-shrink-0 bg-white dark:bg-gray-800/80">
+                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 rounded-2xl px-3 py-2 border border-gray-200 dark:border-gray-600 focus-within:border-blue-400 transition-colors">
+                                <button className="p-1 text-gray-400 hover:text-blue-500 transition-colors flex-shrink-0">
                                     <Paperclip size={16} />
                                 </button>
                                 <input
@@ -154,12 +184,12 @@ export default function Messages() {
                                     onChange={(e) => setMessage(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder={t('chat.type_message')}
-                                    className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none py-1"
+                                    className="flex-1 bg-transparent text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none py-0.5"
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={!message.trim()}
-                                    className="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 flex items-center justify-center text-white disabled:opacity-40 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200"
+                                    className="w-8 h-8 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 flex items-center justify-center text-white disabled:opacity-40 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200 flex-shrink-0"
                                 >
                                     <Send size={14} />
                                 </button>
@@ -167,12 +197,13 @@ export default function Messages() {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex-1 flex items-center justify-center text-gray-400 dark:text-gray-500">
+                    <div className="flex-1 flex items-center justify-center bg-gray-50/50 dark:bg-gray-900/20">
                         <div className="text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-3">
-                                <Send size={24} className="text-gray-300 dark:text-gray-600" />
+                            <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-4">
+                                <MessageCircle size={28} className="text-blue-400" />
                             </div>
-                            <p>{t('chat.no_messages')}</p>
+                            <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Your messages</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500">Select a conversation to start chatting</p>
                         </div>
                     </div>
                 )}

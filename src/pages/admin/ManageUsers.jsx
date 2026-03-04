@@ -7,7 +7,7 @@ import SearchFilter from '../../components/common/SearchFilter';
 import { mockUsers } from '../../utils/mockData';
 import clsx from 'clsx';
 
-const ROLES = ['all', 'student', 'recruiter'];
+const ROLES = ['all', 'student', 'recruiter', 'pending'];
 
 export default function ManageUsers() {
     const { t } = useTranslation();
@@ -22,7 +22,10 @@ export default function ManageUsers() {
         setUsers(us => us.map(u => u.id === id ? { ...u, status: u.status === 'active' ? 'suspended' : 'active' } : u));
     };
 
+    const pendingRecruiters = users.filter((u) => u.role === 'recruiter' && !u.verified);
+
     const filtered = users.filter(u => {
+        if (roleFilter === 'pending') return u.role === 'recruiter' && !u.verified;
         if (roleFilter !== 'all' && u.role !== roleFilter) return false;
         if (search && !u.name.toLowerCase().includes(search.toLowerCase()) && !u.email.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
@@ -78,22 +81,38 @@ export default function ManageUsers() {
 
     return (
         <div className="space-y-6 page-enter">
-            <div>
-                <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.manage_users')}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{filtered.length} users found</p>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.manage_users')}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{filtered.length} users found</p>
+                </div>
+                {pendingRecruiters.length > 0 && (
+                    <button
+                        onClick={() => setRoleFilter('pending')}
+                        className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-4 py-2 rounded-xl text-sm font-semibold border border-amber-200 dark:border-amber-800/30 hover:bg-amber-100 transition-colors animate-pulse"
+                    >
+                        <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                        {pendingRecruiters.length} Pending Recruiter Approvals
+                    </button>
+                )}
             </div>
 
             {/* Role filter tabs */}
             <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit">
-                    {ROLES.map((r) => (
-                        <button key={r} onClick={() => setRoleFilter(r)}
-                            className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize',
-                                roleFilter === r ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 dark:text-gray-400')}>
-                            {r === 'all' ? t('common.all_roles') : r}
-                            <span className="ml-1.5 text-[10px] opacity-60">({r === 'all' ? users.length : users.filter(u => u.role === r).length})</span>
-                        </button>
-                    ))}
+                <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit overflow-x-auto">
+                    {ROLES.map((r) => {
+                        const count = r === 'all' ? users.length : r === 'pending' ? pendingRecruiters.length : users.filter(u => u.role === r).length;
+                        return (
+                            <button key={r} onClick={() => setRoleFilter(r)}
+                                className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize whitespace-nowrap',
+                                    roleFilter === r ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')}>
+                                {r === 'all' ? t('common.all_roles') : r === 'pending' ? 'Pending Approvals' : r}
+                                <span className={clsx("ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200/50 dark:bg-gray-700", r === 'pending' && count > 0 && "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 font-bold")}>
+                                    {count}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
                 <div className="flex-1 max-w-xs">
                     <SearchFilter onSearch={setSearch} />

@@ -113,11 +113,12 @@ export default function StudentTasks() {
                         <textarea placeholder="Describe your work and add any relevant links..." rows={4}
                             className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                     </div>
-                    <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-600 transition-colors cursor-pointer">
-                        <Upload size={24} className="mx-auto text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('common.upload')} files</p>
-                        <p className="text-xs text-gray-400 mt-1">PDF, ZIP, images up to 10MB</p>
-                    </div>
+                    <label className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer block group">
+                        <input type="file" className="hidden" multiple />
+                        <Upload size={24} className="mx-auto text-gray-400 mb-2 group-hover:text-blue-500 transition-colors" />
+                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{t('common.upload')} files</p>
+                        <p className="text-xs text-gray-400 mt-1.5">PDF, ZIP, images up to 10MB</p>
+                    </label>
                 </div>
             </Modal>
         </div>

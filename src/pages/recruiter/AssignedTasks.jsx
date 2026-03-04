@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Clock, CheckCircle2, Circle, Plus } from 'lucide-react';
+import { Clock, CheckCircle2, Circle, Plus, Star, MessageSquare } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
@@ -17,6 +17,8 @@ export default function AssignedTasks() {
     const { t } = useTranslation();
     const [tasks, setTasks] = useState(MOCK_TASKS);
     const [newTaskModal, setNewTaskModal] = useState(false);
+    const [feedbackModal, setFeedbackModal] = useState(null);
+    const [rating, setRating] = useState(0);
 
     return (
         <div className="space-y-6 page-enter">
@@ -65,9 +67,19 @@ export default function AssignedTasks() {
                                     </div>
                                 </div>
                             </div>
-                            <Badge variant={task.status === 'completed' ? 'accepted' : task.status === 'in_progress' ? 'shortlisted' : 'pending'} dot>
-                                {task.status.replace('_', ' ')}
-                            </Badge>
+                            <div className="flex flex-col items-end gap-2">
+                                <Badge variant={task.status === 'completed' ? 'accepted' : task.status === 'in_progress' ? 'shortlisted' : 'pending'} dot>
+                                    {task.status.replace('_', ' ')}
+                                </Badge>
+                                {task.status === 'completed' && (
+                                    <button
+                                        onClick={() => { setFeedbackModal(task); setRating(0); }}
+                                        className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center gap-1 mt-1"
+                                    >
+                                        <Star size={12} className="fill-current" /> Review & Rate
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -86,6 +98,33 @@ export default function AssignedTasks() {
                     </div>
                     <Input label="Assignee" placeholder="Select intern..." required />
                     <Input label="Deadline" type="date" required />
+                </div>
+            </Modal>
+
+            <Modal isOpen={!!feedbackModal} onClose={() => setFeedbackModal(null)} title="Review & Rate Task" size="md"
+                footer={<>
+                    <Button variant="secondary" onClick={() => setFeedbackModal(null)}>Cancel</Button>
+                    <Button variant="gradient" onClick={() => setFeedbackModal(null)}>Submit Feedback</Button>
+                </>}>
+                <div className="space-y-4">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl mb-4">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{feedbackModal?.title}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Completed by {feedbackModal?.assignee}</div>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Rate Intern's Work</label>
+                        <div className="flex items-center gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button key={star} onClick={() => setRating(star)} className="text-gray-300 hover:text-amber-400 transition-colors focus:outline-none">
+                                    <Star size={28} className={star <= rating ? 'fill-amber-400 text-amber-400' : ''} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5 flex items-center gap-1.5"><MessageSquare size={14} /> Constructive Feedback</label>
+                        <textarea rows={4} placeholder="What did they do well? What can be improved?" className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+                    </div>
                 </div>
             </Modal>
         </div>

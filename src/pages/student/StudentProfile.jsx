@@ -58,11 +58,12 @@ export default function StudentProfile() {
                         <p className="text-gray-500 dark:text-gray-400 text-sm capitalize mt-0.5">{user?.role} · {user?.university}</p>
                         <p className="text-gray-400 text-sm mt-0.5">{user?.email}</p>
                     </div>
-                    <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-5 text-center hover:border-blue-400 dark:hover:border-blue-600 transition-colors cursor-pointer w-full sm:w-48">
-                        <Upload size={20} className="mx-auto text-gray-400 mb-1.5" />
-                        <p className="text-xs font-medium text-gray-600 dark:text-gray-400">{t('profile.upload_cv')}</p>
-                        <p className="text-[10px] text-gray-400 mt-0.5">PDF, DOC up to 5MB</p>
-                    </div>
+                    <label className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-5 text-center hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer w-full sm:w-48 flex-shrink-0 group">
+                        <input type="file" className="hidden" accept=".pdf,.doc,.docx" />
+                        <Upload size={20} className="mx-auto text-gray-400 mb-1.5 group-hover:text-blue-500 transition-colors" />
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{t('profile.upload_cv')}</p>
+                        <p className="text-[10px] text-gray-400 mt-1">PDF, DOC up to 5MB</p>
+                    </label>
                 </div>
             </Card>
 
