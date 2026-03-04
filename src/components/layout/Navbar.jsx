@@ -149,8 +149,11 @@ export default function Navbar({ onMenuToggle, sidebarOpen }) {
                             align="right"
                             trigger={
                                 <button id="user-menu-btn" className="flex items-center gap-2 p-1.5 pl-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold">
-                                        {user.name?.[0] || 'U'}
+                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                        {user.avatar
+                                            ? <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                            : (user.name?.[0] || 'U')
+                                        }
                                     </div>
                                     <div className="hidden sm:block text-left">
                                         <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none">{user.name?.split(' ')[0]}</p>

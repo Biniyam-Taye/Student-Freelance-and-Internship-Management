@@ -16,7 +16,9 @@ router.post(
             res.status(400);
             throw new Error('No image file provided');
         }
-        res.json({ url: req.file.path });
+        // multer-storage-cloudinary v4+ → secure_url; older → path
+        const url = req.file.secure_url || req.file.path;
+        res.json({ url });
     })
 );
 

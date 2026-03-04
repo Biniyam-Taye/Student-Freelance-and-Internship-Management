@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { uploadAvatar } from '../../services/uploadService';
 
@@ -15,6 +15,11 @@ export default function AvatarUpload({ currentUrl, name = '', onUploaded }) {
     const [preview, setPreview] = useState(currentUrl || null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // Sync preview whenever the parent passes a new URL (e.g. after Redux update / page reload)
+    useEffect(() => {
+        if (currentUrl) setPreview(currentUrl);
+    }, [currentUrl]);
 
     const handleFile = async (e) => {
         const file = e.target.files?.[0];
