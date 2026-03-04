@@ -55,12 +55,13 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex bg-white dark:bg-slate-900 font-sans transition-colors duration-300">
             {/* Left Panel - Modern, Clean SaaS look */}
-            <div className="hidden lg:flex lg:w-1/2 relative bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col justify-between p-12 overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 relative bg-slate-50 dark:bg-slate-800 flex-col justify-between p-12 overflow-hidden">
                 {/* Background Image */}
                 <div className="absolute inset-0 z-0 bg-[url('/login-bg.jpg')] bg-cover bg-center bg-no-repeat pointer-events-none" style={{ opacity: 0.25 }} />
 
-                {/* Gradient Overlay for text readability */}
+                {/* Gradient Overlay for text readability + right-side fade to erase boundary */}
                 <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-50/70 via-transparent to-slate-50/70 dark:from-slate-800/70 dark:via-transparent dark:to-slate-800/70 pointer-events-none" />
+                <div className="absolute inset-y-0 right-0 w-28 z-10 bg-gradient-to-r from-transparent to-white dark:to-slate-900 pointer-events-none" />
 
                 {/* Subtle Grid Background */}
                 <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]"
