@@ -8,9 +8,7 @@ import api from './api';
 export const uploadAvatar = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const response = await api.post('/upload/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post('/upload/avatar', formData);
     return response.data.url;
 };
 
@@ -22,8 +20,6 @@ export const uploadAvatar = async (file) => {
 export const uploadPostImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const response = await api.post('/upload/post', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post('/upload/post', formData);
     return response.data.url;
 };
