@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { Building2, Globe, Mail, Phone, Users, Briefcase, MapPin, X, Plus } from 'lucide-react';
+import { Building2, Globe, Mail, Phone, Users, Briefcase, MapPin, X } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import { updateUserProfile } from '../../features/auth/authSlice';
+import AvatarUpload from '../../components/common/AvatarUpload';
 
 const SIZES = ['1-10', '11-50', '51-200', '201-500', '500+'];
 
@@ -65,20 +66,16 @@ export default function CompanyProfile() {
             {/* Company Logo + Banner */}
             <Card>
                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                    <div className="relative">
-                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-white text-3xl font-black shadow-xl">
-                            {user?.company?.[0] || 'C'}
-                        </div>
-                        <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center text-white hover:bg-violet-700 transition-colors shadow-lg">
-                            <Plus size={14} />
-                        </button>
-                    </div>
+                    <AvatarUpload
+                        currentUrl={user?.avatar}
+                        name={user?.company || user?.name}
+                        onUploaded={(url) => dispatch(updateUserProfile({ avatar: url }))}
+                    />
                     <div className="flex-1 text-center sm:text-left">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.company || 'TechEthiopia'}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Technology · Addis Ababa</p>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.company || 'Your Company'}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{(user?.industries || []).join(' · ')} · {user?.location}</p>
                         <div className="flex items-center justify-center sm:justify-start gap-3 mt-2">
-                            <span className="flex items-center gap-1 text-xs text-gray-400"><Users size={11} /> 50-200 employees</span>
-                            <span className="flex items-center gap-1 text-xs text-gray-400"><Briefcase size={11} /> 7 active posts</span>
+                            <span className="flex items-center gap-1 text-xs text-gray-400"><Users size={11} /> {form.companySize} employees</span>
                         </div>
                     </div>
                 </div>

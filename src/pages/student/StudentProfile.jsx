@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X, Plus } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 import { updateUserProfile } from '../../features/auth/authSlice';
+import AvatarUpload from '../../components/common/AvatarUpload';
 
 export default function StudentProfile() {
     const { t } = useTranslation();
@@ -82,14 +83,11 @@ export default function StudentProfile() {
             {/* Avatar + CV */}
             <Card>
                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                    <div className="relative">
-                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-blue-500/30">
-                            {user?.name?.[0] || 'S'}
-                        </div>
-                        <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white hover:bg-blue-700 transition-colors shadow-lg">
-                            <Plus size={14} />
-                        </button>
-                    </div>
+                    <AvatarUpload
+                        currentUrl={user?.avatar}
+                        name={user?.name}
+                        onUploaded={(url) => dispatch(updateUserProfile({ avatar: url }))}
+                    />
                     <div className="flex-1 text-center sm:text-left">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.name}</h2>
                         <p className="text-gray-500 dark:text-gray-400 text-sm capitalize mt-0.5">{user?.role} · {user?.university}</p>

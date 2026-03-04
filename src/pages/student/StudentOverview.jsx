@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchRecommendations } from '../../features/ai/aiSlice';
 import { fetchPosts, createNewPost, likePost, addComment } from '../../features/feed/postSlice';
+import { uploadPostImage } from '../../services/uploadService';
 import clsx from 'clsx';
 import {
     Image as ImageIcon,
@@ -17,8 +18,7 @@ import {
     Bookmark,
     Users,
     Calendar,
-    Briefcase,
-    Plus,
+    Loader2,
     X,
     Sparkles
 } from 'lucide-react';
@@ -32,7 +32,10 @@ export default function StudentOverview() {
 
     const [isPosting, setIsPosting] = useState(false);
     const [postContent, setPostContent] = useState('');
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null); // cloudinary URL
+    const [imagePreview, setImagePreview] = useState(null);  // local blob preview
+    const [imageUploading, setImageUploading] = useState(false);
+    const photoInputRef = useRef(null);
 
     useEffect(() => {
         dispatch(fetchRecommendations());
@@ -45,9 +48,26 @@ export default function StudentOverview() {
             await dispatch(createNewPost({ content: postContent, image: selectedImage })).unwrap();
             setPostContent('');
             setSelectedImage(null);
+            setImagePreview(null);
             setIsPosting(false);
         } catch (err) {
             console.error('Failed to create post:', err);
+        }
+    };
+
+    const handlePhotoSelect = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        // Show instant local preview
+        setImagePreview(URL.createObjectURL(file));
+        setImageUploading(true);
+        try {
+            const url = await uploadPostImage(file);
+            setSelectedImage(url);
+        } catch {
+            setImagePreview(null);
+        } finally {
+            setImageUploading(false);
         }
     };
 
@@ -155,6 +175,25 @@ export default function StudentOverview() {
                                             placeholder="What's on your mind?"
                                             className="w-full min-h-[100px] p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                         />
+                                        {/* Image Preview */}
+                                        {imagePreview && (
+                                            <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                                                <img src={imagePreview} alt="Preview" className="w-full max-h-[300px] object-cover" />
+                                                {imageUploading && (
+                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                                        <Loader2 size={32} className="animate-spin text-white" />
+                                                    </div>
+                                                )}
+                                                {!imageUploading && (
+                                                    <button
+                                                        onClick={() => { setImagePreview(null); setSelectedImage(null); }}
+                                                        className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center transition-colors"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
                                         <div className="flex justify-end gap-2">
                                             <button onClick={() => setIsPosting(false)} className="px-4 py-1.5 text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Cancel</button>
                                             <button
@@ -181,10 +220,14 @@ export default function StudentOverview() {
                                 <Video size={24} className="text-[#378fe9] fill-[#378fe9]" />
                                 <span>Video</span>
                             </button>
-                            <button className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors">
-                                <ImageIcon size={24} className="text-[#5f9b41] fill-[#5f9b41]" />
+                            <button
+                                onClick={() => { setIsPosting(true); setTimeout(() => photoInputRef.current?.click(), 50); }}
+                                className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors"
+                            >
+                                {imageUploading ? <Loader2 size={20} className="animate-spin text-green-600" /> : <ImageIcon size={24} className="text-[#5f9b41] fill-[#5f9b41]" />}
                                 <span>Photo</span>
                             </button>
+                            <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
                             <button className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors">
                                 <FileText size={24} className="text-[#e16745] fill-[#e16745]" />
                                 <span>Write article</span>
