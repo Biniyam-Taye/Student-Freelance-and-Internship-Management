@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 // Public pages
 import HomePage from './pages/public/HomePage';
@@ -41,8 +41,18 @@ import SystemAnalytics from './pages/admin/SystemAnalytics';
 // Messages shared - recruiters use the same chat UI
 
 function App() {
+  const dispatch = useDispatch();
   const { mode } = useSelector((s) => s.theme);
-  const { isAuthenticated, user } = useSelector((s) => s.auth);
+  const { isAuthenticated, user, token } = useSelector((s) => s.auth);
+
+  // Hydrate auth state on reload
+  useEffect(() => {
+    if (token && !user) {
+      import('./features/auth/authSlice').then(({ fetchProfile }) => {
+        dispatch(fetchProfile());
+      });
+    }
+  }, [token, user, dispatch]);
 
   // Apply dark mode class on mount and theme change
   useEffect(() => {

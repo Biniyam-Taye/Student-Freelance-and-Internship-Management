@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Mail, Lock, User, GraduationCap, Briefcase, ArrowRight, Eye, EyeOff, CheckCircle2, Sun, Moon } from 'lucide-react';
-import { mockLogin } from '../../features/auth/authSlice';
+import { registerUser, mockLogin } from '../../features/auth/authSlice';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
 import clsx from 'clsx';
@@ -24,10 +24,12 @@ export default function RegisterPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const themeMode = useSelector(state => state.theme.mode);
+    const { loading: authLoading, error: authError } = useSelector(state => state.auth);
     const [loading, setLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState('student');
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
+    const [localError, setLocalError] = useState(null);
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
@@ -41,10 +43,22 @@ export default function RegisterPage() {
 
     const onSubmit = async (data) => {
         setLoading(true);
-        await new Promise(r => setTimeout(r, 1000));
-        dispatch(mockLogin(data.role));
-        navigate(`/${data.role}`);
-        setLoading(false);
+        setLocalError(null);
+        try {
+            const formData = {
+                name: data.fullName,
+                email: data.email,
+                password: data.password,
+                role: data.role
+            };
+            const resultAction = await dispatch(registerUser(formData)).unwrap();
+            const role = resultAction.role || 'student';
+            navigate(`/${role}`);
+        } catch (err) {
+            setLocalError(err || 'Failed to register');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -126,6 +140,12 @@ export default function RegisterPage() {
                     <div className="text-left md:text-center mb-8">
                         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{t('auth.register_title')}</h1>
                         <p className="text-slate-600 dark:text-slate-400">{t('auth.register_subtitle')}</p>
+
+                        {(authError || localError) && (
+                            <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium border border-red-100 dark:border-red-900/50">
+                                {authError || localError}
+                            </div>
+                        )}
                     </div>
 
                     {/* Role selection */}

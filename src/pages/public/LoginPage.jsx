@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Briefcase, ShieldCheck, CheckCircle2, Sun, Moon } from 'lucide-react';
-import { mockLogin } from '../../features/auth/authSlice';
+import { loginUser, mockLogin } from '../../features/auth/authSlice';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
 
@@ -26,8 +26,10 @@ export default function LoginPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const themeMode = useSelector(state => state.theme.mode);
+    const { loading: authLoading, error: authError } = useSelector(state => state.auth);
     const [showPass, setShowPass] = useState(false);
     const [loginLoading, setLoginLoading] = useState(false);
+    const [localError, setLocalError] = useState(null);
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
@@ -35,13 +37,16 @@ export default function LoginPage() {
 
     const onSubmit = async (data) => {
         setLoginLoading(true);
-        await new Promise(r => setTimeout(r, 1000));
-        let role = 'student';
-        if (data.email.includes('recruiter')) role = 'recruiter';
-        if (data.email.includes('admin')) role = 'admin';
-        dispatch(mockLogin(role));
-        navigate(`/${role}`);
-        setLoginLoading(false);
+        setLocalError(null);
+        try {
+            const resultAction = await dispatch(loginUser({ email: data.email, password: data.password })).unwrap();
+            const role = resultAction.role || 'student';
+            navigate(`/${role}`);
+        } catch (err) {
+            setLocalError(err || 'Failed to login');
+        } finally {
+            setLoginLoading(false);
+        }
     };
 
     const handleDemoLogin = async (role) => {
@@ -131,6 +136,12 @@ export default function LoginPage() {
                     <div className="text-left md:text-center mb-10">
                         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{t('auth.login_title')}</h1>
                         <p className="text-slate-600 dark:text-slate-400">{t('auth.login_subtitle')}</p>
+
+                        {(authError || localError) && (
+                            <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium border border-red-100 dark:border-red-900/50">
+                                {authError || localError}
+                            </div>
+                        )}
                     </div>
 
                     {/* Quick Demo Access */}
