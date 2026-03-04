@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: BASE_URL,
@@ -23,8 +23,11 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
+            // Only clear the token — don't force redirect here.
+            // The ProtectedRoute component will navigate to /login naturally
+            // when Redux state is cleared, preventing flash redirects on
+            // legitimate upload/profile requests.
             localStorage.removeItem('authToken');
-            window.location.href = '/login';
         }
         return Promise.reject(error);
     }

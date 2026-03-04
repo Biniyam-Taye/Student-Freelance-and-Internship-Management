@@ -140,7 +140,14 @@ const authSlice = createSlice({
             })
             .addCase(updateUserProfile.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload; // Usually backend sends user + token in response
+                // MERGE — don't replace, to avoid losing isAuthenticated
+                state.user = { ...state.user, ...action.payload };
+                state.isAuthenticated = true;
+                // Persist new token if backend issued a new one
+                if (action.payload.token) {
+                    state.token = action.payload.token;
+                    localStorage.setItem('authToken', action.payload.token);
+                }
             })
             .addCase(updateUserProfile.rejected, (state, action) => {
                 state.loading = false;
