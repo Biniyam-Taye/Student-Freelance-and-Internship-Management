@@ -1,9 +1,13 @@
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Users, Briefcase, TrendingUp, Activity, ArrowUpRight } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
-import { monthlyGrowthData, systemAnalyticsData, mockUsers, mockOpportunities } from '../../utils/mockData';
+import { fetchAllUsers, fetchAnalytics } from '../../features/admin/adminSlice';
+import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
+import { monthlyGrowthData } from '../../utils/mockData';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'];
 
@@ -27,6 +31,24 @@ const StatCard = ({ icon: Icon, label, value, trend, color }) => (
 
 export default function AdminOverview() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+
+    const { users, analytics } = useSelector((state) => state.admin);
+    const { items: opportunities } = useSelector((state) => state.opportunities);
+
+    useEffect(() => {
+        dispatch(fetchAllUsers());
+        dispatch(fetchOpportunities());
+        dispatch(fetchAnalytics());
+    }, [dispatch]);
+
+    const totalUsers = users.length;
+    const studentCount = users.filter(u => u.role === 'student').length;
+    const recruiterCount = users.filter(u => u.role === 'recruiter').length;
+    const activePosts = opportunities.filter(o => o.status === 'open').length;
+
+    const recentUsers = [...users].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4);
+    const recentPosts = [...opportunities].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4);
 
     return (
         <div className="space-y-6 page-enter">
@@ -38,8 +60,8 @@ export default function AdminOverview() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard icon={Users} label={t('stats.total_users')} value="720" trend="+70 this month" color="bg-blue-500" />
-                <StatCard icon={Briefcase} label={t('stats.active_posts')} value="89" trend="+12 this week" color="bg-violet-500" />
+                <StatCard icon={Users} label={t('stats.total_users')} value={totalUsers} trend="+7% this month" color="bg-blue-500" />
+                <StatCard icon={Briefcase} label={t('stats.active_posts')} value={activePosts} trend="+4 this week" color="bg-violet-500" />
                 <StatCard icon={TrendingUp} label={t('stats.monthly_growth')} value="+18%" trend="vs last month" color="bg-emerald-500" />
                 <StatCard icon={Activity} label="Platform Health" value="99.8%" color="bg-amber-500" />
             </div>
@@ -79,8 +101,8 @@ export default function AdminOverview() {
                     <ResponsiveContainer width="100%" height={180}>
                         <PieChart>
                             <Pie data={[
-                                { name: 'Students', value: 608 },
-                                { name: 'Recruiters', value: 112 },
+                                { name: 'Students', value: studentCount || 1 },
+                                { name: 'Recruiters', value: recruiterCount || 1 },
                             ]} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4} dataKey="value">
                                 <Cell fill="#3b82f6" />
                                 <Cell fill="#8b5cf6" />
@@ -90,7 +112,7 @@ export default function AdminOverview() {
                         </PieChart>
                     </ResponsiveContainer>
                     <div className="mt-2 grid grid-cols-2 gap-3">
-                        {[{ label: 'Students', val: 608, color: 'bg-blue-500' }, { label: 'Recruiters', val: 112, color: 'bg-violet-500' }].map(({ label, val, color }) => (
+                        {[{ label: 'Students', val: studentCount, color: 'bg-blue-500' }, { label: 'Recruiters', val: recruiterCount, color: 'bg-violet-500' }].map(({ label, val, color }) => (
                             <div key={label} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center">
                                 <div className={`w-3 h-3 rounded-full ${color} mx-auto mb-1`} />
                                 <div className="text-sm font-black text-gray-900 dark:text-white">{val}</div>
@@ -109,16 +131,17 @@ export default function AdminOverview() {
                         <a href="/admin/users" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">View all →</a>
                     </div>
                     <div className="space-y-3">
-                        {mockUsers.slice(0, 4).map((u) => (
-                            <div key={u.id} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-xl p-2 transition-colors">
-                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">{u.name[0]}</div>
+                        {recentUsers.map((u) => (
+                            <div key={u._id} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-xl p-2 transition-colors">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">{u.name?.[0] || 'U'}</div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{u.name}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{u.role} · {u.joined}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{u.role} · {new Date(u.createdAt).toLocaleDateString()}</p>
                                 </div>
-                                <Badge variant={u.status === 'active' ? 'active' : 'pending'} dot>{u.status}</Badge>
+                                <Badge variant={u.isVerified ? 'active' : 'pending'} dot>{u.isVerified ? 'active' : 'pending'}</Badge>
                             </div>
                         ))}
+                        {recentUsers.length === 0 && <div className="text-sm text-gray-500 text-center py-4">No recent users.</div>}
                     </div>
                 </Card>
 
@@ -128,16 +151,17 @@ export default function AdminOverview() {
                         <a href="/admin/posts" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">View all →</a>
                     </div>
                     <div className="space-y-3">
-                        {mockOpportunities.slice(0, 4).map((opp) => (
-                            <div key={opp.id} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-xl p-2 transition-colors">
-                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/30 dark:to-blue-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm flex-shrink-0">{opp.company[0]}</div>
+                        {recentPosts.map((opp) => (
+                            <div key={opp._id} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-xl p-2 transition-colors">
+                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/30 dark:to-blue-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm flex-shrink-0">{opp.company?.[0] || 'C'}</div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{opp.position}</p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">{opp.company} · {opp.posted}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{opp.company} · {new Date(opp.createdAt).toLocaleDateString()}</p>
                                 </div>
                                 <Badge variant={opp.type === 'internship' ? 'info' : 'purple'}>{opp.type}</Badge>
                             </div>
                         ))}
+                        {recentPosts.length === 0 && <div className="text-sm text-gray-500 text-center py-4">No recent posts.</div>}
                     </div>
                 </Card>
             </div>

@@ -1,32 +1,32 @@
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from 'recharts';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import { skillGrowthData } from '../../utils/mockData';
 import { TrendingUp, Star, Award } from 'lucide-react';
 
-const radarData = [
-    { skill: 'React', value: 88 },
-    { skill: 'Python', value: 72 },
-    { skill: 'UI Design', value: 65 },
-    { skill: 'Communication', value: 85 },
-    { skill: 'Problem Solving', value: 78 },
-    { skill: 'Leadership', value: 55 },
-];
-
-const skills = [
-    { name: 'React', level: 88, trend: '+8%', category: 'Frontend' },
-    { name: 'Python', level: 72, trend: '+12%', category: 'Backend' },
-    { name: 'UI Design', level: 65, trend: '+5%', category: 'Design' },
-    { name: 'Communication', level: 85, trend: '+3%', category: 'Soft Skill' },
-    { name: 'JavaScript', level: 80, trend: '+6%', category: 'Frontend' },
-    { name: 'Git', level: 70, trend: '+2%', category: 'DevOps' },
-    { name: 'Figma', level: 58, trend: '+15%', category: 'Design' },
-    { name: 'SQL', level: 62, trend: '+10%', category: 'Database' },
-];
-
 export default function StudentSkills() {
     const { t } = useTranslation();
+    const { user } = useSelector(s => s.auth);
+
+    const userSkills = user?.skills?.length ? user.skills : ['React', 'Python', 'UI Design', 'Communication'];
+
+    // Fallback metrics generator for skills since backend only stores string arrays
+    const skills = userSkills.map((name, i) => ({
+        name,
+        level: Math.max(40, 95 - (i * 8)),
+        trend: `+${Math.floor(Math.random() * 10) + 1}%`,
+        category: 'Skill'
+    }));
+
+    const radarData = skills.map(s => ({
+        skill: s.name,
+        value: s.level
+    }));
+
+    const avgProficiency = Math.round(skills.reduce((acc, curr) => acc + curr.level, 0) / (skills.length || 1));
+    const topSkill = skills.length ? skills[0].name : 'N/A';
 
     return (
         <div className="space-y-6 page-enter">
@@ -38,9 +38,9 @@ export default function StudentSkills() {
             {/* Summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                    { icon: TrendingUp, label: 'Skills Tracked', value: '8', color: 'bg-blue-500' },
-                    { icon: Star, label: 'Avg Proficiency', value: '72%', color: 'bg-violet-500' },
-                    { icon: Award, label: 'Top Skill', value: 'React', color: 'bg-emerald-500' },
+                    { icon: TrendingUp, label: 'Skills Tracked', value: skills.length.toString(), color: 'bg-blue-500' },
+                    { icon: Star, label: 'Avg Proficiency', value: `${avgProficiency}%`, color: 'bg-violet-500' },
+                    { icon: Award, label: 'Top Skill', value: topSkill, color: 'bg-emerald-500' },
                 ].map(({ icon: Icon, label, value, color }) => (
                     <Card key={label} className="flex items-center gap-4">
                         <div className={`w-11 h-11 rounded-2xl ${color} flex items-center justify-center shadow-lg flex-shrink-0`}>

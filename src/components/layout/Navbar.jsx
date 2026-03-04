@@ -25,7 +25,7 @@ export default function Navbar({ onMenuToggle, sidebarOpen }) {
     const { lang } = useSelector((s) => s.language);
     const { user } = useSelector((s) => s.auth);
     const { items, unreadCount } = useSelector((s) => s.notifications);
-    const { totalUnread: chatUnread } = useSelector((s) => s.chat);
+    const chatUnread = 0; // server-side unread tracking placeholder
     const [notifOpen, setNotifOpen] = useState(false);
 
     const handleLangChange = (code) => {
@@ -85,8 +85,8 @@ export default function Navbar({ onMenuToggle, sidebarOpen }) {
                                 onClick={() => handleLangChange(l.code)}
                                 title={l.full}
                                 className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all duration-200 ${lang === l.code
-                                        ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
-                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                                    ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                                     }`}
                             >
                                 {l.label}

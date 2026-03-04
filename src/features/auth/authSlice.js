@@ -41,6 +41,19 @@ export const fetchProfile = createAsyncThunk(
     }
 );
 
+export const updateUserProfile = createAsyncThunk(
+    'auth/updateProfile',
+    async (userData, thunkAPI) => {
+        try {
+            const response = await authService.updateProfile(userData);
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || error.message || error.toString();
+            return thunkAPI.rejectWithValue(message);
+        }
+    }
+);
+
 const initialState = {
     user: null,
     token: localStorage.getItem('authToken') || null,
@@ -117,9 +130,21 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            // Fetch Profile
             .addCase(fetchProfile.fulfilled, (state, action) => {
                 state.user = Object.assign({}, state.user, action.payload);
+            })
+            // Update Profile
+            .addCase(updateUserProfile.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(updateUserProfile.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload; // Usually backend sends user + token in response
+            })
+            .addCase(updateUserProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
             });
     },
 });

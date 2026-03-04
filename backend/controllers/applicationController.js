@@ -61,6 +61,18 @@ const getMyApplications = asyncHandler(async (req, res) => {
     res.json(applications);
 });
 
+// @desc    Get all applications for the recruiter across all their jobs
+// @route   GET /api/applications/recruiter
+// @access  Private/Recruiter
+const getRecruiterApplications = asyncHandler(async (req, res) => {
+    const applications = await Application.find({ recruiter: req.user._id })
+        .populate('student', 'name email university major skills avatar')
+        .populate('opportunity', 'position company type')
+        .sort({ createdAt: -1 });
+
+    res.json(applications);
+});
+
 // @desc    Get applications for a specific job (Recruiter view)
 // @route   GET /api/applications/job/:opportunityId
 // @access  Private/Recruiter
@@ -120,5 +132,6 @@ module.exports = {
     applyForOpportunity,
     getMyApplications,
     getApplicationsForJob,
+    getRecruiterApplications,
     updateApplicationStatus
 };

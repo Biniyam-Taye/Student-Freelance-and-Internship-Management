@@ -1,27 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink, RefreshCw } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import SearchFilter from '../../components/common/SearchFilter';
 import Pagination from '../../components/ui/Pagination';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
-import { mockOpportunities } from '../../utils/mockData';
+import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
+import { applyForJob } from '../../features/applications/applicationSlice';
 import clsx from 'clsx';
 
 export default function BrowseOpportunities() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const { items: opportunities, loading, error } = useSelector(state => state.opportunities);
+    const { loading: applyLoading } = useSelector(state => state.applications);
+
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState({});
     const [sortBy, setSortBy] = useState('Newest');
+    const [typeFilter, setTypeFilter] = useState('All');
     const [page, setPage] = useState(1);
     const [saved, setSaved] = useState(new Set());
     const [applyModal, setApplyModal] = useState(null);
     const [applied, setApplied] = useState(new Set());
     const [viewModal, setViewModal] = useState(null);
+    const [coverLetter, setCoverLetter] = useState('');
     const PER_PAGE = 4;
 
-    const filtered = mockOpportunities.filter((o) => {
+    useEffect(() => {
+        dispatch(fetchOpportunities({ keyword: search, type: typeFilter }));
+    }, [dispatch, search, typeFilter]);
+
+    // Local filter/sort on the fetched items
+    const filtered = [...opportunities].filter((o) => {
+        // Search API usually handles basic search, but this double-filters just in case
         if (search && !o.position.toLowerCase().includes(search.toLowerCase()) && !o.company.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
     }).sort((a, b) => {
@@ -46,10 +60,22 @@ export default function BrowseOpportunities() {
         });
     };
 
-    const handleApply = () => {
+    const handleApply = async () => {
         if (applyModal) {
-            setApplied((prev) => new Set([...prev, applyModal.id]));
-            setApplyModal(null);
+            try {
+                // Dispatch real application to backend
+                await dispatch(applyForJob({
+                    opportunityId: applyModal._id,
+                    data: { coverLetter, resumeUrl: '' }
+                })).unwrap();
+
+                // Track locally
+                setApplied((prev) => new Set([...prev, applyModal._id]));
+                setApplyModal(null);
+                setCoverLetter(''); // Reset form
+            } catch (err) {
+                alert('Failed to apply. You may have already applied to this job.');
+            }
         }
     };
 
@@ -66,11 +92,12 @@ export default function BrowseOpportunities() {
             {/* Quick type filter & Sort */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex gap-2 flex-wrap">
-                    {['All', 'Internship', 'Freelance', 'Remote'].map((label) => (
+                    {['All', 'Internship', 'Freelance', 'Full-time', 'Part-time'].map((label) => (
                         <button key={label}
+                            onClick={() => setTypeFilter(label)}
                             className={clsx(
                                 'px-4 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 border',
-                                label === 'All'
+                                label === typeFilter
                                     ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20'
                                     : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400'
                             )}>
@@ -96,12 +123,15 @@ export default function BrowseOpportunities() {
             <SearchFilter onSearch={setSearch} onFilterChange={setFilters} />
 
             {/* Opportunity Cards */}
+            {loading && <div className="text-center py-10 text-gray-400 font-medium">Loading opportunities...</div>}
+            {!loading && paginated.length === 0 && <div className="text-center py-10 text-gray-400 font-medium">No open opportunities found.</div>}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {paginated.map((opp) => {
-                    const isSaved = saved.has(opp.id);
-                    const isApplied = applied.has(opp.id);
+                {!loading && paginated.map((opp) => {
+                    const isSaved = saved.has(opp._id);
+                    const isApplied = applied.has(opp._id);
                     return (
-                        <div key={opp.id}
+                        <div key={opp._id}
                             className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 shadow-sm hover:shadow-lg dark:hover:shadow-gray-900/50 hover:-translate-y-0.5 transition-all duration-200">
                             {/* Card Header */}
                             <div className="flex items-start justify-between gap-3 mb-4">
@@ -115,7 +145,7 @@ export default function BrowseOpportunities() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                                    <button onClick={() => toggleSave(opp.id)}
+                                    <button onClick={() => toggleSave(opp._id)}
                                         className={clsx('p-1.5 rounded-lg transition-colors', isSaved ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20' : 'text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700')}>
                                         <Bookmark size={16} className={isSaved ? 'fill-current' : ''} />
                                     </button>
@@ -143,11 +173,11 @@ export default function BrowseOpportunities() {
                             {/* Footer */}
                             <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700/60">
                                 <div className="flex items-center gap-3">
-                                    <Badge variant={opp.type === 'internship' ? 'info' : 'purple'}>{t(`opportunity.${opp.type}`)}</Badge>
+                                    <Badge variant={opp.type === 'internship' ? 'info' : 'purple'}>{opp.type}</Badge>
                                     <span className="flex items-center gap-1 text-xs text-gray-400">
-                                        <Users size={11} /> {opp.applicants}
+                                        <Users size={11} /> {opp.applicantsCount || 0}
                                     </span>
-                                    <span className="text-xs text-gray-400">{opp.posted}</span>
+                                    <span className="text-xs text-gray-400">{new Date(opp.createdAt).toLocaleDateString()}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button onClick={() => setViewModal(opp)}
@@ -176,7 +206,9 @@ export default function BrowseOpportunities() {
                 title={`Apply: ${applyModal?.position}`} size="md"
                 footer={<>
                     <Button variant="secondary" onClick={() => setApplyModal(null)}>{t('common.cancel')}</Button>
-                    <Button variant="gradient" icon={Send} onClick={handleApply}>Submit Application</Button>
+                    <Button variant="gradient" icon={Send} onClick={handleApply} disabled={applyLoading}>
+                        {applyLoading ? 'Submitting...' : 'Submit Application'}
+                    </Button>
                 </>}>
                 <div className="space-y-4">
                     <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
@@ -191,6 +223,8 @@ export default function BrowseOpportunities() {
                     <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Cover Letter (Optional)</label>
                         <textarea rows={4} placeholder="Tell the recruiter why you're a great fit..."
+                            value={coverLetter}
+                            onChange={(e) => setCoverLetter(e.target.value)}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                     </div>
                     <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-xs text-gray-600 dark:text-gray-400">
@@ -204,7 +238,7 @@ export default function BrowseOpportunities() {
                 title={viewModal?.position} size="lg"
                 footer={<>
                     <Button variant="secondary" onClick={() => setViewModal(null)}>Close</Button>
-                    {!applied.has(viewModal?.id) && (
+                    {!applied.has(viewModal?._id) && (
                         <Button variant="gradient" icon={Send} onClick={() => { setApplyModal(viewModal); setViewModal(null); }}>Apply Now</Button>
                     )}
                 </>}>
@@ -234,8 +268,8 @@ export default function BrowseOpportunities() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-400">
-                            <Users size={12} /><span>{viewModal.applicants} applicants</span>
-                            <span>·</span><span>Posted {viewModal.posted}</span>
+                            <Users size={12} /><span>{viewModal.applicantsCount || 0} applicants</span>
+                            <span>·</span><span>Posted {new Date(viewModal.createdAt).toLocaleDateString()}</span>
                         </div>
                     </div>
                 )}

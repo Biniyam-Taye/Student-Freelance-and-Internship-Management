@@ -1,20 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X, Plus } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
-
-const initialSkills = ['React', 'Python', 'JavaScript', 'Figma', 'Node.js'];
+import { updateUserProfile } from '../../features/auth/authSlice';
 
 export default function StudentProfile() {
     const { t } = useTranslation();
-    const { user } = useSelector((s) => s.auth);
-    const [skills, setSkills] = useState(initialSkills);
+    const dispatch = useDispatch();
+    const { user, loading } = useSelector((s) => s.auth);
+
+    const [skills, setSkills] = useState([]);
     const [skillInput, setSkillInput] = useState('');
-    const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        location: '',
+        linkedin: '',
+        github: '',
+        bio: '',
+        university: '',
+        major: '',
+        company: '', // Optional for students mostly
+        position: ''
+    });
+
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || '', // backend might not support phone yet, but handled gracefully
+                location: user.location || '',
+                linkedin: user.linkedin || '',
+                github: user.github || '',
+                bio: user.bio || '',
+                university: user.university || '',
+                major: user.major || '',
+                company: user.company || '',
+                position: user.position || ''
+            });
+            setSkills(user.skills || []);
+        }
+    }, [user]);
+
+    const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
     const addSkill = (e) => {
         if ((e.key === 'Enter' || e.key === ',') && skillInput.trim()) {
@@ -28,11 +63,13 @@ export default function StudentProfile() {
     const removeSkill = (s) => setSkills(skills.filter((sk) => sk !== s));
 
     const handleSave = async () => {
-        setSaving(true);
-        await new Promise(r => setTimeout(r, 1000));
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
+        try {
+            await dispatch(updateUserProfile({ ...formData, skills })).unwrap();
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2500);
+        } catch (error) {
+            console.error('Failed to update profile', error);
+        }
     };
 
     return (
@@ -71,16 +108,17 @@ export default function StudentProfile() {
             <Card>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-5">Personal Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input label={t('auth.full_name')} icon={User} defaultValue={user?.name} required />
-                    <Input label={t('auth.email')} icon={Mail} type="email" defaultValue={user?.email} required />
-                    <Input label={t('profile.phone')} icon={Phone} placeholder="+251 9XX XXX XXX" type="tel" />
-                    <Input label={t('profile.location')} icon={MapPin} placeholder="Addis Ababa, Ethiopia" />
-                    <Input label={t('profile.linkedin')} icon={Linkedin} placeholder="linkedin.com/in/yourname" />
-                    <Input label={t('profile.github')} icon={Github} placeholder="github.com/yourname" />
+                    <Input label={t('auth.full_name')} icon={User} name="name" value={formData.name} onChange={handleChange} required />
+                    <Input label={t('auth.email')} icon={Mail} type="email" name="email" value={formData.email} disabled required />
+                    <Input label={t('profile.phone')} icon={Phone} name="phone" value={formData.phone} onChange={handleChange} placeholder="+251 9XX XXX XXX" type="tel" />
+                    <Input label={t('profile.location')} icon={MapPin} name="location" value={formData.location} onChange={handleChange} placeholder="Addis Ababa, Ethiopia" />
+                    <Input label={t('profile.linkedin')} icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="linkedin.com/in/yourname" />
+                    <Input label={t('profile.github')} icon={Github} name="github" value={formData.github} onChange={handleChange} placeholder="github.com/yourname" />
                 </div>
                 <div className="mt-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">{t('profile.bio')}</label>
                     <textarea rows={3} placeholder="Tell recruiters about yourself, your goals, and what makes you unique..."
+                        name="bio" value={formData.bio} onChange={handleChange}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                 </div>
             </Card>
@@ -89,8 +127,8 @@ export default function StudentProfile() {
             <Card>
                 <h3 className="text-base font-bold text-gray-900 dark:text-white mb-5">Academic Information</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input label={t('profile.university')} icon={GraduationCap} defaultValue={user?.university} />
-                    <Input label={t('profile.major')} placeholder="Computer Science" defaultValue={user?.major} />
+                    <Input label={t('profile.university')} icon={GraduationCap} name="university" value={formData.university} onChange={handleChange} />
+                    <Input label={t('profile.major')} placeholder="Computer Science" name="major" value={formData.major} onChange={handleChange} />
                     <Input label={t('profile.graduation')} type="month" />
                 </div>
             </Card>
@@ -120,10 +158,25 @@ export default function StudentProfile() {
 
             {/* Save */}
             <div className="flex items-center gap-3">
-                <Button variant="gradient" size="lg" loading={saving} onClick={handleSave}>
+                <Button variant="gradient" size="lg" loading={loading} onClick={handleSave}>
                     {saved ? '✓ Saved!' : t('common.save')}
                 </Button>
-                <Button variant="secondary">Discard Changes</Button>
+                <Button variant="secondary" onClick={() => {
+                    setFormData({
+                        name: user?.name || '',
+                        email: user?.email || '',
+                        phone: user?.phone || '',
+                        location: user?.location || '',
+                        linkedin: user?.linkedin || '',
+                        github: user?.github || '',
+                        bio: user?.bio || '',
+                        university: user?.university || '',
+                        major: user?.major || '',
+                        company: user?.company || '',
+                        position: user?.position || ''
+                    });
+                    setSkills(user?.skills || []);
+                }}>Discard Changes</Button>
             </div>
         </div>
     );

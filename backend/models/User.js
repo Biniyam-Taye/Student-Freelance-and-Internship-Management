@@ -69,7 +69,14 @@ const userSchema = new mongoose.Schema({
     avatar: {
         type: String,
         default: 'default-avatar.png'
-    }
+    },
+    phone: { type: String, trim: true },
+    location: { type: String, trim: true },
+    linkedin: { type: String, trim: true },
+    github: { type: String, trim: true },
+    website: { type: String, trim: true },
+    industries: { type: [String], default: [] },
+    companySize: { type: String, trim: true },
 }, {
     timestamps: true
 });

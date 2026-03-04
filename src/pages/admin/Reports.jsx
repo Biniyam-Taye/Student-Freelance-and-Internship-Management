@@ -1,23 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import { Flag, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
-import { mockReports } from '../../utils/mockData';
+import api from '../../services/api';
 import clsx from 'clsx';
 
 export default function Reports() {
     const { t } = useTranslation();
-    const [reports, setReports] = useState(mockReports);
+    const { user } = useSelector(s => s.auth);
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(false);
     const [filter, setFilter] = useState('all');
+
+    useEffect(() => {
+        const fetchReports = async () => {
+            setLoading(true);
+            try {
+                const { data } = await api.get('/reports');
+                setReports(data);
+            } catch (err) {
+                console.error('Failed to fetch reports', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReports();
+    }, []);
+
 
     const filtered = filter === 'all' ? reports : reports.filter(r => r.status === filter);
 
-    const updateStatus = (id, status) => {
-        setReports(rs => rs.map(r => r.id === id ? { ...r, status } : r));
+    const updateStatus = async (id, status) => {
+        try {
+            await api.put(`/reports/${id}`, { status });
+            setReports(rs => rs.map(r => r._id === id ? { ...r, status } : r));
+        } catch (err) {
+            console.error('Failed to update report status', err);
+        }
     };
 
     const statusVariant = { pending: 'pending', under_review: 'shortlisted', resolved: 'accepted' };
-    const typeColor = { Spam: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400', Harassment: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400', 'Misleading Info': 'bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400' };
+    const typeColor = { Spam: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400', Harassment: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400', 'Misleading Info': 'bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400', Other: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400' };
 
     return (
         <div className="space-y-6 page-enter">
@@ -52,31 +76,33 @@ export default function Reports() {
             </div>
 
             <div className="space-y-3">
+                {loading && <div className="text-center text-sm text-gray-400 py-8">Loading reports...</div>}
+                {!loading && filtered.length === 0 && <div className="text-center text-sm text-gray-400 py-8">No reports found.</div>}
                 {filtered.map((report) => (
-                    <div key={report.id} className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 shadow-sm">
+                    <div key={report._id || report.id} className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                             <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
                                 <Flag size={18} className="text-red-500" />
                             </div>
                             <div className="flex-1">
                                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                                    <span className={clsx('tag', typeColor[report.type])}>{report.type}</span>
-                                    <Badge variant={statusVariant[report.status]} dot>{report.status.replace('_', ' ')}</Badge>
-                                    <span className="text-xs text-gray-400">{report.date}</span>
+                                    <span className={clsx('tag', typeColor[report.type] || typeColor.Other)}>{report.type}</span>
+                                    <Badge variant={statusVariant[report.status]} dot>{report.status?.replace('_', ' ')}</Badge>
+                                    <span className="text-xs text-gray-400">{report.createdAt ? new Date(report.createdAt).toLocaleDateString() : report.date}</span>
                                 </div>
                                 <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-1">Target: {report.target}</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">Reported by: {report.reportedBy}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">Reported by: {report.reportedBy?.name || report.reportedBy}</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{report.description}</p>
                             </div>
                             {report.status !== 'resolved' && (
                                 <div className="flex items-center gap-2 flex-shrink-0">
                                     {report.status === 'pending' && (
-                                        <button onClick={() => updateStatus(report.id, 'under_review')}
+                                        <button onClick={() => updateStatus(report._id || report.id, 'under_review')}
                                             className="px-3 py-1.5 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors">
                                             Review
                                         </button>
                                     )}
-                                    <button onClick={() => updateStatus(report.id, 'resolved')}
+                                    <button onClick={() => updateStatus(report._id || report.id, 'resolved')}
                                         className="px-3 py-1.5 text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors">
                                         Resolve
                                     </button>

@@ -12,14 +12,22 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         throw new Error('User not found');
     }
 
-    user.name = req.body.name || user.name;
-    user.bio = req.body.bio || user.bio;
-    user.university = req.body.university || user.university;
-    user.major = req.body.major || user.major;
-    user.company = req.body.company || user.company;
-    user.position = req.body.position || user.position;
-    user.skills = req.body.skills || user.skills;
-    user.avatar = req.body.avatar || user.avatar;
+    if (req.body.name !== undefined) user.name = req.body.name;
+    if (req.body.bio !== undefined) user.bio = req.body.bio;
+    if (req.body.university !== undefined) user.university = req.body.university;
+    if (req.body.major !== undefined) user.major = req.body.major;
+    if (req.body.company !== undefined) user.company = req.body.company;
+    if (req.body.position !== undefined) user.position = req.body.position;
+    if (req.body.skills !== undefined) user.skills = req.body.skills;
+    if (req.body.avatar !== undefined) user.avatar = req.body.avatar;
+    // Extended fields
+    if (req.body.phone !== undefined) user.phone = req.body.phone;
+    if (req.body.location !== undefined) user.location = req.body.location;
+    if (req.body.linkedin !== undefined) user.linkedin = req.body.linkedin;
+    if (req.body.github !== undefined) user.github = req.body.github;
+    if (req.body.website !== undefined) user.website = req.body.website;
+    if (req.body.industries !== undefined) user.industries = req.body.industries;
+    if (req.body.companySize !== undefined) user.companySize = req.body.companySize;
 
     // Only update password if a new one has been provided
     if (req.body.password) {
@@ -40,6 +48,15 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         position: updatedUser.position,
         skills: updatedUser.skills,
         avatar: updatedUser.avatar,
+        phone: updatedUser.phone,
+        location: updatedUser.location,
+        linkedin: updatedUser.linkedin,
+        github: updatedUser.github,
+        website: updatedUser.website,
+        industries: updatedUser.industries,
+        companySize: updatedUser.companySize,
+        isVerified: updatedUser.isVerified,
+        status: updatedUser.status,
         token: require('../utils/generateToken')(updatedUser._id)
     });
 });

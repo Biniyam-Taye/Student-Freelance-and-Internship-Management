@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, CheckCircle2, AlertCircle, Circle, Upload } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMyTasks, submitTask, updateTaskStatus } from '../../features/tasks/taskSlice';
+import { Clock, CheckCircle2, AlertCircle, Circle, Upload, Link as LinkIcon } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
-import { mockTasks } from '../../utils/mockData';
 import clsx from 'clsx';
 
 const statusConfig = {
@@ -15,9 +16,17 @@ const statusConfig = {
 
 export default function StudentTasks() {
     const { t } = useTranslation();
-    const [tasks, setTasks] = useState(mockTasks);
+    const dispatch = useDispatch();
+    const { items: tasks, loading } = useSelector(state => state.tasks);
+
     const [submitModal, setSubmitModal] = useState(null);
+    const [submissionNotes, setSubmissionNotes] = useState('');
+    const [submissionFileDetails, setSubmissionFileDetails] = useState('');
     const [filter, setFilter] = useState('all');
+
+    useEffect(() => {
+        dispatch(fetchMyTasks());
+    }, [dispatch]);
 
     const filtered = filter === 'all' ? tasks : tasks.filter(t_ => t_.status === filter);
 
@@ -53,17 +62,20 @@ export default function StudentTasks() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filtered.map((task) => {
-                    const { icon: StatusIcon, color, bg } = statusConfig[task.status];
+                {loading && <div className="text-gray-400 py-10 text-center col-span-2">Loading tasks...</div>}
+                {!loading && filtered.length === 0 && <div className="text-gray-400 py-10 text-center col-span-2">No tasks found.</div>}
+
+                {!loading && filtered.map((task) => {
+                    const { icon: StatusIcon, color, bg } = statusConfig[task.status] || statusConfig.pending;
                     const daysLeft = getDaysLeft(task.deadline);
                     return (
-                        <div key={task.id} className={clsx('rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:hover:shadow-gray-900/50', bg)}>
+                        <div key={task._id} className={clsx('rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:hover:shadow-gray-900/50', bg)}>
                             <div className="flex items-start justify-between gap-3 mb-3">
                                 <div className="flex items-start gap-3">
                                     <StatusIcon size={18} className={clsx('mt-0.5 flex-shrink-0', color)} />
                                     <div>
                                         <h3 className="font-bold text-gray-900 dark:text-white text-sm">{task.title}</h3>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{task.company}</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{task.opportunity?.company || 'Company'}</p>
                                     </div>
                                 </div>
                                 <Badge variant={task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warning' : 'info'}>
@@ -79,10 +91,15 @@ export default function StudentTasks() {
                                     <span className={clsx('text-xs font-medium', daysLeft <= 2 ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400')}>
                                         {daysLeft > 0 ? `${daysLeft} days left` : 'Overdue'}
                                     </span>
-                                    <span className="text-xs text-gray-400 ml-1">· {task.deadline}</span>
+                                    <span className="text-xs text-gray-400 ml-1">· {new Date(task.deadline).toLocaleDateString()}</span>
                                 </div>
-                                {task.status !== 'completed' && (
-                                    <Button size="xs" variant="gradient" icon={Upload} onClick={() => setSubmitModal(task)}>
+                                {task.status === 'pending' && (
+                                    <Button size="xs" variant="secondary" onClick={() => dispatch(updateTaskStatus({ id: task._id, status: 'in_progress' }))}>
+                                        Start Task
+                                    </Button>
+                                )}
+                                {task.status === 'in_progress' && (
+                                    <Button size="xs" variant="gradient" icon={Upload} onClick={() => { setSubmissionNotes(''); setSubmissionFileDetails(''); setSubmitModal(task); }}>
                                         Submit
                                     </Button>
                                 )}
@@ -95,14 +112,21 @@ export default function StudentTasks() {
                 })}
             </div>
 
-            {/* Submit Modal */}
             <Modal isOpen={!!submitModal} onClose={() => setSubmitModal(null)} title={`Submit: ${submitModal?.title}`} size="md"
                 footer={<>
                     <Button variant="secondary" onClick={() => setSubmitModal(null)}>{t('common.cancel')}</Button>
-                    <Button variant="gradient" onClick={() => {
-                        setTasks(ts => ts.map(t_ => t_.id === submitModal?.id ? { ...t_, status: 'completed' } : t_));
+                    <Button variant="gradient" disabled={loading} onClick={async () => {
+                        await dispatch(submitTask({
+                            id: submitModal._id,
+                            submission: {
+                                submissionNotes: submissionNotes,
+                                submissionFiles: [submissionFileDetails].filter(Boolean)
+                            }
+                        })).unwrap();
                         setSubmitModal(null);
-                    }}>Submit Task</Button>
+                    }}>
+                        {loading ? 'Submitting...' : 'Submit Task'}
+                    </Button>
                 </>}>
                 <div className="space-y-4">
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-sm text-blue-700 dark:text-blue-300">
@@ -111,16 +135,22 @@ export default function StudentTasks() {
                     <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Submission Notes</label>
                         <textarea placeholder="Describe your work and add any relevant links..." rows={4}
+                            value={submissionNotes}
+                            onChange={(e) => setSubmissionNotes(e.target.value)}
                             className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                     </div>
-                    <label className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer block group">
-                        <input type="file" className="hidden" multiple />
-                        <Upload size={24} className="mx-auto text-gray-400 mb-2 group-hover:text-blue-500 transition-colors" />
-                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{t('common.upload')} files</p>
-                        <p className="text-xs text-gray-400 mt-1.5">PDF, ZIP, images up to 10MB</p>
-                    </label>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">File Link (URL)</label>
+                        <div className="relative">
+                            <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                            <input type="url" placeholder="Paste GitHub, Drive, or Figma link..."
+                                value={submissionFileDetails}
+                                onChange={(e) => setSubmissionFileDetails(e.target.value)}
+                                className="w-full pl-9 pr-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                    </div>
                 </div>
             </Modal>
-        </div>
+        </div >
     );
 }

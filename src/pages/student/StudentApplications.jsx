@@ -4,20 +4,31 @@ import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import SearchFilter from '../../components/common/SearchFilter';
 import Pagination from '../../components/ui/Pagination';
-import { mockApplications } from '../../utils/mockData';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMyApplications } from '../../features/applications/applicationSlice';
 import { MapPin, DollarSign, Clock, Briefcase } from 'lucide-react';
 
 export default function StudentApplications() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const { items: myApplications, loading } = useSelector(state => state.applications);
+
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState({});
     const PER_PAGE = 4;
 
-    const filtered = mockApplications.filter((a) => {
-        if (search && !a.position.toLowerCase().includes(search.toLowerCase()) && !a.company.toLowerCase().includes(search.toLowerCase())) return false;
-        if (filters.skill && !a.skills.includes(filters.skill)) return false;
-        if (filters.location && a.location !== filters.location) return false;
+    useEffect(() => {
+        dispatch(fetchMyApplications());
+    }, [dispatch]);
+
+    const filtered = myApplications.filter((a) => {
+        const position = a.opportunity?.position?.toLowerCase() || '';
+        const company = a.opportunity?.company?.toLowerCase() || '';
+
+        if (search && !position.includes(search.toLowerCase()) && !company.includes(search.toLowerCase())) return false;
+        if (filters.type && a.opportunity?.type !== filters.type) return false;
         return true;
     });
 
@@ -32,44 +43,41 @@ export default function StudentApplications() {
                         <Briefcase size={15} className="text-blue-600 dark:text-blue-400" />
                     </div>
                     <div>
-                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{row.position}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">{row.company}</p>
+                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{row.opportunity?.position}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{row.opportunity?.company}</p>
                     </div>
                 </div>
             ),
         },
         {
-            key: 'skills', title: 'Skills',
-            render: (skills) => (
-                <div className="flex flex-wrap gap-1">
-                    {skills.slice(0, 2).map((s) => (
-                        <span key={s} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-medium">{s}</span>
-                    ))}
-                    {skills.length > 2 && <span className="text-xs text-gray-400">+{skills.length - 2}</span>}
+            key: 'type', title: 'Type',
+            render: (_, row) => (
+                <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                    <Badge variant={row.opportunity?.type === 'internship' ? 'info' : 'purple'}>{row.opportunity?.type}</Badge>
                 </div>
             ),
         },
         {
             key: 'stipend', title: 'Stipend',
-            render: (v) => (
+            render: (_, row) => (
                 <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                    <DollarSign size={12} />{v}
+                    <DollarSign size={12} />{row.opportunity?.stipend}
                 </div>
             ),
         },
         {
             key: 'location', title: 'Location',
-            render: (v) => (
+            render: (_, row) => (
                 <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                    <MapPin size={12} />{v}
+                    <MapPin size={12} />{row.opportunity?.location}
                 </div>
             ),
         },
         {
-            key: 'date', title: 'Applied',
+            key: 'createdAt', title: 'Applied',
             render: (v) => (
                 <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Clock size={12} />{v}
+                    <Clock size={12} />{new Date(v).toLocaleDateString()}
                 </div>
             ),
         },
@@ -88,14 +96,14 @@ export default function StudentApplications() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                    { label: 'Total', val: mockApplications.length, color: 'text-gray-700 dark:text-gray-200' },
-                    { label: 'Pending', val: mockApplications.filter(a => a.status === 'pending').length, color: 'text-amber-600 dark:text-amber-400' },
-                    { label: 'Shortlisted', val: mockApplications.filter(a => a.status === 'shortlisted').length, color: 'text-blue-600 dark:text-blue-400' },
+                    { label: 'Total', val: myApplications.length, color: 'text-gray-700 dark:text-gray-200' },
+                    { label: 'Pending', val: myApplications.filter(a => a.status === 'pending').length, color: 'text-amber-600 dark:text-amber-400' },
+                    { label: 'Shortlisted', val: myApplications.filter(a => a.status === 'shortlisted').length, color: 'text-blue-600 dark:text-blue-400' },
                     {
                         label: 'Accepted',
-                        val: mockApplications.filter(a => a.status === 'accepted').length,
+                        val: myApplications.filter(a => a.status === 'accepted').length,
                         color: 'text-emerald-600 dark:text-emerald-400',
-                        subText: mockApplications.length > 0 ? `(${Math.round((mockApplications.filter(a => a.status === 'accepted').length / mockApplications.length) * 100)}% Success Rate)` : ''
+                        subText: myApplications.length > 0 ? `(${Math.round((myApplications.filter(a => a.status === 'accepted').length / myApplications.length) * 100)}% Success Rate)` : ''
                     },
                 ].map(({ label, val, color, subText }) => (
                     <div key={label} className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-4 text-center shadow-sm">
@@ -111,7 +119,9 @@ export default function StudentApplications() {
             <SearchFilter onSearch={setSearch} onFilterChange={setFilters} />
 
             <div className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-1 shadow-sm">
-                <Table columns={columns} data={paginated} emptyMessage={t('common.no_data')} />
+                {loading ? <div className="text-center py-6 text-gray-400">Fetching applications...</div> : (
+                    <Table columns={columns} data={paginated} emptyMessage={t('common.no_data')} />
+                )}
             </div>
 
             <Pagination currentPage={page} totalPages={Math.ceil(filtered.length / PER_PAGE)} onPageChange={setPage} />

@@ -1,13 +1,35 @@
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
-import { monthlyGrowthData, applicationData, systemAnalyticsData } from '../../utils/mockData';
+import { fetchAnalytics } from '../../features/admin/adminSlice';
+import { monthlyGrowthData, applicationData } from '../../utils/mockData';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'];
 
 export default function SystemAnalytics() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const { analytics, loading } = useSelector(state => state.admin);
+
+    useEffect(() => {
+        dispatch(fetchAnalytics());
+    }, [dispatch]);
+
+    // Use fetched analytics or default metrics
+    const systemMetrics = analytics ? [
+        { name: 'Total Users', value: analytics.totalUsers || 0 },
+        { name: 'Opportunities', value: analytics.totalOpportunities || 0 },
+        { name: 'Applications Sent', value: analytics.totalApplications || 0 },
+        { name: 'Tasks Created', value: analytics.totalTasks || 0 },
+    ] : [
+        { name: 'Total Users', value: 0 },
+        { name: 'Opportunities', value: 0 },
+        { name: 'Applications Sent', value: 0 },
+        { name: 'Tasks Created', value: 0 },
+    ];
 
     return (
         <div className="space-y-6 page-enter">
@@ -18,12 +40,12 @@ export default function SystemAnalytics() {
 
             {/* Key Metrics */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {systemAnalyticsData.map(({ name, value }, i) => (
+                {systemMetrics.map(({ name, value }, i) => (
                     <Card key={name} padding="p-4" className="text-center">
-                        <div className="text-2xl font-black text-gray-900 dark:text-white">{value.toLocaleString()}</div>
+                        <div className="text-2xl font-black text-gray-900 dark:text-white">{loading ? '...' : value.toLocaleString()}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{name}</div>
-                        <div className="w-full h-1 rounded-full mt-3" style={{ background: COLORS[i] + '30' }}>
-                            <div className="h-full rounded-full" style={{ width: `${(value / 1240) * 100}%`, background: COLORS[i] }} />
+                        <div className="w-full h-1 rounded-full mt-3" style={{ background: COLORS[i % COLORS.length] + '30' }}>
+                            <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min((value / (Math.max(...systemMetrics.map(m => m.value)) || 1)) * 100, 100)}%`, background: COLORS[i % COLORS.length] }} />
                         </div>
                     </Card>
                 ))}

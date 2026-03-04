@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -7,6 +8,7 @@ import { Briefcase, MapPin, DollarSign, Clock, AlignLeft, Tag, X, CheckCircle2 }
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import { createOpportunity } from '../../features/opportunities/opportunitySlice';
 
 const schema = yup.object().shape({
     title: yup.string().min(5).required('Title is required'),
@@ -20,9 +22,11 @@ const schema = yup.object().shape({
 
 export default function PostOpportunity() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
+    const { loading, error } = useSelector(state => state.opportunities);
+
     const [skills, setSkills] = useState([]);
     const [skillInput, setSkillInput] = useState('');
-    const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [type, setType] = useState('internship');
 
@@ -41,11 +45,27 @@ export default function PostOpportunity() {
     };
 
     const onSubmit = async (data) => {
-        setLoading(true);
-        await new Promise(r => setTimeout(r, 1200));
-        setLoading(false);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+        try {
+            const payload = {
+                position: data.title,
+                description: data.description,
+                location: data.location,
+                stipend: data.stipend,
+                duration: data.duration,
+                deadline: data.deadline,
+                type: data.type,
+                skills,
+            };
+            await dispatch(createOpportunity(payload)).unwrap();
+
+            setSuccess(true);
+            setTimeout(() => setSuccess(false), 3000);
+
+            // reset logic could go here
+        } catch (err) {
+            console.error("Failed to post opportunity:", err);
+            // Optionally set local error string here
+        }
     };
 
     if (success) {
@@ -70,6 +90,11 @@ export default function PostOpportunity() {
             <div>
                 <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.post_opportunity')}</h1>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Create a new internship or freelance opportunity</p>
+                {error && (
+                    <div className="mt-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm border border-red-100 dark:bg-red-900/30 dark:border-red-900/50">
+                        {error}
+                    </div>
+                )}
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

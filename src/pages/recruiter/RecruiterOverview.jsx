@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Users, Briefcase, TrendingUp, Star, ArrowUpRight, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
-import { hiringData, mockOpportunities, mockApplications } from '../../utils/mockData';
+import { fetchRecruiterApplications, updateApplicationStatus } from '../../features/applications/applicationSlice';
+import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
 
 const StatCard = ({ icon: Icon, label, value, trend, color }) => (
     <Card className="relative overflow-hidden">
@@ -26,7 +28,34 @@ const StatCard = ({ icon: Icon, label, value, trend, color }) => (
 
 export default function RecruiterOverview() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
     const { user } = useSelector((s) => s.auth);
+    const { items: allOpps } = useSelector(s => s.opportunities);
+    const { items: apps } = useSelector(s => s.applications);
+
+    useEffect(() => {
+        dispatch(fetchOpportunities());
+        dispatch(fetchRecruiterApplications());
+    }, [dispatch]);
+
+    // Derived stats
+    const myOpps = allOpps.filter(p => p.recruiter?._id === user?._id || p.recruiter === user?._id);
+    const activePosts = myOpps.filter(o => o.status === 'open').length;
+    const totalApplicants = apps.length;
+    const hiredCount = apps.filter(a => a.status === 'accepted').length;
+    const hiringRate = totalApplicants > 0 ? Math.round((hiredCount / totalApplicants) * 100) : 0;
+
+    // We can still use the mock hiringData for the graph to look pretty, or build it. For now, keep mock graph data structure, 
+    // but replace table and lists below with real data.
+    const hiringDataMock = [
+        { month: 'Jan', posted: 2, hired: 1 },
+        { month: 'Feb', posted: 3, hired: 2 },
+        { month: 'Mar', posted: 5, hired: 2 },
+        { month: 'Apr', posted: 4, hired: 3 },
+        { month: 'May', posted: 6, hired: 4 },
+        { month: 'Jun', posted: 8, hired: 5 },
+        { month: 'Jul', posted: Math.max(activePosts, 4), hired: hiredCount },
+    ];
 
     return (
         <div className="space-y-6 page-enter">
@@ -40,9 +69,9 @@ export default function RecruiterOverview() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard icon={Briefcase} label="Active Posts" value="7" trend="+2 this week" color="bg-blue-500" />
-                <StatCard icon={Users} label="Total Applicants" value="124" trend="+18 today" color="bg-violet-500" />
-                <StatCard icon={TrendingUp} label={t('stats.hiring_rate')} value="72%" trend="+5%" color="bg-emerald-500" />
+                <StatCard icon={Briefcase} label="Active Posts" value={activePosts} trend="+2 this week" color="bg-blue-500" />
+                <StatCard icon={Users} label="Total Applicants" value={totalApplicants} trend="+18 today" color="bg-violet-500" />
+                <StatCard icon={TrendingUp} label={t('stats.hiring_rate')} value={`${hiringRate}%`} trend="+5%" color="bg-emerald-500" />
                 <StatCard icon={Star} label="Avg Response Time" value="1.2d" color="bg-amber-500" />
             </div>
 
@@ -54,7 +83,7 @@ export default function RecruiterOverview() {
                         <Badge variant="info">Last 7 months</Badge>
                     </div>
                     <ResponsiveContainer width="100%" height={220}>
-                        <BarChart data={hiringData} barSize={14} barGap={4}>
+                        <BarChart data={hiringDataMock} barSize={14} barGap={4}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:opacity-20" />
                             <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                             <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -69,17 +98,21 @@ export default function RecruiterOverview() {
                 <Card className="lg:col-span-2">
                     <h2 className="text-base font-bold text-gray-900 dark:text-white mb-5">Post Engagement</h2>
                     <div className="space-y-4">
-                        {mockOpportunities.slice(0, 4).map((opp) => (
-                            <div key={opp.id}>
-                                <div className="flex items-center justify-between mb-1.5">
-                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate flex-1 mr-2">{opp.position}</p>
-                                    <span className="text-xs font-bold text-gray-900 dark:text-white">{opp.applicants}</span>
+                        {myOpps.slice(0, 4).map((opp) => {
+                            const maxApplicants = Math.max(...myOpps.map(o => o.applicantsCount || 0), 10);
+                            const widthPercent = Math.min(((opp.applicantsCount || 0) / maxApplicants) * 100, 100);
+                            return (
+                                <div key={opp._id}>
+                                    <div className="flex items-center justify-between mb-1.5">
+                                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate flex-1 mr-2">{opp.position}</p>
+                                        <span className="text-xs font-bold text-gray-900 dark:text-white">{opp.applicantsCount || 0}</span>
+                                    </div>
+                                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full" style={{ width: `${widthPercent}%` }} />
+                                    </div>
                                 </div>
-                                <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full" style={{ width: `${(opp.applicants / 50) * 100}%` }} />
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </Card>
             </div>
@@ -102,29 +135,29 @@ export default function RecruiterOverview() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50 dark:divide-gray-700/30">
-                            {mockApplications.slice(0, 4).map((app, i) => (
-                                <tr key={app.id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/20 transition-colors">
+                            {apps.slice(0, 4).map((app) => (
+                                <tr key={app._id} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/20 transition-colors">
                                     <td className="py-3">
                                         <div className="flex items-center gap-2">
                                             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold">
-                                                {['A', 'H', 'B', 'Y'][i]}
+                                                {app.student?.name?.[0] || 'A'}
                                             </div>
-                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{['Abebe G.', 'Hana M.', 'Biniam T.', 'Yonas B.'][i]}</span>
+                                            <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{app.student?.name}</span>
                                         </div>
                                     </td>
-                                    <td className="py-3 text-sm text-gray-600 dark:text-gray-400">{app.position}</td>
+                                    <td className="py-3 text-sm text-gray-600 dark:text-gray-400">{app.opportunity?.position}</td>
                                     <td className="py-3">
                                         <div className="flex flex-wrap gap-1">
-                                            {app.skills.slice(0, 2).map(s => (
-                                                <span key={s} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-[10px]">{s}</span>
+                                            {app.student?.skills?.slice(0, 2).map((s, idx) => (
+                                                <span key={idx} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-[10px]">{s}</span>
                                             ))}
                                         </div>
                                     </td>
-                                    <td className="py-3"><Badge variant={app.status} dot>{t(`status.${app.status}`)}</Badge></td>
+                                    <td className="py-3"><Badge variant={app.status || 'pending'} dot>{t(`status.${app.status || 'pending'}`)}</Badge></td>
                                     <td className="py-3 text-right">
                                         <div className="flex items-center gap-1.5 justify-end">
-                                            <button className="px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium transition-colors">Shortlist</button>
-                                            <button className="px-2 py-1 text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-medium transition-colors">Accept</button>
+                                            {app.status !== 'shortlisted' && app.status !== 'accepted' && <button onClick={() => dispatch(updateApplicationStatus({ id: app._id, status: 'shortlisted' }))} className="px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium transition-colors">Shortlist</button>}
+                                            {app.status !== 'accepted' && <button onClick={() => dispatch(updateApplicationStatus({ id: app._id, status: 'accepted' }))} className="px-2 py-1 text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-medium transition-colors">Accept</button>}
                                         </div>
                                     </td>
                                 </tr>

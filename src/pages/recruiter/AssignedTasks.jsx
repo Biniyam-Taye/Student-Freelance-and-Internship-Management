@@ -1,24 +1,36 @@
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Clock, CheckCircle2, Circle, Plus, Star, MessageSquare } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Input from '../../components/ui/Input';
+import { fetchAssignedTasks, assignTask } from '../../features/tasks/taskSlice';
+import { fetchRecruiterApplications } from '../../features/applications/applicationSlice';
 import clsx from 'clsx';
-
-const MOCK_TASKS = [
-    { id: 1, title: 'Build Landing Page', assignee: 'Abebe Girma', position: 'Frontend Intern', deadline: '2026-03-10', status: 'in_progress', description: 'Create a fully responsive landing page using React and Tailwind CSS.' },
-    { id: 2, title: 'Design Mobile Wireframes', assignee: 'Hana Mekonnen', position: 'UI/UX Intern', deadline: '2026-03-15', status: 'completed', description: 'Wireframe 5 screens for the mobile banking app using Figma.' },
-    { id: 3, title: 'Write API Documentation', assignee: 'Biniam Tesfaye', position: 'Backend Intern', deadline: '2026-03-20', status: 'pending', description: 'Document all REST endpoints using Swagger.' },
-];
 
 export default function AssignedTasks() {
     const { t } = useTranslation();
-    const [tasks, setTasks] = useState(MOCK_TASKS);
+    const dispatch = useDispatch();
+
+    const { items: tasks, loading } = useSelector(state => state.tasks);
+    const { items: applications } = useSelector(state => state.applications);
+
+    // Derived: Get all accepted applicants mapped to their corresponding opportunities
+    const acceptedApplicants = applications.filter(a => a.status === 'accepted' && a.student && a.opportunity);
+
     const [newTaskModal, setNewTaskModal] = useState(false);
     const [feedbackModal, setFeedbackModal] = useState(null);
     const [rating, setRating] = useState(0);
+
+    // Form inputs for Assign Task
+    const [newTask, setNewTask] = useState({ title: '', description: '', selectedAppId: '', deadline: '' });
+
+    useEffect(() => {
+        dispatch(fetchAssignedTasks());
+        dispatch(fetchRecruiterApplications());
+    }, [dispatch]);
 
     return (
         <div className="space-y-6 page-enter">
@@ -44,8 +56,11 @@ export default function AssignedTasks() {
             </div>
 
             <div className="space-y-3">
-                {tasks.map((task) => (
-                    <div key={task.id} className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 shadow-sm">
+                {loading && <div className="text-gray-500 text-center py-10 font-medium">Loading tasks...</div>}
+                {!loading && tasks.length === 0 && <div className="text-gray-500 text-center py-10 font-medium">No tasks assigned yet.</div>}
+
+                {!loading && tasks.map((task) => (
+                    <div key={task._id} className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 shadow-sm">
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex items-start gap-3 flex-1">
                                 <div className={clsx('w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5',
@@ -57,13 +72,13 @@ export default function AssignedTasks() {
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{task.description}</p>
                                     <div className="flex flex-wrap items-center gap-3 mt-3">
                                         <div className="flex items-center gap-1.5">
-                                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-[9px] font-bold">{task.assignee[0]}</div>
-                                            <span className="text-xs text-gray-600 dark:text-gray-400">{task.assignee}</span>
+                                            <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-[9px] font-bold">{task.assignee?.name?.[0] || 'S'}</div>
+                                            <span className="text-xs text-gray-600 dark:text-gray-400">{task.assignee?.name}</span>
                                         </div>
                                         <span className="text-xs text-gray-400">·</span>
-                                        <span className="text-xs text-gray-500 dark:text-gray-400">{task.position}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">{task.opportunity?.position}</span>
                                         <span className="text-xs text-gray-400">·</span>
-                                        <div className="flex items-center gap-1 text-xs text-gray-400"><Clock size={11} />{task.deadline}</div>
+                                        <div className="flex items-center gap-1 text-xs text-gray-400"><Clock size={11} />{new Date(task.deadline).toLocaleDateString()}</div>
                                     </div>
                                 </div>
                             </div>
@@ -88,16 +103,39 @@ export default function AssignedTasks() {
             <Modal isOpen={newTaskModal} onClose={() => setNewTaskModal(false)} title="Assign New Task" size="md"
                 footer={<>
                     <Button variant="secondary" onClick={() => setNewTaskModal(false)}>Cancel</Button>
-                    <Button variant="gradient" onClick={() => { setNewTaskModal(false); }}>Assign Task</Button>
+                    <Button variant="gradient" disabled={loading} onClick={async () => {
+                        const app = acceptedApplicants.find(a => a._id === newTask.selectedAppId);
+                        if (!app) return alert("Select an assignee!");
+
+                        await dispatch(assignTask({
+                            opportunityId: app.opportunity._id,
+                            assigneeId: app.student._id,
+                            title: newTask.title,
+                            description: newTask.description,
+                            deadline: newTask.deadline,
+                            priority: 'medium'
+                        }));
+                        setNewTaskModal(false);
+                        setNewTask({ title: '', description: '', selectedAppId: '', deadline: '' });
+                    }}>{loading ? 'Assigning...' : 'Assign Task'}</Button>
                 </>}>
                 <div className="space-y-4">
-                    <Input label="Task Title" placeholder="e.g. Build Landing Page" required />
+                    <Input label="Task Title" placeholder="e.g. Build Landing Page" required value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
                     <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Description</label>
-                        <textarea rows={3} placeholder="Describe the task requirements..." className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+                        <textarea rows={3} placeholder="Describe the task requirements..." value={newTask.description} onChange={e => setNewTask({ ...newTask, description: e.target.value })} className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                     </div>
-                    <Input label="Assignee" placeholder="Select intern..." required />
-                    <Input label="Deadline" type="date" required />
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Assignee (Accepted Student)</label>
+                        <select className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                            value={newTask.selectedAppId} onChange={e => setNewTask({ ...newTask, selectedAppId: e.target.value })}>
+                            <option value="">Select accepted intern...</option>
+                            {acceptedApplicants.map(a => (
+                                <option key={a._id} value={a._id}>{a.student.name} - {a.opportunity.position}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <Input label="Deadline" type="date" required value={newTask.deadline} onChange={e => setNewTask({ ...newTask, deadline: e.target.value })} />
                 </div>
             </Modal>
 
@@ -109,7 +147,7 @@ export default function AssignedTasks() {
                 <div className="space-y-4">
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl mb-4">
                         <div className="text-sm font-semibold text-gray-900 dark:text-white">{feedbackModal?.title}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Completed by {feedbackModal?.assignee}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Completed by {feedbackModal?.assignee?.name}</div>
                     </div>
                     <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-2">Rate Intern's Work</label>

@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchRecommendations } from '../../features/ai/aiSlice';
+import { fetchPosts, createNewPost, likePost, addComment } from '../../features/feed/postSlice';
+import clsx from 'clsx';
 import {
     Image as ImageIcon,
     Video,
@@ -22,36 +25,44 @@ import {
 
 export default function StudentOverview() {
     const { t } = useTranslation();
+    const dispatch = useDispatch();
     const { user } = useSelector((s) => s.auth);
+    const { recommendations, loading: aiLoading } = useSelector(s => s.ai);
+    const { posts, loading: feedLoading } = useSelector(s => s.feed);
 
-    // Mock Feed Posts
-    const [posts] = useState([
-        {
-            id: 1,
-            author: {
-                name: 'Yetmgeta Redahegn',
-                headline: 'Software Eng. Student @ASTU | Aspiring Backend Engineer | Building ...',
-                avatar: 'https://ui-avatars.com/api/?name=Yetmgeta+Redahegn&background=random&color=fff',
-            },
-            time: '1m • 🌍',
-            content: `🚀 Students & Creatives - Ready to Learn How to Make Money on Upwork?\n\nZulu Tech(@zulu-software) is opening unpaid internship opportunities for developers...`,
-            likes: 24,
-            comments: 5
-        },
-        {
-            id: 2,
-            author: {
-                name: 'TechEthiopia',
-                headline: 'Leading Tech Company in East Africa',
-                avatar: 'https://ui-avatars.com/api/?name=Tech+Ethiopia&background=random&color=fff',
-            },
-            time: '2h • 🌍',
-            content: `We're excited to announce our summer internship program! 🌟\n\nIf you're a student looking to gain practical experience in React, Node.js, and Cloud Computing, apply now through the platform.`,
-            image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            likes: 156,
-            comments: 42
+    const [isPosting, setIsPosting] = useState(false);
+    const [postContent, setPostContent] = useState('');
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    useEffect(() => {
+        dispatch(fetchRecommendations());
+        dispatch(fetchPosts());
+    }, [dispatch]);
+
+    const handlePostSubmit = async () => {
+        if (!postContent.trim()) return;
+        try {
+            await dispatch(createNewPost({ content: postContent, image: selectedImage })).unwrap();
+            setPostContent('');
+            setSelectedImage(null);
+            setIsPosting(false);
+        } catch (err) {
+            console.error('Failed to create post:', err);
         }
-    ]);
+    };
+
+    const handleLike = (postId) => {
+        dispatch(likePost(postId));
+    };
+
+    const [activeCommentPost, setActiveCommentPost] = useState(null);
+    const [commentText, setCommentText] = useState('');
+
+    const handleCommentSubmit = (postId) => {
+        if (!commentText.trim()) return;
+        dispatch(addComment({ postId, text: commentText }));
+        setCommentText('');
+    };
 
     return (
         <div className="max-w-[1128px] mx-auto page-enter pt-2">
@@ -134,9 +145,36 @@ export default function StudentOverview() {
                                     user?.name?.charAt(0) || 'B'
                                 )}
                             </div>
-                            <button className="flex-1 text-left px-5 rounded-full border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm text-gray-600 dark:text-gray-300 font-semibold">
-                                Start a post
-                            </button>
+                            <div className="flex-1">
+                                {isPosting ? (
+                                    <div className="space-y-3">
+                                        <textarea
+                                            autoFocus
+                                            value={postContent}
+                                            onChange={(e) => setPostContent(e.target.value)}
+                                            placeholder="What's on your mind?"
+                                            className="w-full min-h-[100px] p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <button onClick={() => setIsPosting(false)} className="px-4 py-1.5 text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">Cancel</button>
+                                            <button
+                                                onClick={handlePostSubmit}
+                                                disabled={!postContent.trim()}
+                                                className="px-6 py-1.5 bg-blue-600 text-white text-sm font-bold rounded-full hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                            >
+                                                Post
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <button
+                                        onClick={() => setIsPosting(true)}
+                                        className="w-full text-left px-5 py-3 rounded-full border border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm text-gray-600 dark:text-gray-300 font-semibold"
+                                    >
+                                        Start a post
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className="flex justify-around items-center pt-1">
                             <button className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors">
@@ -160,21 +198,33 @@ export default function StudentOverview() {
                     </div>
 
                     {/* Feed Posts */}
-                    {posts.map(post => (
-                        <div key={post.id} className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden">
+                    {feedLoading && <div className="text-center py-10 text-gray-400">Loading feed...</div>}
+                    {!feedLoading && posts.length === 0 && <div className="text-center py-10 text-gray-400 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">No posts yet. Be the first to share something!</div>}
+                    {!feedLoading && posts.map(post => (
+                        <div key={post._id || post.id} className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] overflow-hidden">
                             {/* Post Header */}
                             <div className="p-3 lg:p-4 flex gap-3 items-start">
-                                <img src={post.author.avatar} alt={post.author.name} className="w-12 h-12 rounded-full flex-shrink-0 object-cover" />
+                                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                                    {post.author?.avatar ? (
+                                        <img src={post.author.avatar} alt={post.author.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">
+                                            {post.author?.name?.charAt(0) || 'U'}
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h3 className="font-semibold text-gray-900 dark:text-white text-sm hover:text-blue-700 hover:underline cursor-pointer flex items-center gap-1">
-                                                {post.author.name}
+                                                {post.author?.name}
                                                 <span className="text-gray-500 font-normal text-[13px] no-underline">• 1st</span>
                                             </h3>
-                                            <p className="text-xs text-gray-500 text-[12px] truncate">{post.author.headline}</p>
+                                            <p className="text-xs text-gray-500 text-[12px] truncate">
+                                                {post.author?.role === 'recruiter' ? post.author.company : (post.author?.university || post.author?.headline || 'Freelancer')}
+                                            </p>
                                             <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                                {post.time}
+                                                {new Date(post.createdAt || Date.now()).toLocaleDateString()}
                                             </p>
                                         </div>
                                         <div className="flex items-center text-gray-500">
@@ -209,20 +259,33 @@ export default function StudentOverview() {
                                     <div className="bg-[#1485bd] rounded-full p-[3px]">
                                         <ThumbsUp size={10} className="text-white fill-white" />
                                     </div>
-                                    <span className="text-xs text-gray-500 hover:text-blue-600">{post.likes}</span>
+                                    <span className="text-xs text-gray-500 hover:text-blue-600">{(post.likes || []).length}</span>
                                 </div>
                                 <span className="text-xs text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 cursor-pointer">
-                                    {post.comments} comments • 2 reposts
+                                    {(post.comments || []).length} comments
                                 </span>
                             </div>
 
                             {/* Action Buttons */}
                             <div className="px-2 py-1 flex justify-between gap-1 mt-1 mb-1">
-                                <button className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors">
-                                    <ThumbsUp size={20} className="text-gray-500" /> <span className="hidden sm:inline">Like</span>
+                                <button
+                                    onClick={() => handleLike(post._id || post.id)}
+                                    className={clsx(
+                                        "flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md transition-colors font-semibold text-sm",
+                                        (post.likes || []).includes(user?._id)
+                                            ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10"
+                                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                    )}
+                                >
+                                    <ThumbsUp size={20} className={clsx((post.likes || []).includes(user?._id) ? "fill-current" : "text-gray-500")} />
+                                    <span className="hidden sm:inline">Like</span>
                                 </button>
-                                <button className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors">
-                                    <MessageSquare size={20} className="text-gray-500 flex-shrink-0 translate-y-[1px]" style={{ transform: 'scaleX(-1)' }} /> <span className="hidden sm:inline">Comment</span>
+                                <button
+                                    onClick={() => setActiveCommentPost(activeCommentPost === (post._id || post.id) ? null : (post._id || post.id))}
+                                    className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors"
+                                >
+                                    <MessageSquare size={20} className="text-gray-500 flex-shrink-0 translate-y-[1px]" style={{ transform: 'scaleX(-1)' }} />
+                                    <span className="hidden sm:inline">Comment</span>
                                 </button>
                                 <button className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors">
                                     <Repeat size={20} className="text-gray-500" /> <span className="hidden sm:inline">Repost</span>
@@ -231,6 +294,42 @@ export default function StudentOverview() {
                                     <Send size={20} className="text-gray-500 -rotate-45 -translate-y-[2px]" /> <span className="hidden sm:inline">Send</span>
                                 </button>
                             </div>
+
+                            {/* Comment Section */}
+                            {activeCommentPost === (post._id || post.id) && (
+                                <div className="px-3 lg:px-4 py-3 bg-gray-50/50 dark:bg-gray-900/20 border-t border-gray-100 dark:border-gray-800">
+                                    <div className="flex gap-2 mb-4">
+                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-500">
+                                            {user?.avatar ? <img src={user.avatar} className="rounded-full h-full w-full object-cover" /> : user?.name?.[0]}
+                                        </div>
+                                        <div className="flex-1 flex items-center gap-2">
+                                            <input
+                                                value={commentText}
+                                                onChange={(e) => setCommentText(e.target.value)}
+                                                onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit(post._id || post.id)}
+                                                placeholder="Add a comment..."
+                                                className="flex-1 px-4 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {(post.comments || []).map(comment => (
+                                            <div key={comment._id} className="flex gap-2">
+                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                                    {comment.author?.avatar ? <img src={comment.author.avatar} className="rounded-full h-full w-full object-cover" /> : comment.author?.name?.[0]}
+                                                </div>
+                                                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2 flex-1">
+                                                    <div className="flex justify-between items-center mb-0.5">
+                                                        <span className="text-xs font-bold text-gray-900 dark:text-white">{comment.author?.name}</span>
+                                                        <span className="text-[10px] text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">{comment.text}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -248,25 +347,27 @@ export default function StudentOverview() {
                                 <h2 className="font-bold text-gray-900 dark:text-white text-sm">AI Recommends</h2>
                             </div>
                             <div className="space-y-4">
-                                {[
-                                    { title: 'Frontend Developer', company: 'iCog Labs', match: '98% Match', type: 'Internship', color: 'bg-violet-500' },
-                                    { title: 'UI/UX Designer', company: 'Kifiya Financial', match: '92% Match', type: 'Freelance', color: 'bg-emerald-500' },
-                                    { title: 'Mobile Developer', company: 'Ride Ethiopia', match: '85% Match', type: 'Part-time', color: 'bg-blue-500' },
-                                ].map(({ title, company, type, color, match }) => (
-                                    <div key={title} className="flex gap-3 items-start group cursor-pointer">
-                                        <div className={`w-10 h-10 rounded-lg ${color} flex-shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform`}>
-                                            {company.charAt(0)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white leading-snug truncate group-hover:text-blue-600 transition-colors">{title}</h4>
-                                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">{match}</span>
+                                {aiLoading ? (
+                                    <div className="text-xs text-gray-500 text-center py-4">Gemini AI is analyzing real-time matches...</div>
+                                ) : recommendations && recommendations.length > 0 ? (
+                                    recommendations.slice(0, 3).map(({ opportunity, matchScore }) => (
+                                        <div key={opportunity?._id} className="flex gap-3 items-start group cursor-pointer">
+                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
+                                                {opportunity?.company?.charAt(0) || 'J'}
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-0.5">{company}</p>
-                                            <span className="inline-block mt-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-gray-50 dark:bg-gray-800 px-2 flex-shrink-0 rounded-full">{type}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start">
+                                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white leading-snug truncate group-hover:text-blue-600 transition-colors">{opportunity?.position}</h4>
+                                                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">{matchScore}% Match</span>
+                                                </div>
+                                                <p className="text-xs text-gray-500 mt-0.5">{opportunity?.company}</p>
+                                                <span className="inline-block mt-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-gray-50 dark:bg-gray-800 px-2 flex-shrink-0 rounded-full">{opportunity?.type}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                ) : (
+                                    <div className="text-xs text-gray-500 text-center py-4">No specific matches found. Try updating your profile skills!</div>
+                                )}
                             </div>
                             <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
                                 <Link to="/student/browse" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">

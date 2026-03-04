@@ -4,6 +4,7 @@ const {
     applyForOpportunity,
     getMyApplications,
     getApplicationsForJob,
+    getRecruiterApplications,
     updateApplicationStatus
 } = require('../controllers/applicationController');
 const { protect, recruiter } = require('../middlewares/authMiddleware');
@@ -13,6 +14,7 @@ router.post('/:opportunityId', protect, applyForOpportunity);
 router.get('/myapplications', protect, getMyApplications);
 
 // Recruiter Routes
+router.get('/recruiter', protect, recruiter, getRecruiterApplications);
 router.get('/job/:opportunityId', protect, recruiter, getApplicationsForJob);
 router.put('/:id/status', protect, recruiter, updateApplicationStatus);
 

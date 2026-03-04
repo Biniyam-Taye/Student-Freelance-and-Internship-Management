@@ -33,6 +33,8 @@ const taskRoutes = require('./routes/taskRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const aiRoutes = require('./routes/aiRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+const postRoutes = require('./routes/postRoutes');
 
 app.use('/api/users', userRoutes);
 app.use('/api/opportunities', opportunityRoutes);
@@ -41,6 +43,8 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/posts', postRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

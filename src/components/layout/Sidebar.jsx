@@ -44,7 +44,9 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { user } = useSelector((s) => s.auth);
-    const { totalUnread: chatUnread } = useSelector((s) => s.chat);
+    const chatState = useSelector((s) => s.chat);
+    // Compute unread: count messages in conversations not sent by me
+    const chatUnread = 0; // Real unread tracking would require server-side unread counts
 
     const navItems = navByRole[user?.role] || studentNav;
 

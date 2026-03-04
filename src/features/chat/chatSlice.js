@@ -1,64 +1,88 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import messageService from '../../services/messageService';
 
-const MOCK_CONVERSATIONS = [
-    {
-        id: 'conv1', user: { id: 'u2', name: 'Sara Tadesse', role: 'recruiter', online: true },
-        lastMessage: 'Looking forward to your submission!', time: '2m ago', unread: 2,
-        messages: [
-            { id: 'm1', senderId: 'u2', text: 'Hi! We reviewed your profile and are impressed.', time: '10:00 AM' },
-            { id: 'm2', senderId: 'u1', text: 'Thank you so much! I am very interested in the opportunity.', time: '10:05 AM' },
-            { id: 'm3', senderId: 'u2', text: 'Great! We would like to assign you a small task to evaluate your skills.', time: '10:10 AM' },
-            { id: 'm4', senderId: 'u1', text: 'Sure, I am ready!', time: '10:12 AM' },
-            { id: 'm5', senderId: 'u2', text: 'Looking forward to your submission!', time: '10:15 AM' },
-        ],
-    },
-    {
-        id: 'conv2', user: { id: 'u3', name: 'Yonas Bekele', role: 'recruiter', online: false },
-        lastMessage: 'We will get back to you soon.', time: '1h ago', unread: 0,
-        messages: [
-            { id: 'm6', senderId: 'u3', text: 'Hello, we received your application.', time: '9:00 AM' },
-            { id: 'm7', senderId: 'u1', text: 'Thank you for considering my application!', time: '9:05 AM' },
-            { id: 'm8', senderId: 'u3', text: 'We will get back to you soon.', time: '9:08 AM' },
-        ],
-    },
-    {
-        id: 'conv3', user: { id: 'u4', name: 'Hana Mekonnen', role: 'student', online: true },
-        lastMessage: 'Can you review my portfolio?', time: '3h ago', unread: 1,
-        messages: [
-            { id: 'm9', senderId: 'u4', text: 'Hi! I noticed you are working on a similar project.', time: '7:00 AM' },
-            { id: 'm10', senderId: 'u1', text: 'Yes! Happy to collaborate.', time: '7:20 AM' },
-            { id: 'm11', senderId: 'u4', text: 'Can you review my portfolio?', time: '7:30 AM' },
-        ],
-    },
-];
+// Fetch list of contacts (users with whom there are conversations)
+export const fetchConversationsList = createAsyncThunk('chat/fetchList', async (_, thunkAPI) => {
+    try {
+        const res = await messageService.getConversationsList();
+        return res.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+});
+
+// Fetch messages for a specific conversation
+export const fetchConversation = createAsyncThunk('chat/fetchConversation', async (otherUserId, thunkAPI) => {
+    try {
+        const res = await messageService.getConversation(otherUserId);
+        return { otherUserId, messages: res.data };
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+});
+
+// Send a message
+export const sendMessageThunk = createAsyncThunk('chat/sendMessage', async ({ receiverId, content }, thunkAPI) => {
+    try {
+        const res = await messageService.sendMessage(receiverId, content);
+        return { receiverId, message: res.data };
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+});
 
 const chatSlice = createSlice({
     name: 'chat',
     initialState: {
-        conversations: MOCK_CONVERSATIONS,
-        activeConversationId: 'conv1',
-        totalUnread: 3,
+        contacts: [],           // List of users we've conversed with
+        activeContactId: null,  // ID of the currently open contact
+        conversations: {},      // Map of contactId -> array of messages
+        loading: false,
+        sendingMessage: false,
+        error: null,
     },
     reducers: {
-        setActiveConversation: (state, action) => {
-            state.activeConversationId = action.payload;
-            const conv = state.conversations.find((c) => c.id === action.payload);
-            if (conv) {
-                state.totalUnread = Math.max(0, state.totalUnread - conv.unread);
-                conv.unread = 0;
-            }
+        setActiveContact: (state, action) => {
+            state.activeContactId = action.payload;
         },
-        sendMessage: (state, action) => {
-            const { conversationId, message } = action.payload;
-            const conv = state.conversations.find((c) => c.id === conversationId);
-            if (conv) {
-                conv.messages.push(message);
-                conv.lastMessage = message.text;
-                conv.time = 'Just now';
-            }
+        // Keep local optimistic update for immediate feel after sendMessageThunk resolves
+        appendLocalMessage: (state, action) => {
+            const { contactId, message } = action.payload;
+            if (!state.conversations[contactId]) state.conversations[contactId] = [];
+            state.conversations[contactId].push(message);
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchConversationsList.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(fetchConversationsList.fulfilled, (state, action) => {
+                state.loading = false;
+                state.contacts = action.payload;
+                if (action.payload.length > 0 && !state.activeContactId) {
+                    state.activeContactId = action.payload[0]._id;
+                }
+            })
+            .addCase(fetchConversationsList.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+
+            .addCase(fetchConversation.pending, (state) => { state.loading = true; })
+            .addCase(fetchConversation.fulfilled, (state, action) => {
+                state.loading = false;
+                state.conversations[action.payload.otherUserId] = action.payload.messages;
+            })
+            .addCase(fetchConversation.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+
+            .addCase(sendMessageThunk.pending, (state) => { state.sendingMessage = true; })
+            .addCase(sendMessageThunk.fulfilled, (state, action) => {
+                state.sendingMessage = false;
+                const { receiverId, message } = action.payload;
+                if (!state.conversations[receiverId]) state.conversations[receiverId] = [];
+                // Replace the optimistic entry or just push if not already present
+                const exists = state.conversations[receiverId].some(m => m._id === message._id);
+                if (!exists) state.conversations[receiverId].push(message);
+            })
+            .addCase(sendMessageThunk.rejected, (state, action) => { state.sendingMessage = false; state.error = action.payload; });
     },
 });
 
-export const { setActiveConversation, sendMessage } = chatSlice.actions;
+export const { setActiveContact, appendLocalMessage } = chatSlice.actions;
 export default chatSlice.reducer;
