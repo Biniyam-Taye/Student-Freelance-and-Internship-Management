@@ -56,13 +56,15 @@ export default function LoginPage() {
         <div className="min-h-screen flex bg-white dark:bg-slate-900 font-sans transition-colors duration-300">
             {/* Left Panel - Modern, Clean SaaS look */}
             <div className="hidden lg:flex lg:w-1/2 relative bg-slate-50 dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex-col justify-between p-12 overflow-hidden">
+                {/* Background Image */}
+                <div className="absolute inset-0 z-0 bg-[url('/login-bg.jpg')] bg-cover bg-center bg-no-repeat pointer-events-none" style={{ opacity: 0.25 }} />
+
+                {/* Gradient Overlay for text readability */}
+                <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-50/70 via-transparent to-slate-50/70 dark:from-slate-800/70 dark:via-transparent dark:to-slate-800/70 pointer-events-none" />
+
                 {/* Subtle Grid Background */}
                 <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]"
                     style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-
-                {/* Blobs */}
-                <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none" />
-                <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
 
                 <div className="relative z-10 flex-shrink-0">
                     <Link to="/" className="flex items-center gap-2 mb-16">
