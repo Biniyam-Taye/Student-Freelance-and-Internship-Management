@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyTasks, submitTask, updateTaskStatus } from '../../features/tasks/taskSlice';
-import { Clock, CheckCircle2, AlertCircle, Circle, Upload, Link as LinkIcon } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, Circle, Upload, Link as LinkIcon, Star, MessageSquare, RefreshCw } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
@@ -20,12 +20,20 @@ export default function StudentTasks() {
     const { items: tasks, loading } = useSelector(state => state.tasks);
 
     const [submitModal, setSubmitModal] = useState(null);
+    const [feedbackModal, setFeedbackModal] = useState(null);
     const [submissionNotes, setSubmissionNotes] = useState('');
     const [submissionFileDetails, setSubmissionFileDetails] = useState('');
     const [filter, setFilter] = useState('all');
 
     useEffect(() => {
         dispatch(fetchMyTasks());
+    }, [dispatch]);
+
+    // Refetch tasks when user returns to the tab so new recruiter feedback appears
+    useEffect(() => {
+        const onFocus = () => dispatch(fetchMyTasks());
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
     }, [dispatch]);
 
     const filtered = filter === 'all' ? tasks : tasks.filter(t_ => t_.status === filter);
@@ -38,9 +46,20 @@ export default function StudentTasks() {
 
     return (
         <div className="space-y-6 page-enter">
-            <div>
-                <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.tasks')}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage and submit your assigned tasks</p>
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.tasks')}</h1>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage and submit your assigned tasks. Completed tasks show recruiter feedback and ratings.</p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => dispatch(fetchMyTasks())}
+                    disabled={loading}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+                >
+                    <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                    Refresh
+                </button>
             </div>
 
             {/* Filter tabs */}
@@ -104,9 +123,35 @@ export default function StudentTasks() {
                                     </Button>
                                 )}
                                 {task.status === 'completed' && (
-                                    <Badge variant="accepted" dot>Completed</Badge>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <Badge variant="accepted" dot>Completed</Badge>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFeedbackModal(task)}
+                                            className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                                        >
+                                            <MessageSquare size={12} /> View recruiter feedback
+                                        </button>
+                                    </div>
                                 )}
                             </div>
+                            {task.status === 'completed' && (task.rating != null || (task.feedback && task.feedback.trim())) && (
+                                <div className="ml-[30px] mt-3 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/50">
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Recruiter feedback</span>
+                                        {task.rating != null && task.rating !== undefined && (
+                                            <span className="flex items-center gap-0.5">
+                                                {[1, 2, 3, 4, 5].map((s) => (
+                                                    <Star key={s} size={14} className={Number(s) <= Number(task.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300 dark:text-gray-600'} />
+                                                ))}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {task.feedback && task.feedback.trim() && (
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{task.feedback}</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     );
                 })}
@@ -150,6 +195,39 @@ export default function StudentTasks() {
                         </div>
                     </div>
                 </div>
+            </Modal>
+
+            {/* View recruiter feedback modal */}
+            <Modal isOpen={!!feedbackModal} onClose={() => setFeedbackModal(null)} title="Recruiter feedback" size="md"
+                footer={<Button variant="secondary" onClick={() => setFeedbackModal(null)}>Close</Button>}>
+                {feedbackModal && (
+                    <div className="space-y-4">
+                        <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{feedbackModal.title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{feedbackModal.opportunity?.company || 'Company'}</p>
+                        </div>
+                        {feedbackModal.rating != null && feedbackModal.rating !== '' && (
+                            <div>
+                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Rating</p>
+                                <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star key={s} size={24} className={Number(s) <= Number(feedbackModal.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300 dark:text-gray-600'} />
+                                    ))}
+                                    <span className="ml-2 text-sm font-semibold text-gray-700 dark:text-gray-300">{feedbackModal.rating}/5</span>
+                                </div>
+                            </div>
+                        )}
+                        {feedbackModal.feedback && (
+                            <div>
+                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5 flex items-center gap-1.5"><MessageSquare size={14} /> Feedback</p>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl">{feedbackModal.feedback}</p>
+                            </div>
+                        )}
+                        {feedbackModal.rating == null && !feedbackModal.feedback && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">No rating or feedback yet.</p>
+                        )}
+                    </div>
+                )}
             </Modal>
         </div >
     );

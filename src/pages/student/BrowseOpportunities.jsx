@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink, RefreshCw } from 'lucide-react';
@@ -14,6 +15,8 @@ import clsx from 'clsx';
 export default function BrowseOpportunities() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const location = useLocation();
+    const navigate = useNavigate();
     const { items: opportunities, loading, error } = useSelector(state => state.opportunities);
     const { loading: applyLoading } = useSelector(state => state.applications);
 
@@ -32,6 +35,17 @@ export default function BrowseOpportunities() {
     useEffect(() => {
         dispatch(fetchOpportunities({ keyword: search, type: typeFilter }));
     }, [dispatch, search, typeFilter]);
+
+    // Open Apply modal when navigated from AI Recommends with a specific job id
+    const openApplyId = location.state?.openApplyId;
+    useEffect(() => {
+        if (!openApplyId || loading || opportunities.length === 0) return;
+        const opp = opportunities.find((o) => o._id === openApplyId);
+        if (opp) {
+            setApplyModal(opp);
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [openApplyId, loading, opportunities, navigate, location.pathname]);
 
     // Local filter/sort on the fetched items
     const filtered = [...opportunities].filter((o) => {

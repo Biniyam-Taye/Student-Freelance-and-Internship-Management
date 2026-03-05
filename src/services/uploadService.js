@@ -1,25 +1,53 @@
-import api from './api';
+import axios from 'axios';
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
 /**
  * Upload a profile avatar to Cloudinary via the backend.
+ * Sends base64 image data so the backend doesn't depend on multipart parsing.
  * @param {File} file - The image file to upload.
  * @returns {Promise<string>} The Cloudinary URL of the uploaded image.
  */
 export const uploadAvatar = async (file) => {
-    const formData = new FormData();
-    formData.append('image', file);
-    const response = await api.post('/upload/avatar', formData);
+    const toBase64 = (f) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(f);
+        });
+
+    const imageData = await toBase64(file);
+    const token = localStorage.getItem('authToken');
+    const response = await axios.post(
+        `${BASE_URL}/upload/avatar`,
+        { imageData },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            timeout: 20000,
+        }
+    );
     return response.data.url;
 };
 
 /**
  * Upload a post image to Cloudinary via the backend.
+ * Uses multipart/form-data via FormData.
  * @param {File} file - The image file to upload.
  * @returns {Promise<string>} The Cloudinary URL of the uploaded image.
  */
 export const uploadPostImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    const response = await api.post('/upload/post', formData);
+    const token = localStorage.getItem('authToken');
+    const response = await axios.post(`${BASE_URL}/upload/post`, formData, {
+        headers: {
+            ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        timeout: 20000,
+    });
     return response.data.url;
 };

@@ -2,22 +2,31 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { Star } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Button from '../../components/ui/Button';
+import Modal from '../../components/ui/Modal';
 import SearchFilter from '../../components/common/SearchFilter';
 import { fetchRecruiterApplications, updateApplicationStatus } from '../../features/applications/applicationSlice';
+import { fetchAssignedTasks } from '../../features/tasks/taskSlice';
 
 export default function RecruiterApplications() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { items: apps, loading } = useSelector(state => state.applications);
+    const assignedTasks = useSelector(state => state.tasks.items);
     const [search, setSearch] = useState('');
+    const [selectedApp, setSelectedApp] = useState(null);
 
     useEffect(() => {
         dispatch(fetchRecruiterApplications());
     }, [dispatch]);
+
+    useEffect(() => {
+        if (selectedApp) dispatch(fetchAssignedTasks());
+    }, [selectedApp, dispatch]);
 
     const updateStatus = (id, status) => {
         dispatch(updateApplicationStatus({ id, status }));
@@ -30,19 +39,38 @@ export default function RecruiterApplications() {
         return studentName.toLowerCase().includes(search.toLowerCase()) || position.toLowerCase().includes(search.toLowerCase());
     });
 
+    const studentReviewStats = selectedApp?.student?._id
+        ? (() => {
+            const forStudent = assignedTasks.filter(
+                t => (t.student?._id || t.student) === selectedApp.student._id && t.rating != null
+            );
+            if (forStudent.length === 0) return null;
+            const sum = forStudent.reduce((acc, t) => acc + Number(t.rating), 0);
+            return { average: sum / forStudent.length, count: forStudent.length };
+        })()
+        : null;
+
     const columns = [
         {
             key: 'applicant', title: 'Applicant',
             render: (_, row) => (
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                        {row.student?.name?.[0] || 'A'}
+                <button
+                    type="button"
+                    onClick={() => setSelectedApp(row)}
+                    className="flex items-center gap-3 w-full text-left hover:opacity-90 transition-opacity rounded-lg -m-2 p-2"
+                >
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 overflow-hidden">
+                        {row.student?.avatar ? (
+                            <img src={row.student.avatar} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                            row.student?.name?.[0] || 'A'
+                        )}
                     </div>
                     <div>
                         <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{row.student?.name}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400">{row.student?.university}</p>
                     </div>
-                </div>
+                </button>
             ),
         },
         { key: 'position', title: 'Position', render: (_, row) => <span className="text-sm text-gray-700 dark:text-gray-300">{row.opportunity?.position}</span> },
@@ -129,6 +157,80 @@ export default function RecruiterApplications() {
                     <Table columns={columns} data={filtered} emptyMessage={t('common.no_data')} />
                 )}
             </div>
+
+            <Modal
+                isOpen={!!selectedApp}
+                onClose={() => setSelectedApp(null)}
+                title="Student details"
+                size="sm"
+                footer={<Button variant="secondary" onClick={() => setSelectedApp(null)}>Close</Button>}
+            >
+                {selectedApp && (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-lg font-bold flex-shrink-0 overflow-hidden">
+                                {selectedApp.student?.avatar ? (
+                                    <img src={selectedApp.student.avatar} alt="" className="w-full h-full object-cover" />
+                                ) : (
+                                    selectedApp.student?.name?.[0] || 'A'
+                                )}
+                            </div>
+                            <div className="min-w-0">
+                                <p className="font-bold text-gray-900 dark:text-white truncate">{selectedApp.student?.name}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{selectedApp.student?.email}</p>
+                                {selectedApp.student?.university && (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{selectedApp.student.university}</p>
+                                )}
+                            </div>
+                        </div>
+                        {selectedApp.opportunity && (
+                            <div className="rounded-xl bg-gray-50 dark:bg-gray-800/60 p-3">
+                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Applied for</p>
+                                <p className="font-semibold text-gray-900 dark:text-white text-sm">{selectedApp.opportunity.position}</p>
+                                {selectedApp.opportunity.company && (
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">{selectedApp.opportunity.company}</p>
+                                )}
+                            </div>
+                        )}
+                        {(selectedApp.student?.major || (selectedApp.student?.skills?.length > 0)) && (
+                            <div className="space-y-1.5">
+                                {selectedApp.student?.major && (
+                                    <p className="text-sm"><span className="text-gray-500 dark:text-gray-400">Major</span> <span className="text-gray-900 dark:text-white font-medium">{selectedApp.student.major}</span></p>
+                                )}
+                                {selectedApp.student?.skills?.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5">
+                                        <span className="text-sm text-gray-500 dark:text-gray-400 w-full">Skills</span>
+                                        {selectedApp.student.skills.map((s, i) => (
+                                            <span key={i} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md text-xs">{s}</span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {studentReviewStats && (
+                            <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-3">
+                                <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5">Your reviews</p>
+                                <div className="flex items-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                            key={star}
+                                            size={18}
+                                            className={star <= Math.round(studentReviewStats.average) ? 'fill-amber-400 text-amber-400' : 'text-gray-300 dark:text-gray-600'}
+                                        />
+                                    ))}
+                                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                                        {studentReviewStats.average.toFixed(1)}/5
+                                    </span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">({studentReviewStats.count} task{studentReviewStats.count !== 1 ? 's' : ''})</span>
+                                </div>
+                            </div>
+                        )}
+                        {!studentReviewStats && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400">No task reviews for this student yet.</p>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }

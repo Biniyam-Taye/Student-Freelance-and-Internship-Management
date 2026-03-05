@@ -130,8 +130,22 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
+            .addCase(fetchProfile.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
             .addCase(fetchProfile.fulfilled, (state, action) => {
-                state.user = Object.assign({}, state.user, action.payload);
+                state.loading = false;
+                state.user = action.payload;
+                state.isAuthenticated = true;
+            })
+            .addCase(fetchProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.user = null;
+                state.token = null;
+                state.isAuthenticated = false;
+                state.error = action.payload;
+                localStorage.removeItem('authToken');
             })
             // Update Profile
             .addCase(updateUserProfile.pending, (state) => {

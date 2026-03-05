@@ -125,10 +125,17 @@ const reviewTask = asyncHandler(async (req, res) => {
         throw new Error('Cannot review a task that is not completed');
     }
 
-    task.rating = rating;
-    task.feedback = feedback;
+    const numRating = rating != null ? Number(rating) : null;
+    if (numRating != null && (numRating < 1 || numRating > 5)) {
+        res.status(400);
+        throw new Error('Rating must be between 1 and 5');
+    }
 
-    const reviewedTask = await task.save();
+    task.rating = numRating;
+    task.feedback = feedback != null ? String(feedback).trim() : '';
+
+    await task.save();
+    const reviewedTask = await Task.findById(task._id).populate('student', 'name email avatar');
     res.json(reviewedTask);
 });
 

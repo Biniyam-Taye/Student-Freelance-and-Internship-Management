@@ -393,21 +393,30 @@ export default function StudentOverview() {
                                 {aiLoading ? (
                                     <div className="text-xs text-gray-500 text-center py-4">Gemini AI is analyzing real-time matches...</div>
                                 ) : recommendations && recommendations.length > 0 ? (
-                                    recommendations.slice(0, 3).map(({ opportunity, matchScore }) => (
-                                        <div key={opportunity?._id} className="flex gap-3 items-start group cursor-pointer">
-                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
-                                                {opportunity?.company?.charAt(0) || 'J'}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-start">
-                                                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white leading-snug truncate group-hover:text-blue-600 transition-colors">{opportunity?.position}</h4>
-                                                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">{matchScore}% Match</span>
+                                    recommendations.slice(0, 3).map((rec) => {
+                                        const matchScore = rec.matchScore ?? 50;
+                                        const position = rec.position ?? 'Opportunity';
+                                        const company = rec.company ?? 'Company';
+                                        const type = rec.type ?? 'job';
+                                        return (
+                                            <Link key={rec._id} to="/student/browse" state={{ openApplyId: rec._id }} className="flex gap-3 items-start group cursor-pointer">
+                                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex-shrink-0 flex items-center justify-center text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
+                                                    {company.charAt(0).toUpperCase()}
                                                 </div>
-                                                <p className="text-xs text-gray-500 mt-0.5">{opportunity?.company}</p>
-                                                <span className="inline-block mt-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-gray-50 dark:bg-gray-800 px-2 flex-shrink-0 rounded-full">{opportunity?.type}</span>
-                                            </div>
-                                        </div>
-                                    ))
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-start gap-2">
+                                                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white leading-snug truncate group-hover:text-blue-600 transition-colors">{position}</h4>
+                                                        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded ml-2 flex-shrink-0">{matchScore}% Match</span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 mt-0.5 truncate">{company}</p>
+                                                    {rec.description && (
+                                                        <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1 line-clamp-2">{rec.description}</p>
+                                                    )}
+                                                    <span className="inline-block mt-1 text-[11px] font-medium text-blue-600 dark:text-blue-400 bg-gray-50 dark:bg-gray-800 px-2 flex-shrink-0 rounded-full capitalize">{type}</span>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })
                                 ) : (
                                     <div className="text-xs text-gray-500 text-center py-4">No specific matches found. Try updating your profile skills!</div>
                                 )}
