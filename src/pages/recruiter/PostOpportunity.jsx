@@ -24,6 +24,7 @@ export default function PostOpportunity() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const { loading, error } = useSelector(state => state.opportunities);
+    const { user } = useSelector(state => state.auth);
 
     const [skills, setSkills] = useState([]);
     const [skillInput, setSkillInput] = useState('');
@@ -48,6 +49,7 @@ export default function PostOpportunity() {
         try {
             const payload = {
                 position: data.title,
+                company: user?.company || user?.name || 'Unknown Company',
                 description: data.description,
                 location: data.location,
                 stipend: data.stipend,

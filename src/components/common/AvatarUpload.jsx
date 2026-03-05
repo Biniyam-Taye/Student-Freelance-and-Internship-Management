@@ -35,8 +35,10 @@ export default function AvatarUpload({ currentUrl, name = '', onUploaded }) {
             const url = await uploadAvatar(file);
             setPreview(url);
             onUploaded(url);
-        } catch {
-            setError('Upload failed. Try again.');
+        } catch (err) {
+            console.error('Upload error details:', err);
+            const msg = err.response?.data?.message || 'Upload failed. Try again.';
+            setError(msg);
             setPreview(currentUrl || null);
         } finally {
             setLoading(false);

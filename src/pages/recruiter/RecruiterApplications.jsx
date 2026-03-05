@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import Badge from '../../components/ui/Badge';
@@ -10,6 +11,7 @@ import { fetchRecruiterApplications, updateApplicationStatus } from '../../featu
 export default function RecruiterApplications() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { items: apps, loading } = useSelector(state => state.applications);
     const [search, setSearch] = useState('');
 
@@ -62,6 +64,26 @@ export default function RecruiterApplications() {
             key: '_id', title: 'Actions', align: 'right',
             render: (_, row) => (
                 <div className="flex items-center gap-1.5 justify-end">
+                    {/* Message becomes available once the application is accepted */}
+                    {row.status === 'accepted' && row.student && (
+                        <button
+                            onClick={() => navigate('/recruiter/messages', {
+                                state: {
+                                    initialContact: {
+                                        _id: row.student._id,
+                                        name: row.student.name,
+                                        role: row.student.role || 'student',
+                                        company: row.student.company,
+                                        university: row.student.university,
+                                        avatar: row.student.avatar,
+                                    }
+                                }
+                            })}
+                            className="px-2.5 py-1 text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 font-medium transition-colors"
+                        >
+                            Message
+                        </button>
+                    )}
                     {row.status !== 'shortlisted' && row.status !== 'rejected' && (
                         <button onClick={() => updateStatus(row._id, 'shortlisted')} className="px-2.5 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium transition-colors">
                             {t('common.shortlist')}

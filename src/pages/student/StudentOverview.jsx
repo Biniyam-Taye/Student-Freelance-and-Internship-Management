@@ -111,16 +111,16 @@ export default function StudentOverview() {
 
                             <div className="text-center">
                                 <h2 className="text-base font-bold text-gray-900 dark:text-white hover:underline cursor-pointer">
-                                    {user?.name || 'Biniyam Taye'}
+                                    {user?.name || 'Student Name'}
                                 </h2>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 px-2">
-                                    Full-Stack Software Engineer (MERN) | AI & Scalable Web ...
+                                    {user?.bio || user?.major || 'Add a bio to tell recruiters about yourself.'}
                                 </p>
-                                <p className="text-[11px] text-gray-500 mt-1">Ethiopia</p>
+                                <p className="text-[11px] text-gray-500 mt-1">{user?.location || 'Location not specified'}</p>
 
                                 <div className="flex items-center justify-center gap-1.5 mt-3 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                                    <img src="https://ui-avatars.com/api/?name=AMU&background=random" className="w-4 h-4 rounded" alt="AMU" />
-                                    Arba Minch University
+                                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user?.university || 'UN')}&background=random`} className="w-4 h-4 rounded" alt="University" />
+                                    {user?.university || 'University not specified'}
                                 </div>
                             </div>
                         </div>
@@ -128,11 +128,11 @@ export default function StudentOverview() {
                         <div className="border-t border-gray-200 dark:border-gray-800 py-3">
                             <div className="px-4 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors group">
                                 <span className="text-xs text-gray-500 font-semibold group-hover:text-gray-600 dark:group-hover:text-gray-300">Profile viewers</span>
-                                <span className="text-xs font-bold text-blue-600 dark:text-blue-400">58</span>
+                                <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{user?.profileViewers || 0}</span>
                             </div>
                             <div className="px-4 py-1 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors group">
                                 <span className="text-xs text-gray-500 font-semibold group-hover:text-gray-600 dark:group-hover:text-gray-300">Post impressions</span>
-                                <span className="text-xs font-bold text-blue-600 dark:text-blue-400">90</span>
+                                <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{user?.postImpressions || 0}</span>
                             </div>
                         </div>
 

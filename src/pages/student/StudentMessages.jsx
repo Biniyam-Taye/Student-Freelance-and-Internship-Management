@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { Send, Search, Paperclip, MoreVertical, Phone, Video, MessageCircle } from 'lucide-react';
@@ -7,13 +8,16 @@ import {
     fetchConversation,
     sendMessageThunk,
     setActiveContact,
-    appendLocalMessage
+    upsertContact,
+    appendLocalMessage,
+    fetchUnreadCount
 } from '../../features/chat/chatSlice';
 import clsx from 'clsx';
 
 export default function Messages() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const location = useLocation();
     const { user } = useSelector(s => s.auth);
     const { contacts, activeContactId, conversations, loading, sendingMessage } = useSelector(s => s.chat);
 
@@ -21,8 +25,22 @@ export default function Messages() {
     const [search, setSearch] = useState('');
     const messagesEndRef = useRef(null);
 
+    // Optional: initial contact passed from navigation (e.g. from recruiter applications)
+    const initialContact = location.state?.initialContact;
+
     const activeContact = contacts.find(c => c._id === activeContactId);
     const activeMessages = activeContactId ? (conversations[activeContactId] || []) : [];
+
+    // If we were navigated here with a specific contact (e.g. recruiter -> messages from an application),
+    // ensure that contact exists in the list and is active.
+    useEffect(() => {
+        if (initialContact && initialContact._id) {
+            dispatch(upsertContact(initialContact));
+            dispatch(setActiveContact(initialContact._id));
+        }
+        // We intentionally only react to the first initialContact value on mount.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Load contacts when component mounts
     useEffect(() => {
@@ -33,6 +51,8 @@ export default function Messages() {
     useEffect(() => {
         if (activeContactId) {
             dispatch(fetchConversation(activeContactId));
+            // Refresh unread count since opening a conversation marks messages as read on the server
+            dispatch(fetchUnreadCount());
         }
     }, [activeContactId, dispatch]);
 

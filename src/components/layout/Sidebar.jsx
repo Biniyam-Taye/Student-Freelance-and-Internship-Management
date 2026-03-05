@@ -1,12 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import {
     LayoutDashboard, FileText, CheckSquare, TrendingUp, MessageSquare,
     Settings, Briefcase, PlusSquare, Users, BarChart2, Flag,
     Activity, ChevronLeft, ChevronRight, LogOut, AlignLeft, Search,
 } from 'lucide-react';
 import { logout } from '../../features/auth/authSlice';
+import { fetchUnreadCount } from '../../features/chat/chatSlice';
 import clsx from 'clsx';
 
 const studentNav = [
@@ -44,9 +46,38 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { user } = useSelector((s) => s.auth);
-    const chatState = useSelector((s) => s.chat);
-    // Compute unread: count messages in conversations not sent by me
-    const chatUnread = 0; // Real unread tracking would require server-side unread counts
+    const { unreadCount, conversations } = useSelector((s) => s.chat);
+
+    // Fallback: if backend unread count is 0 or unavailable, approximate
+    // from messages in the current Redux state (messages not sent by me and read === false)
+    const approximateUnread = React.useMemo(() => {
+        if (!user || !conversations) return 0;
+        let count = 0;
+        Object.values(conversations).forEach((msgs) => {
+            (msgs || []).forEach((m) => {
+                const senderId = m.sender?._id || m.sender;
+                const isMine =
+                    senderId === user._id ||
+                    (senderId && user._id && senderId.toString && senderId.toString() === user._id.toString());
+                if (!isMine && m.read === false) {
+                    count += 1;
+                }
+            });
+        });
+        return count;
+    }, [conversations, user]);
+
+    const chatUnread = (unreadCount ?? 0) || approximateUnread;
+
+    // Load unread count and keep it refreshed periodically
+    // (covers both student and recruiter dashboards)
+    React.useEffect(() => {
+        dispatch(fetchUnreadCount());
+        const id = setInterval(() => {
+            dispatch(fetchUnreadCount());
+        }, 30000); // every 30s
+        return () => clearInterval(id);
+    }, [dispatch]);
 
     const navItems = navByRole[user?.role] || studentNav;
 

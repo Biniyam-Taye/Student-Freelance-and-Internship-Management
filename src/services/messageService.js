@@ -9,6 +9,9 @@ const messageService = {
 
     // Get list of contacts the user has conversed with
     getConversationsList: () => api.get('/messages/conversations/list'),
+
+    // Get total unread messages for the current user
+    getUnreadCount: () => api.get('/messages/unread/count'),
 };
 
 export default messageService;

@@ -76,8 +76,21 @@ const getConversationsList = asyncHandler(async (req, res) => {
     res.json(contacts);
 });
 
+// @desc    Get count of unread messages for logged in user
+// @route   GET /api/messages/unread/count
+// @access  Private
+const getUnreadCount = asyncHandler(async (req, res) => {
+    const count = await Message.countDocuments({
+        receiver: req.user._id,
+        read: false,
+    });
+
+    res.json({ count });
+});
+
 module.exports = {
     sendMessage,
     getConversation,
-    getConversationsList
+    getConversationsList,
+    getUnreadCount,
 };

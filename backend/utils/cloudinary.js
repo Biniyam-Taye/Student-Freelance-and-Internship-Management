@@ -13,8 +13,7 @@ const avatarStorage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: 'freelaunch/avatars',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-        transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+        transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'center' }],
     },
 });
 

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Briefcase, ShieldCheck, CheckCircle2, Sun, Moon } from 'lucide-react';
-import { loginUser, mockLogin } from '../../features/auth/authSlice';
+import { loginUser } from '../../features/auth/authSlice';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
 
@@ -14,12 +14,6 @@ const schema = yup.object().shape({
     email: yup.string().email('Invalid email address').required('Email is required'),
     password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
 });
-
-const DEMO_ROLES = [
-    { role: 'student', label: 'Student', icon: GraduationCap, colorClass: 'text-blue-600 dark:text-blue-400', bgClass: 'bg-blue-50 dark:bg-blue-900/20', borderClass: 'border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-500' },
-    { role: 'recruiter', label: 'Recruiter', icon: Briefcase, colorClass: 'text-emerald-600 dark:text-emerald-400', bgClass: 'bg-emerald-50 dark:bg-emerald-900/20', borderClass: 'border-emerald-200 dark:border-emerald-800 hover:border-emerald-400 dark:hover:border-emerald-500' },
-    { role: 'admin', label: 'Admin', icon: ShieldCheck, colorClass: 'text-purple-600 dark:text-purple-400', bgClass: 'bg-purple-50 dark:bg-purple-900/20', borderClass: 'border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-500' },
-];
 
 export default function LoginPage() {
     const { t } = useTranslation();
@@ -47,14 +41,6 @@ export default function LoginPage() {
         } finally {
             setLoginLoading(false);
         }
-    };
-
-    const handleDemoLogin = async (role) => {
-        setLoginLoading(true);
-        await new Promise(r => setTimeout(r, 600));
-        dispatch(mockLogin(role));
-        navigate(`/${role}`);
-        setLoginLoading(false);
     };
 
     return (
@@ -144,26 +130,22 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    {/* Quick Demo Access */}
-                    <div className="mb-8">
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 md:text-center">Quick Demo Login</p>
-                        <div className="grid grid-cols-3 gap-3">
-                            {DEMO_ROLES.map(({ role, label, icon: Icon, colorClass, bgClass, borderClass }) => (
-                                <button key={role} onClick={() => handleDemoLogin(role)} disabled={loginLoading}
-                                    className={`group py-3 px-2 rounded-2xl border transition-all duration-200 hover:-translate-y-1 hover:shadow-md disabled:opacity-50 flex flex-col items-center gap-2 ${bgClass} ${borderClass}`}>
-                                    <Icon className={`w-6 h-6 ${colorClass}`} />
-                                    <span className={`text-xs font-semibold ${colorClass}`}>{label}</span>
-                                </button>
-                            ))}
+                    {/* Aesthetic Stats Row */}
+                    <div className="grid grid-cols-3 gap-3 mb-8">
+                        <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 text-center shadow-sm">
+                            <GraduationCap className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-1.5" />
+                            <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">Skilled</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Students</span>
                         </div>
-                    </div>
-
-                    <div className="relative mb-8">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+                        <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/50 text-center shadow-sm">
+                            <Briefcase className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mb-1.5" />
+                            <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">Verified</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Recruiters</span>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-4 bg-white dark:bg-slate-900 text-slate-500 font-medium">or continue with email</span>
+                        <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/50 text-center shadow-sm">
+                            <ShieldCheck className="w-6 h-6 text-purple-600 dark:text-purple-400 mb-1.5" />
+                            <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">Secure</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Platform</span>
                         </div>
                     </div>
 

@@ -12,12 +12,16 @@ router.post(
     protect,
     uploadAvatar.single('image'),
     asyncHandler(async (req, res) => {
+        console.log('Upload request received');
         if (!req.file) {
+            console.log('No file in request');
             res.status(400);
             throw new Error('No image file provided');
         }
-        // multer-storage-cloudinary v4+ → secure_url; older → path
-        const url = req.file.secure_url || req.file.path;
+        console.log('File uploaded to Cloudinary:', req.file);
+        // multer-storage-cloudinary v4+ → path; v2/v3 → secure_url or url
+        const url = req.file.path || req.file.secure_url || req.file.url;
+        console.log('Determined URL:', url);
         res.json({ url });
     })
 );

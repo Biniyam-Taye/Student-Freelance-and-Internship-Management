@@ -48,7 +48,14 @@ const getOpportunityById = asyncHandler(async (req, res) => {
 // @route   POST /api/opportunities
 // @access  Private/Recruiter
 const createOpportunity = asyncHandler(async (req, res) => {
-    const { position, company, description, type, location, stipend, duration, deadline, skills } = req.body;
+    let { position, company, description, type, location, stipend, duration, deadline, skills } = req.body;
+
+    // Fallback: if company isn't explicitly provided in the request,
+    // derive it from the authenticated recruiter profile so opportunities
+    // are always associated with a visible company name.
+    if (!company) {
+        company = req.user.company || req.user.name || 'Unknown Company';
+    }
 
     const opportunity = new Opportunity({
         recruiter: req.user._id, // Assign logged in recruiter
