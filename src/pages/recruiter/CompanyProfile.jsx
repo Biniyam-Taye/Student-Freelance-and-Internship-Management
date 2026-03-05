@@ -69,7 +69,7 @@ export default function CompanyProfile() {
                     <AvatarUpload
                         currentUrl={user?.avatar}
                         name={user?.company || user?.name}
-                        onUploaded={(url) => dispatch(updateUserProfile({ avatar: url }))}
+                        onUploaded={(url) => dispatch(updateUserProfile({ avatar: url })).unwrap()}
                     />
                     <div className="flex-1 text-center sm:text-left">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.company || 'Your Company'}</h2>

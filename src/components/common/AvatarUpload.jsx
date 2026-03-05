@@ -7,8 +7,8 @@ import { uploadAvatar } from '../../services/uploadService';
  *
  * Props:
  *  - currentUrl: string | null   -> existing avatar URL
- *  - name: string                -> user's display name (for initials fallback)
- *  - onUploaded: (url) => void   -> called with the Cloudinary URL after upload
+ *  - name: string                 -> user's display name (for initials fallback)
+ *  - onUploaded: (url) => void|Promise  -> called with the Cloudinary URL; if it returns a Promise we await it and show errors
  */
 export default function AvatarUpload({ currentUrl, name = '', onUploaded }) {
     const fileRef = useRef(null);
@@ -34,10 +34,13 @@ export default function AvatarUpload({ currentUrl, name = '', onUploaded }) {
         try {
             const url = await uploadAvatar(file);
             setPreview(url);
-            onUploaded(url);
+            const result = onUploaded(url);
+            if (result && typeof result.then === 'function') {
+                await result;
+            }
         } catch (err) {
             console.error('Upload error details:', err);
-            const msg = err.response?.data?.message || 'Upload failed. Try again.';
+            const msg = err.response?.data?.message || err?.message || 'Upload or save failed. Try again.';
             setError(msg);
             setPreview(currentUrl || null);
         } finally {

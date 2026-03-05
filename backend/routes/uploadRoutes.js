@@ -11,16 +11,22 @@ router.post(
     '/avatar',
     protect,
     asyncHandler(async (req, res) => {
-        console.log('Avatar upload request received');
-
-        const imageData = req.body?.imageData;
-        if (!imageData) {
-            console.log('No imageData in request body');
-            res.status(400);
-            throw new Error('No image file provided');
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
+        if (!cloudName || !apiKey || !apiSecret) {
+            res.status(503);
+            throw new Error(
+                'Image upload is not configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your backend .env file.'
+            );
         }
 
-        // Upload base64 data directly with Cloudinary SDK
+        const imageData = req.body?.imageData;
+        if (!imageData || typeof imageData !== 'string') {
+            res.status(400);
+            throw new Error('No image file provided. Send a JSON body with "imageData" (base64 data URL).');
+        }
+
         const result = await cloudinary.uploader.upload(imageData, {
             folder: 'freelaunch/avatars',
             transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'center' }],
@@ -36,18 +42,30 @@ router.post(
 );
 
 // @route   POST /api/upload/post
-// @desc    Upload post image
+// @desc    Upload post image (multipart/form-data, field name: image)
 // @access  Private
 router.post(
     '/post',
     protect,
+    (req, res, next) => {
+        if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+            res.status(503);
+            return next(new Error('Image upload is not configured. Add CLOUDINARY_* to backend .env'));
+        }
+        next();
+    },
     uploadPost.single('image'),
     asyncHandler(async (req, res) => {
         if (!req.file) {
             res.status(400);
             throw new Error('No image file provided');
         }
-        res.json({ url: req.file.path });
+        const url = req.file.path || req.file.secure_url || req.file.url;
+        if (!url) {
+            res.status(500);
+            throw new Error('Image upload failed');
+        }
+        res.json({ url });
     })
 );
 
