@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Star, Sparkles, FileText, ExternalLink } from 'lucide-react';
+import { Star, Sparkles, FileText, ExternalLink, Download } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Button from '../../components/ui/Button';
@@ -235,21 +235,35 @@ export default function SupervisorApplications() {
                                 )}
                             </div>
                         )}
-                        {selectedApp.student?.cv && (
-                            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 p-3">
-                                <p className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">CV / Resume</p>
-                                <a
-                                    href={selectedApp.student.cv}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
-                                >
-                                    <FileText size={16} />
-                                    {t('profile.view_cv') || 'View CV'}
-                                    <ExternalLink size={14} />
-                                </a>
-                            </div>
-                        )}
+                        <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 p-3">
+                            <p className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">CV / Resume</p>
+                            {selectedApp.student?.cv ? (
+                                <div className="flex flex-wrap gap-2">
+                                    <a
+                                        href={selectedApp.student.cv}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
+                                    >
+                                        <FileText size={16} />
+                                        {t('profile.view_cv') || 'View CV'}
+                                        <ExternalLink size={14} />
+                                    </a>
+                                    <a
+                                        href={`${selectedApp.student.cv}${selectedApp.student.cv.includes('?') ? '&' : '?'}fl_attachment`}
+                                        download={`${(selectedApp.student?.name || 'Student').replace(/\s+/g, '_')}_CV.pdf`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-sm font-medium transition-colors"
+                                    >
+                                        <Download size={16} />
+                                        {t('profile.download_cv') || 'Download'}
+                                    </a>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{t('profile.no_cv_uploaded') || 'No CV uploaded yet.'}</p>
+                            )}
+                        </div>
                         {studentReviewStats && (
                             <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-3">
                                 <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5">Task reviews</p>

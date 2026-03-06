@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X, Building2, Briefcase, FileText, Loader2, ExternalLink, Trash2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X, Building2, Briefcase, FileText, Loader2, ExternalLink, Trash2, Download } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
@@ -155,6 +155,16 @@ export default function StudentProfile() {
                                         >
                                             <ExternalLink size={14} />
                                             {t('profile.view_cv') || 'View'}
+                                        </a>
+                                        <a
+                                            href={`${user.cv}${user.cv.includes('?') ? '&' : '?'}fl_attachment`}
+                                            download={`${(user?.name || 'CV').replace(/\s+/g, '_')}_CV.pdf`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-medium transition-colors"
+                                        >
+                                            <Download size={14} />
+                                            {t('profile.download_cv') || 'Download'}
                                         </a>
                                         <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-medium cursor-pointer transition-colors">
                                             <Upload size={14} />

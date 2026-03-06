@@ -191,8 +191,10 @@
         "company_size": "Company Size",
         "industry": "Industry",
         "view_cv": "View CV",
+        "download_cv": "Download",
         "replace_cv": "Replace",
         "remove_cv": "Remove",
+        "no_cv_uploaded": "No CV uploaded yet.",
         "cv_pdf_only": "Please upload a PDF file only.",
         "cv_max_size": "File must be 5MB or less."
     },
