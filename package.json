@@ -25,7 +25,20 @@
     "react-router-dom": "^7.13.1",
     "recharts": "^3.7.0",
     "socket.io-client": "^4.8.3",
-    "yup": "^1.7.1"
+    "yup": "^1.7.1",
+    "@google/generative-ai": "^0.24.1",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^1.41.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-async-handler": "^1.2.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.4",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "multer-storage-cloudinary": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
