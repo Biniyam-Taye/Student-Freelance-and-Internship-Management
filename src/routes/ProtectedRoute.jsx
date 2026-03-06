@@ -6,12 +6,13 @@ import { fetchProfile } from '../features/auth/authSlice';
 const roleRedirects = {
     student: '/student',
     recruiter: '/recruiter',
+    supervisor: '/supervisor',
     admin: '/admin',
 };
 
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
     const dispatch = useDispatch();
-    const { isAuthenticated, user, token, loading } = useSelector((s) => s.auth);
+    const { user, token, loading } = useSelector((s) => s.auth);
 
     // Restore session when we have a token but no user (e.g. after refresh)
     useEffect(() => {

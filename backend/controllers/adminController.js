@@ -37,7 +37,7 @@ const getUserById = asyncHandler(async (req, res) => {
     }
 });
 
-// @desc    Approve / verify recruiter
+// @desc    Approve / verify recruiter or supervisor
 // @route   PUT /api/admin/users/:id/verify
 // @access  Private/Admin
 const verifyRecruiter = asyncHandler(async (req, res) => {
@@ -46,14 +46,14 @@ const verifyRecruiter = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error('User not found');
     }
-    if (user.role !== 'recruiter') {
+    if (user.role !== 'recruiter' && user.role !== 'supervisor') {
         res.status(400);
-        throw new Error('User is not a recruiter');
+        throw new Error('User is not a recruiter or supervisor');
     }
     user.isVerified = true;
     user.status = 'active';
     await user.save();
-    res.json({ message: 'Recruiter verified successfully', user });
+    res.json({ message: 'User verified successfully', user });
 });
 
 // @desc    Suspend or activate a user account
@@ -102,6 +102,8 @@ const getAnalytics = asyncHandler(async (req, res) => {
     const studentCount = await User.countDocuments({ role: 'student' });
     const recruiterCount = await User.countDocuments({ role: 'recruiter' });
     const pendingRecruiters = await User.countDocuments({ role: 'recruiter', isVerified: false });
+    const supervisorCount = await User.countDocuments({ role: 'supervisor' });
+    const pendingSupervisors = await User.countDocuments({ role: 'supervisor', isVerified: false });
 
     const applicationsByStatus = await Application.aggregate([
         { $group: { _id: '$status', count: { $sum: 1 } } }
@@ -133,7 +135,9 @@ const getAnalytics = asyncHandler(async (req, res) => {
         totalTasks,
         studentCount,
         recruiterCount,
+        supervisorCount,
         pendingRecruiters,
+        pendingSupervisors,
         applicationsByStatus,
         tasksByStatus,
         userGrowth

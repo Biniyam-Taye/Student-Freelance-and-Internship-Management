@@ -41,6 +41,43 @@ router.post(
     })
 );
 
+// @route   POST /api/upload/cv
+// @desc    Upload student CV/Resume (PDF, expects base64 "fileData" in JSON body)
+// @access  Private
+router.post(
+    '/cv',
+    protect,
+    asyncHandler(async (req, res) => {
+        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+        const apiKey = process.env.CLOUDINARY_API_KEY;
+        const apiSecret = process.env.CLOUDINARY_API_SECRET;
+        if (!cloudName || !apiKey || !apiSecret) {
+            res.status(503);
+            throw new Error(
+                'File upload is not configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your backend .env file.'
+            );
+        }
+
+        const fileData = req.body?.fileData;
+        if (!fileData || typeof fileData !== 'string') {
+            res.status(400);
+            throw new Error('No file provided. Send a JSON body with "fileData" (base64 data URL).');
+        }
+
+        const result = await cloudinary.uploader.upload(fileData, {
+            resource_type: 'raw',
+            folder: 'freelaunch/cvs',
+        });
+
+        if (!result?.secure_url) {
+            res.status(500);
+            throw new Error('CV upload failed');
+        }
+
+        res.json({ url: result.secure_url });
+    })
+);
+
 // @route   POST /api/upload/post
 // @desc    Upload post image (multipart/form-data, field name: image)
 // @access  Private

@@ -77,6 +77,7 @@
         "select_role": "I am a...",
         "role_student": "Student",
         "role_recruiter": "Recruiter",
+        "role_supervisor": "Supervisor",
         "remember_me": "Remember me",
         "reset_title": "Reset Password",
         "reset_subtitle": "Enter your email and we'll send a reset link",
@@ -95,6 +96,9 @@
         "my_posts": "My Posts",
         "assigned_tasks": "Assigned Tasks",
         "company_profile": "Company Profile",
+        "my_team": "My Team",
+        "my_freelancers": "My Freelancers",
+        "supervisors": "Supervisors",
         "manage_users": "Manage Users",
         "manage_posts": "Manage Posts",
         "reports": "Reports",
@@ -150,7 +154,8 @@
         "approve": "Approve",
         "shortlist": "Shortlist",
         "reject": "Reject",
-        "accept": "Accept"
+        "accept": "Accept",
+        "uploading": "Uploading..."
     },
     "search": {
         "placeholder": "Search opportunities...",
@@ -181,9 +186,15 @@
         "major": "Major / Field of Study",
         "graduation": "Expected Graduation",
         "company_name": "Company Name",
+        "position": "Position / Title",
         "company_website": "Company Website",
         "company_size": "Company Size",
-        "industry": "Industry"
+        "industry": "Industry",
+        "view_cv": "View CV",
+        "replace_cv": "Replace",
+        "remove_cv": "Remove",
+        "cv_pdf_only": "Please upload a PDF file only.",
+        "cv_max_size": "File must be 5MB or less."
     },
     "opportunity": {
         "title": "Opportunity Title",

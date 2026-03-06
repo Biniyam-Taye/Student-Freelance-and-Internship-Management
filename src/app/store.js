@@ -8,6 +8,7 @@ import opportunityReducer from '../features/opportunities/opportunitySlice';
 import applicationReducer from '../features/applications/applicationSlice';
 import taskReducer from '../features/tasks/taskSlice';
 import adminReducer from '../features/admin/adminSlice';
+import supervisorReducer from '../features/supervisors/supervisorSlice';
 import aiReducer from '../features/ai/aiSlice';
 import postReducer from '../features/feed/postSlice';
 
@@ -22,6 +23,7 @@ export const store = configureStore({
         applications: applicationReducer,
         tasks: taskReducer,
         admin: adminReducer,
+        supervisors: supervisorReducer,
         ai: aiReducer,
         feed: postReducer,
     },

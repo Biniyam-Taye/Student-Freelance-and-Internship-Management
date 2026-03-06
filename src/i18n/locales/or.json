@@ -150,7 +150,8 @@
         "approve": "Raggaasisi",
         "shortlist": "Galmee Gabaabaa Galchi",
         "reject": "Diduu",
-        "accept": "Fudhatu"
+        "accept": "Fudhatu",
+        "uploading": "Fe'uuf jira..."
     },
     "search": {
         "placeholder": "Carraalee barbaadi...",
@@ -181,9 +182,15 @@
         "major": "Lafa Barnoota / Qormaata",
         "graduation": "Yeroo Eebbifamuu Eegamu",
         "company_name": "Amantaan Dhaabbataa",
+        "position": "Sadarkaa / Maqaa",
         "company_website": "Websaayitii Dhaabbataa",
         "company_size": "Bal'ina Dhaabbataa",
-        "industry": "Ogummaa"
+        "industry": "Ogummaa",
+        "view_cv": "CV Ilaali",
+        "replace_cv": "Balleessi",
+        "remove_cv": "Haalli",
+        "cv_pdf_only": "Maaloo faayilii PDF qofa fe'aa.",
+        "cv_max_size": "Faayiliin 5MB ykn xiqqaa ta'uu qaba."
     },
     "opportunity": {
         "title": "Maqaa Carraa",

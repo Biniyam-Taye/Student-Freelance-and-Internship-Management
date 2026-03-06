@@ -20,6 +20,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     if (req.body.position !== undefined) user.position = req.body.position;
     if (req.body.skills !== undefined) user.skills = req.body.skills;
     if (req.body.avatar !== undefined) user.avatar = req.body.avatar;
+    if (req.body.cv !== undefined) user.cv = req.body.cv;
     // Extended fields
     if (req.body.phone !== undefined) user.phone = req.body.phone;
     if (req.body.location !== undefined) user.location = req.body.location;
@@ -48,6 +49,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
         position: updatedUser.position,
         skills: updatedUser.skills,
         avatar: updatedUser.avatar,
+        cv: updatedUser.cv,
         phone: updatedUser.phone,
         location: updatedUser.location,
         linkedin: updatedUser.linkedin,

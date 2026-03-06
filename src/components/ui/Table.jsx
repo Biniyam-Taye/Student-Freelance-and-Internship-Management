@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 
-export default function Table({ columns, data, loading = false, emptyMessage = 'No data found' }) {
+export default function Table({ columns, data, loading = false, emptyMessage = 'No data found', onRowClick }) {
     if (loading) {
         return (
             <div className="space-y-3">
@@ -36,7 +36,14 @@ export default function Table({ columns, data, loading = false, emptyMessage = '
                         </tr>
                     ) : (
                         data.map((row, rowIndex) => (
-                            <tr key={rowIndex} className="hover:bg-gray-50/60 dark:hover:bg-gray-700/30 transition-colors">
+                            <tr
+                                key={rowIndex}
+                                className={clsx(
+                                    'hover:bg-gray-50/60 dark:hover:bg-gray-700/30 transition-colors',
+                                    onRowClick && 'cursor-pointer'
+                                )}
+                                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                            >
                                 {columns.map((col) => (
                                     <td key={col.key} className={clsx(
                                         'px-4 py-3.5 text-sm text-gray-700 dark:text-gray-300',

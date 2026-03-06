@@ -96,7 +96,7 @@ export default function Messages() {
             {/* Page Header */}
             <div className="mb-4 flex-shrink-0">
                 <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.messages')}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Chat with recruiters and collaborators</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Chat with your supervisors and collaborators</p>
             </div>
 
             {/* Chat Container */}

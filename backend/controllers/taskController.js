@@ -4,7 +4,7 @@ const User = require('../models/User');
 
 // @desc    Assign a new task to a student
 // @route   POST /api/tasks
-// @access  Private/Recruiter
+// @access  Private/Recruiter or Supervisor
 const assignTask = asyncHandler(async (req, res) => {
     const { studentId, title, description, deadline, priority, opportunityId } = req.body;
 
@@ -15,15 +15,37 @@ const assignTask = asyncHandler(async (req, res) => {
         throw new Error('Valid student not found');
     }
 
-    const task = await Task.create({
-        recruiter: req.user._id,
+    // Determine who owns this task:
+    // - If a recruiter assigns it directly, recruiter is req.user
+    // - If a supervisor assigns it, recruiter comes from supervisor.managerRecruiter
+    let recruiterId = req.user._id;
+    let supervisorId = null;
+
+    if (req.user.role === 'supervisor') {
+        const supervisor = await User.findById(req.user._id);
+        if (!supervisor || !supervisor.managerRecruiter) {
+            res.status(400);
+            throw new Error('Supervisor is not linked to a recruiter');
+        }
+        recruiterId = supervisor.managerRecruiter;
+        supervisorId = supervisor._id;
+    }
+
+    const taskPayload = {
+        recruiter: recruiterId,
         student: studentId,
         opportunity: opportunityId,
         title,
         description,
         deadline,
         priority
-    });
+    };
+
+    if (supervisorId) {
+        taskPayload.supervisor = supervisorId;
+    }
+
+    const task = await Task.create(taskPayload);
 
     res.status(201).json(task);
 });
@@ -39,12 +61,21 @@ const getMyTasks = asyncHandler(async (req, res) => {
     res.json(tasks);
 });
 
-// @desc    Get all tasks assigned by the logged in recruiter
+// @desc    Get all tasks assigned by the logged in recruiter/supervisor
 // @route   GET /api/tasks/assigned-tasks
-// @access  Private/Recruiter
+// @access  Private/Recruiter or Supervisor
 const getAssignedTasks = asyncHandler(async (req, res) => {
-    const tasks = await Task.find({ recruiter: req.user._id })
+    const filter = {};
+
+    if (req.user.role === 'supervisor') {
+        filter.supervisor = req.user._id;
+    } else {
+        filter.recruiter = req.user._id;
+    }
+
+    const tasks = await Task.find(filter)
         .populate('student', 'name email avatar')
+        .populate('opportunity', 'position company')
         .sort({ createdAt: -1 });
 
     res.json(tasks);
@@ -63,9 +94,12 @@ const updateTaskStatus = asyncHandler(async (req, res) => {
     }
 
     // Verify ownership
-    if (task.student.toString() !== req.user._id.toString() &&
+    if (
+        task.student.toString() !== req.user._id.toString() &&
         task.recruiter.toString() !== req.user._id.toString() &&
-        req.user.role !== 'admin') {
+        (!task.supervisor || task.supervisor.toString() !== req.user._id.toString()) &&
+        req.user.role !== 'admin'
+    ) {
         res.status(401);
         throw new Error('Not authorized to update this task');
     }
@@ -102,9 +136,9 @@ const submitTask = asyncHandler(async (req, res) => {
     res.json(submittedTask);
 });
 
-// @desc    Review and rate a submitted task (Recruiter Action)
+// @desc    Review and rate a submitted task (Recruiter/Supervisor Action)
 // @route   PUT /api/tasks/:id/review
-// @access  Private/Recruiter
+// @access  Private/Recruiter or Supervisor
 const reviewTask = asyncHandler(async (req, res) => {
     const { rating, feedback } = req.body;
     const task = await Task.findById(req.params.id);
@@ -114,8 +148,11 @@ const reviewTask = asyncHandler(async (req, res) => {
         throw new Error('Task not found');
     }
 
-    // Only the assigning recruiter can review it
-    if (task.recruiter.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    // Only the assigning recruiter/supervisor (or admin) can review it
+    const isRecruiterOwner = task.recruiter.toString() === req.user._id.toString();
+    const isSupervisorOwner = task.supervisor && task.supervisor.toString() === req.user._id.toString();
+
+    if (!isRecruiterOwner && !isSupervisorOwner && req.user.role !== 'admin') {
         res.status(401);
         throw new Error('Not authorized to review this task');
     }

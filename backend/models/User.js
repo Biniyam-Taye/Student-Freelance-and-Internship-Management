@@ -25,8 +25,13 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['student', 'recruiter', 'admin'],
+        enum: ['student', 'recruiter', 'supervisor', 'admin'],
         default: 'student'
+    },
+    // For supervisors, this links them to the recruiter who manages/approved them
+    managerRecruiter: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     },
     university: {
         type: String,
@@ -55,20 +60,24 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: function () {
-            // Recruiters need manual verification by admin, students don't 
-            return this.role !== 'recruiter';
+            // Recruiters and supervisors need manual verification, students don't 
+            return this.role !== 'recruiter' && this.role !== 'supervisor';
         }
     },
     status: {
         type: String,
         enum: ['active', 'suspended', 'pending'],
         default: function () {
-            return this.role === 'recruiter' ? 'pending' : 'active';
+            return (this.role === 'recruiter' || this.role === 'supervisor') ? 'pending' : 'active';
         }
     },
     avatar: {
         type: String,
         default: 'default-avatar.png'
+    },
+    cv: {
+        type: String,
+        trim: true
     },
     phone: { type: String, trim: true },
     location: { type: String, trim: true },

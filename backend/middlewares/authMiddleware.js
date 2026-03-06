@@ -48,13 +48,18 @@ const admin = (req, res, next) => {
     }
 };
 
-// Recruiter middleware (Admins can also perform recruiter actions)
+// Recruiter / Supervisor middleware (Admins can also perform these actions)
 const recruiter = (req, res, next) => {
-    if (req.user && (req.user.role === 'recruiter' || req.user.role === 'admin')) {
+    if (
+        req.user &&
+        (req.user.role === 'recruiter' ||
+            req.user.role === 'supervisor' ||
+            req.user.role === 'admin')
+    ) {
         next();
     } else {
         res.status(401);
-        throw new Error('Not authorized as a recruiter');
+        throw new Error('Not authorized as a recruiter or supervisor');
     }
 };
 

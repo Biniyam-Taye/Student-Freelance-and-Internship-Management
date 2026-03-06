@@ -150,7 +150,8 @@
         "approve": "አፅድቅ",
         "shortlist": "ወደ አጭር ዝርዝር ያስገቡ",
         "reject": "ውድቅ አድርግ",
-        "accept": "ተቀበል"
+        "accept": "ተቀበል",
+        "uploading": "በስቀል ላይ..."
     },
     "search": {
         "placeholder": "እድሎችን ፈልግ...",
@@ -181,9 +182,15 @@
         "major": "ዋና ትምህርት / የጥናት መስክ",
         "graduation": "የሚጠበቀው የምረቃ ቀን",
         "company_name": "የኩባንያ ስም",
+        "position": "ስልጣን / መዘርዘሪያ",
         "company_website": "የኩባንያ ዌብሳይት",
         "company_size": "የኩባንያ መጠን",
-        "industry": "ኢንዱስትሪ"
+        "industry": "ኢንዱስትሪ",
+        "view_cv": "CV ተመልከት",
+        "replace_cv": "ተካ",
+        "remove_cv": "ሰርዝ",
+        "cv_pdf_only": "እባክዎ PDF ፋይል ብቻ ይስቀሉ።",
+        "cv_max_size": "ፋይሉ 5MB ወይም ያነሰ መሆን አለበት።"
     },
     "opportunity": {
         "title": "የእድል ርዕስ",

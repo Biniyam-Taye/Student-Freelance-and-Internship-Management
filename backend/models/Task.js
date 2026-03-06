@@ -10,6 +10,11 @@ const taskSchema = new mongoose.Schema({
         required: true,
         ref: 'User'
     },
+    // Optional: when a supervisor is the middleman handling this task
+    supervisor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     student: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,

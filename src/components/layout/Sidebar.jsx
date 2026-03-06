@@ -25,8 +25,9 @@ const recruiterNav = [
     { key: 'overview', label: 'dashboard.overview', icon: LayoutDashboard, path: '/recruiter' },
     { key: 'post', label: 'dashboard.post_opportunity', icon: PlusSquare, path: '/recruiter/post' },
     { key: 'posts', label: 'dashboard.my_posts', icon: Briefcase, path: '/recruiter/posts' },
-    { key: 'applications', label: 'dashboard.applications', icon: FileText, path: '/recruiter/applications' },
-    { key: 'tasks', label: 'dashboard.assigned_tasks', icon: CheckSquare, path: '/recruiter/tasks' },
+    { key: 'team', label: 'dashboard.my_team', icon: Users, path: '/recruiter/team' },
+    { key: 'freelancers', label: 'dashboard.my_freelancers', icon: Users, path: '/recruiter/freelancers' },
+    { key: 'supervisors', label: 'dashboard.supervisors', icon: Users, path: '/recruiter/supervisors' },
     { key: 'messages', label: 'dashboard.messages', icon: MessageSquare, path: '/recruiter/messages', badge: 'chat' },
     { key: 'company', label: 'dashboard.company_profile', icon: Settings, path: '/recruiter/profile' },
 ];
@@ -39,7 +40,15 @@ const adminNav = [
     { key: 'analytics', label: 'dashboard.system_analytics', icon: Activity, path: '/admin/analytics' },
 ];
 
-const navByRole = { student: studentNav, recruiter: recruiterNav, admin: adminNav };
+const supervisorNav = [
+    { key: 'overview', label: 'dashboard.overview', icon: LayoutDashboard, path: '/supervisor' },
+    { key: 'applications', label: 'dashboard.applications', icon: FileText, path: '/supervisor/applications' },
+    { key: 'tasks', label: 'dashboard.assigned_tasks', icon: CheckSquare, path: '/supervisor/tasks' },
+    { key: 'messages', label: 'dashboard.messages', icon: MessageSquare, path: '/supervisor/messages', badge: 'chat' },
+    { key: 'profile', label: 'dashboard.profile_settings', icon: Settings, path: '/supervisor/profile' },
+];
+
+const navByRole = { student: studentNav, recruiter: recruiterNav, supervisor: supervisorNav, admin: adminNav };
 
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
     const { t } = useTranslation();
@@ -130,7 +139,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
                                 <NavLink
                                     key={item.key}
                                     to={item.path}
-                                    end={item.path === '/student' || item.path === '/recruiter' || item.path === '/admin'}
+                                    end={item.path === '/student' || item.path === '/recruiter' || item.path === '/supervisor' || item.path === '/admin'}
                                     onClick={onMobileClose}
                                     className={({ isActive }) => clsx(
                                         'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative',

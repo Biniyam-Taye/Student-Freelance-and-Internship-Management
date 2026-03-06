@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Star, Sparkles, FileText, ExternalLink } from 'lucide-react';
@@ -10,9 +11,10 @@ import SearchFilter from '../../components/common/SearchFilter';
 import { fetchRecruiterApplications, updateApplicationStatus } from '../../features/applications/applicationSlice';
 import { fetchAssignedTasks } from '../../features/tasks/taskSlice';
 
-export default function RecruiterApplications() {
+export default function SupervisorApplications() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { items: apps, loading } = useSelector(state => state.applications);
     const assignedTasks = useSelector(state => state.tasks.items);
     const [search, setSearch] = useState('');
@@ -37,7 +39,6 @@ export default function RecruiterApplications() {
         return studentName.toLowerCase().includes(search.toLowerCase()) || position.toLowerCase().includes(search.toLowerCase());
     });
 
-    // For each opportunity, track the highest numeric matchScore so we can highlight the top candidate
     const bestMatchByOpportunity = apps.reduce((acc, app) => {
         const oppId = app.opportunity?._id;
         if (!oppId || typeof app.matchScore !== 'number') return acc;
@@ -114,6 +115,26 @@ export default function RecruiterApplications() {
             key: '_id', title: 'Actions', align: 'right',
             render: (_, row) => (
                 <div className="flex items-center gap-1.5 justify-end">
+                    {/* Supervisor chats with the student on behalf of the recruiter */}
+                    {row.status === 'accepted' && row.student && (
+                        <button
+                            onClick={() => navigate('/supervisor/messages', {
+                                state: {
+                                    initialContact: {
+                                        _id: row.student._id,
+                                        name: row.student.name,
+                                        role: row.student.role || 'student',
+                                        company: row.student.company,
+                                        university: row.student.university,
+                                        avatar: row.student.avatar,
+                                    }
+                                }
+                            })}
+                            className="px-2.5 py-1 text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 font-medium transition-colors"
+                        >
+                            Message
+                        </button>
+                    )}
                     {row.status !== 'shortlisted' && row.status !== 'rejected' && (
                         <button onClick={() => updateStatus(row._id, 'shortlisted')} className="px-2.5 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium transition-colors">
                             {t('common.shortlist')}
@@ -138,7 +159,7 @@ export default function RecruiterApplications() {
         <div className="space-y-6 page-enter">
             <div>
                 <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.applications')}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Review and manage all applicants</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Review applicants and coordinate with your recruiter.</p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -231,7 +252,7 @@ export default function RecruiterApplications() {
                         )}
                         {studentReviewStats && (
                             <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 p-3">
-                                <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5">Your reviews</p>
+                                <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1.5">Task reviews</p>
                                 <div className="flex items-center gap-2">
                                     {[1, 2, 3, 4, 5].map((star) => (
                                         <Star
@@ -256,3 +277,4 @@ export default function RecruiterApplications() {
         </div>
     );
 }
+

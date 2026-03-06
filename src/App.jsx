@@ -30,6 +30,14 @@ import MyPosts from './pages/recruiter/MyPosts';
 import RecruiterApplications from './pages/recruiter/RecruiterApplications';
 import AssignedTasks from './pages/recruiter/AssignedTasks';
 import CompanyProfile from './pages/recruiter/CompanyProfile';
+import ManageSupervisors from './pages/recruiter/ManageSupervisors';
+import MyTeam from './pages/recruiter/MyTeam';
+import MyFreelancers from './pages/recruiter/MyFreelancers';
+
+// Supervisor pages
+import SupervisorOverview from './pages/supervisor/SupervisorOverview';
+import SupervisorApplications from './pages/supervisor/SupervisorApplications';
+import SupervisorTasks from './pages/supervisor/SupervisorTasks';
 
 // Admin pages
 import AdminOverview from './pages/admin/AdminOverview';
@@ -93,8 +101,24 @@ function App() {
         <Route path="posts" element={<MyPosts />} />
         <Route path="applications" element={<RecruiterApplications />} />
         <Route path="tasks" element={<AssignedTasks />} />
+        <Route path="team" element={<MyTeam />} />
+        <Route path="freelancers" element={<MyFreelancers />} />
+        <Route path="supervisors" element={<ManageSupervisors />} />
         <Route path="messages" element={<StudentMessages />} />
         <Route path="profile" element={<CompanyProfile />} />
+      </Route>
+
+      {/* Supervisor Routes */}
+      <Route path="/supervisor" element={
+        <ProtectedRoute allowedRoles={['supervisor']}>
+          <DashboardLayout />
+        </ProtectedRoute>
+      }>
+        <Route index element={<SupervisorOverview />} />
+        <Route path="applications" element={<SupervisorApplications />} />
+        <Route path="tasks" element={<SupervisorTasks />} />
+        <Route path="messages" element={<StudentMessages />} />
+        <Route path="profile" element={<StudentProfile />} />
       </Route>
 
       {/* Admin Routes */}

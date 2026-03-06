@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Linkedin, Github, GraduationCap, Upload, X, Building2, Briefcase, FileText, Loader2, ExternalLink, Trash2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 import { updateUserProfile } from '../../features/auth/authSlice';
 import AvatarUpload from '../../components/common/AvatarUpload';
+import { uploadCV } from '../../services/uploadService';
 
 export default function StudentProfile() {
     const { t } = useTranslation();
@@ -16,6 +17,8 @@ export default function StudentProfile() {
     const [skills, setSkills] = useState([]);
     const [skillInput, setSkillInput] = useState('');
     const [saved, setSaved] = useState(false);
+    const [cvUploading, setCvUploading] = useState(false);
+    const [cvError, setCvError] = useState(null);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -63,9 +66,46 @@ export default function StudentProfile() {
 
     const removeSkill = (s) => setSkills(skills.filter((sk) => sk !== s));
 
+    const MAX_CV_SIZE = 5 * 1024 * 1024; // 5MB
+    const handleCVUpload = async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        if (file.type !== 'application/pdf') {
+            setCvError(t('profile.cv_pdf_only'));
+            setTimeout(() => setCvError(null), 4000);
+            return;
+        }
+        if (file.size > MAX_CV_SIZE) {
+            setCvError(t('profile.cv_max_size'));
+            setTimeout(() => setCvError(null), 4000);
+            return;
+        }
+        setCvError(null);
+        setCvUploading(true);
+        try {
+            const url = await uploadCV(file);
+            await dispatch(updateUserProfile({ cv: url })).unwrap();
+        } catch (err) {
+            setCvError(err?.message || 'Upload failed. Try again.');
+            setTimeout(() => setCvError(null), 4000);
+        } finally {
+            setCvUploading(false);
+        }
+    };
+
+    const handleRemoveCV = async () => {
+        try {
+            await dispatch(updateUserProfile({ cv: '' })).unwrap();
+        } catch (err) {
+            console.error('Failed to remove CV', err);
+        }
+    };
+
     const handleSave = async () => {
         try {
-            await dispatch(updateUserProfile({ ...formData, skills })).unwrap();
+            const payload = isStudent ? { ...formData, skills } : formData;
+            await dispatch(updateUserProfile(payload)).unwrap();
             setSaved(true);
             setTimeout(() => setSaved(false), 2500);
         } catch (error) {
@@ -73,14 +113,19 @@ export default function StudentProfile() {
         }
     };
 
+    const isStudent = user?.role === 'student';
+    const isSupervisor = user?.role === 'supervisor';
+
     return (
         <div className="space-y-6 page-enter max-w-3xl">
             <div>
                 <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.profile_settings')}</h1>
-                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage your personal information and portfolio</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    {isSupervisor ? 'Manage your profile and contact information' : 'Manage your personal information and portfolio'}
+                </p>
             </div>
 
-            {/* Avatar + CV */}
+            {/* Avatar (+ CV for students only) */}
             <Card>
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                     <AvatarUpload
@@ -90,15 +135,60 @@ export default function StudentProfile() {
                     />
                     <div className="flex-1 text-center sm:text-left">
                         <h2 className="text-xl font-bold text-gray-900 dark:text-white">{user?.name}</h2>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm capitalize mt-0.5">{user?.role} · {user?.university}</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm capitalize mt-0.5">
+                            {user?.role} {isSupervisor && user?.company ? `· ${user.company}` : user?.university ? `· ${user.university}` : ''}
+                        </p>
                         <p className="text-gray-400 text-sm mt-0.5">{user?.email}</p>
                     </div>
-                    <label className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-5 text-center hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer w-full sm:w-48 flex-shrink-0 group">
-                        <input type="file" className="hidden" accept=".pdf,.doc,.docx" />
-                        <Upload size={20} className="mx-auto text-gray-400 mb-1.5 group-hover:text-blue-500 transition-colors" />
-                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{t('profile.upload_cv')}</p>
-                        <p className="text-[10px] text-gray-400 mt-1">PDF, DOC up to 5MB</p>
-                    </label>
+                    {isStudent && (
+                        <div className="w-full sm:w-56 flex-shrink-0 flex flex-col items-center gap-2">
+                            {user?.cv ? (
+                                <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-5 w-full text-center space-y-3">
+                                    <FileText size={28} className="mx-auto text-blue-500" />
+                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 truncate">CV / Resume</p>
+                                    <div className="flex flex-wrap justify-center gap-2">
+                                        <a
+                                            href={user.cv}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors"
+                                        >
+                                            <ExternalLink size={14} />
+                                            {t('profile.view_cv') || 'View'}
+                                        </a>
+                                        <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 text-xs font-medium cursor-pointer transition-colors">
+                                            <Upload size={14} />
+                                            {cvUploading ? t('common.uploading') || 'Uploading...' : (t('profile.replace_cv') || 'Replace')}
+                                            <input type="file" className="hidden" accept=".pdf,application/pdf" onChange={handleCVUpload} disabled={cvUploading} />
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveCV}
+                                            disabled={cvUploading}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-medium transition-colors disabled:opacity-50"
+                                        >
+                                            <Trash2 size={14} />
+                                            {t('profile.remove_cv') || 'Remove'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <label className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl p-5 text-center hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all cursor-pointer w-full group">
+                                    <input type="file" className="hidden" accept=".pdf,application/pdf" onChange={handleCVUpload} disabled={cvUploading} />
+                                    {cvUploading ? (
+                                        <Loader2 size={24} className="mx-auto text-blue-500 animate-spin mb-1.5" />
+                                    ) : (
+                                        <Upload size={20} className="mx-auto text-gray-400 mb-1.5 group-hover:text-blue-500 transition-colors" />
+                                    )}
+                                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                        {t('profile.upload_cv')}
+                                    </p>
+                                    <p className="text-[10px] text-gray-400 mt-1">PDF up to 5MB</p>
+                                </label>
+                            )}
+                            {cvError && <p className="text-xs text-red-500">{cvError}</p>}
+                        </div>
+                    )}
                 </div>
             </Card>
 
@@ -110,49 +200,59 @@ export default function StudentProfile() {
                     <Input label={t('auth.email')} icon={Mail} type="email" name="email" value={formData.email} disabled required />
                     <Input label={t('profile.phone')} icon={Phone} name="phone" value={formData.phone} onChange={handleChange} placeholder="+251 9XX XXX XXX" type="tel" />
                     <Input label={t('profile.location')} icon={MapPin} name="location" value={formData.location} onChange={handleChange} placeholder="Addis Ababa, Ethiopia" />
+                    {isSupervisor && (
+                        <>
+                            <Input label={t('profile.company_name')} icon={Building2} name="company" value={formData.company} onChange={handleChange} placeholder="Company or organization" />
+                            <Input label={t('profile.position')} icon={Briefcase} name="position" value={formData.position} onChange={handleChange} placeholder="Your role or title" />
+                        </>
+                    )}
                     <Input label={t('profile.linkedin')} icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="linkedin.com/in/yourname" />
                     <Input label={t('profile.github')} icon={Github} name="github" value={formData.github} onChange={handleChange} placeholder="github.com/yourname" />
                 </div>
                 <div className="mt-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">{t('profile.bio')}</label>
-                    <textarea rows={3} placeholder="Tell recruiters about yourself, your goals, and what makes you unique..."
+                    <textarea rows={3} placeholder={isSupervisor ? "Brief description of your background and responsibilities as a supervisor..." : "Tell recruiters about yourself, your goals, and what makes you unique..."}
                         name="bio" value={formData.bio} onChange={handleChange}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                 </div>
             </Card>
 
-            {/* Academic Info */}
-            <Card>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-5">Academic Information</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input label={t('profile.university')} icon={GraduationCap} name="university" value={formData.university} onChange={handleChange} />
-                    <Input label={t('profile.major')} placeholder="Computer Science" name="major" value={formData.major} onChange={handleChange} />
-                    <Input label={t('profile.graduation')} type="month" />
-                </div>
-            </Card>
+            {/* Academic Info (students only) */}
+            {isStudent && (
+                <Card>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-5">Academic Information</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <Input label={t('profile.university')} icon={GraduationCap} name="university" value={formData.university} onChange={handleChange} />
+                        <Input label={t('profile.major')} placeholder="Computer Science" name="major" value={formData.major} onChange={handleChange} />
+                        <Input label={t('profile.graduation')} type="month" />
+                    </div>
+                </Card>
+            )}
 
-            {/* Skills */}
-            <Card>
-                <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{t('profile.skills')}</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Press Enter or comma to add a skill</p>
-                <div className="flex flex-wrap gap-2 mb-3 min-h-[40px]">
-                    {skills.map((s) => (
-                        <span key={s} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-sm font-medium">
-                            {s}
-                            <button onClick={() => removeSkill(s)} className="hover:text-red-500 transition-colors">
-                                <X size={12} />
-                            </button>
-                        </span>
-                    ))}
-                    <input
-                        value={skillInput}
-                        onChange={(e) => setSkillInput(e.target.value)}
-                        onKeyDown={addSkill}
-                        placeholder={t('profile.add_skill')}
-                        className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px]"
-                    />
-                </div>
-            </Card>
+            {/* Skills (students only) */}
+            {isStudent && (
+                <Card>
+                    <h3 className="text-base font-bold text-gray-900 dark:text-white mb-2">{t('profile.skills')}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Press Enter or comma to add a skill</p>
+                    <div className="flex flex-wrap gap-2 mb-3 min-h-[40px]">
+                        {skills.map((s) => (
+                            <span key={s} className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-sm font-medium">
+                                {s}
+                                <button onClick={() => removeSkill(s)} className="hover:text-red-500 transition-colors">
+                                    <X size={12} />
+                                </button>
+                            </span>
+                        ))}
+                        <input
+                            value={skillInput}
+                            onChange={(e) => setSkillInput(e.target.value)}
+                            onKeyDown={addSkill}
+                            placeholder={t('profile.add_skill')}
+                            className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px]"
+                        />
+                    </div>
+                </Card>
+            )}
 
             {/* Save */}
             <div className="flex items-center gap-3">

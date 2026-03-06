@@ -34,6 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
             role: user.role,
             status: user.status,
             isVerified: user.isVerified,
+            managerRecruiter: user.managerRecruiter,
             token: generateToken(user._id),
         });
     } else {
@@ -53,10 +54,10 @@ const authUser = asyncHandler(async (req, res) => {
 
     if (user && (await user.matchPassword(password))) {
 
-        // If it's a recruiter and they are pending or suspended
-        if (user.role === 'recruiter' && !user.isVerified) {
+        // If it's a recruiter or supervisor and they are pending / not verified
+        if ((user.role === 'recruiter' || user.role === 'supervisor') && !user.isVerified) {
             res.status(401);
-            throw new Error('Account pending admin approval');
+            throw new Error('Account pending approval');
         }
 
         if (user.status === 'suspended') {
@@ -70,6 +71,7 @@ const authUser = asyncHandler(async (req, res) => {
             email: user.email,
             role: user.role,
             avatar: user.avatar,
+            cv: user.cv,
             status: user.status,
             isVerified: user.isVerified,
             bio: user.bio,
@@ -85,6 +87,7 @@ const authUser = asyncHandler(async (req, res) => {
             website: user.website,
             industries: user.industries,
             companySize: user.companySize,
+            managerRecruiter: user.managerRecruiter,
             token: generateToken(user._id),
         });
     } else {

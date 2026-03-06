@@ -16,7 +16,7 @@ const schema = yup.object().shape({
     email: yup.string().email('Invalid email address').required('Email is required'),
     password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
     confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Please confirm your password'),
-    role: yup.string().oneOf(['student', 'recruiter']).required('Please select a role'),
+    role: yup.string().oneOf(['student', 'recruiter', 'supervisor']).required('Please select a role'),
 });
 
 export default function RegisterPage() {
@@ -153,7 +153,7 @@ export default function RegisterPage() {
                         <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 md:text-center">
                             {t('auth.select_role')}
                         </p>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <button type="button" onClick={() => handleRoleSelect('student')}
                                 className={clsx(
                                     'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
@@ -183,6 +183,32 @@ export default function RegisterPage() {
                                 <div className="text-center">
                                     <span className="font-bold block text-sm">{t('auth.role_recruiter')}</span>
                                     <span className="text-[11px] opacity-75 mt-1 block leading-tight">Hire top talent</span>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => handleRoleSelect('supervisor')}
+                                className={clsx(
+                                    'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
+                                    selectedRole === 'supervisor'
+                                        ? 'border-violet-600 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 shadow-md shadow-violet-500/10'
+                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                                )}
+                            >
+                                <div
+                                    className={clsx(
+                                        'p-3 rounded-xl',
+                                        selectedRole === 'supervisor'
+                                            ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                                    )}
+                                >
+                                    <Briefcase className="w-6 h-6" />
+                                </div>
+                                <div className="text-center">
+                                    <span className="font-bold block text-sm">{t('auth.role_supervisor')}</span>
+                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Guide students for recruiters</span>
                                 </div>
                             </button>
                         </div>

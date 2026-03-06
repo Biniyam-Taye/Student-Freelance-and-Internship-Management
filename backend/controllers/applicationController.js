@@ -171,11 +171,17 @@ const computeSkillMatch = (jobSkills = [], studentSkills = []) => {
 };
 
 // @desc    Get all applications for the recruiter across all their jobs
+//          Supervisors see applications for jobs owned by their managerRecruiter
 // @route   GET /api/applications/recruiter
-// @access  Private/Recruiter
+// @access  Private/Recruiter or Supervisor
 const getRecruiterApplications = asyncHandler(async (req, res) => {
-    const applications = await Application.find({ recruiter: req.user._id })
-        .populate('student', 'name email university major skills avatar')
+    const effectiveRecruiterId =
+        req.user.role === 'supervisor' && req.user.managerRecruiter
+            ? req.user.managerRecruiter
+            : req.user._id;
+
+    const applications = await Application.find({ recruiter: effectiveRecruiterId })
+        .populate('student', 'name email university major skills avatar cv')
         .populate('opportunity', 'position company type skills')
         .sort({ createdAt: -1 });
 
@@ -194,9 +200,9 @@ const getRecruiterApplications = asyncHandler(async (req, res) => {
     res.json(withMatch);
 });
 
-// @desc    Get applications for a specific job (Recruiter view)
+// @desc    Get applications for a specific job (Recruiter/Supervisor view)
 // @route   GET /api/applications/job/:opportunityId
-// @access  Private/Recruiter
+// @access  Private/Recruiter or Supervisor
 const getApplicationsForJob = asyncHandler(async (req, res) => {
     const opportunity = await Opportunity.findById(req.params.opportunityId);
 
@@ -205,14 +211,20 @@ const getApplicationsForJob = asyncHandler(async (req, res) => {
         throw new Error('Opportunity not found');
     }
 
-    // Verify this recruiter owns the job
-    if (opportunity.recruiter.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    // Determine which recruiter we should match ownership against
+    const effectiveRecruiterId =
+        req.user.role === 'supervisor' && req.user.managerRecruiter
+            ? req.user.managerRecruiter
+            : req.user._id;
+
+    // Verify this recruiter (or their supervisor) owns the job
+    if (opportunity.recruiter.toString() !== effectiveRecruiterId.toString() && req.user.role !== 'admin') {
         res.status(401);
         throw new Error('Not authorized to view these applications');
     }
 
     const applications = await Application.find({ opportunity: req.params.opportunityId })
-        .populate('student', 'name email university major skills avatar')
+        .populate('student', 'name email university major skills avatar cv')
         .populate('opportunity', 'position company type skills')
         .sort({ createdAt: -1 });
 
@@ -231,9 +243,9 @@ const getApplicationsForJob = asyncHandler(async (req, res) => {
     res.json(withMatch);
 });
 
-// @desc    Update application status (Recruiter Action)
+// @desc    Update application status (Recruiter/Supervisor Action)
 // @route   PUT /api/applications/:id/status
-// @access  Private/Recruiter
+// @access  Private/Recruiter or Supervisor
 const updateApplicationStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
 
@@ -250,8 +262,27 @@ const updateApplicationStatus = asyncHandler(async (req, res) => {
         throw new Error('Application not found');
     }
 
-    // Verify authorized recruiter
-    if (application.recruiter.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    // Permission checks:
+    // - Recruiter can manage applications for their own jobs
+    // - Supervisor can manage applications for jobs that belong to their managerRecruiter
+    // - Admin can manage everything
+    if (req.user.role === 'admin') {
+        // always allowed
+    } else if (req.user.role === 'recruiter') {
+        if (application.recruiter.toString() !== req.user._id.toString()) {
+            res.status(401);
+            throw new Error('Not authorized to change this application status');
+        }
+    } else if (req.user.role === 'supervisor') {
+        // If supervisor is linked to a recruiter, enforce that link.
+        if (req.user.managerRecruiter) {
+            if (application.recruiter.toString() !== req.user.managerRecruiter.toString()) {
+                res.status(401);
+                throw new Error('Not authorized to change this application status');
+            }
+        }
+        // If no managerRecruiter is set, allow for now (single recruiter scenario).
+    } else {
         res.status(401);
         throw new Error('Not authorized to change this application status');
     }

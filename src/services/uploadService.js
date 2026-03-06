@@ -39,6 +39,36 @@ export const uploadAvatar = async (file) => {
  * @param {File} file - The image file to upload.
  * @returns {Promise<string>} The Cloudinary URL of the uploaded image.
  */
+/**
+ * Upload student CV/Resume (PDF) to Cloudinary via the backend.
+ * @param {File} file - The PDF file to upload (max 5MB).
+ * @returns {Promise<string>} The URL of the uploaded file.
+ */
+export const uploadCV = async (file) => {
+    const toBase64 = (f) =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(f);
+        });
+
+    const fileData = await toBase64(file);
+    const token = localStorage.getItem('authToken');
+    const response = await axios.post(
+        `${BASE_URL}/upload/cv`,
+        { fileData },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { Authorization: `Bearer ${token}` }),
+            },
+            timeout: 30000,
+        }
+    );
+    return response.data.url;
+};
+
 export const uploadPostImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
