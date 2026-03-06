@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Star } from 'lucide-react';
+import { Star, Sparkles } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Button from '../../components/ui/Button';
@@ -38,6 +38,17 @@ export default function RecruiterApplications() {
         if (!search) return true;
         return studentName.toLowerCase().includes(search.toLowerCase()) || position.toLowerCase().includes(search.toLowerCase());
     });
+
+    // For each opportunity, track the highest numeric matchScore so we can highlight the top candidate
+    const bestMatchByOpportunity = apps.reduce((acc, app) => {
+        const oppId = app.opportunity?._id;
+        if (!oppId || typeof app.matchScore !== 'number') return acc;
+        const current = acc[oppId];
+        if (current == null || app.matchScore > current) {
+            acc[oppId] = app.matchScore;
+        }
+        return acc;
+    }, {});
 
     const studentReviewStats = selectedApp?.student?._id
         ? (() => {
@@ -75,13 +86,30 @@ export default function RecruiterApplications() {
         },
         { key: 'position', title: 'Position', render: (_, row) => <span className="text-sm text-gray-700 dark:text-gray-300">{row.opportunity?.position}</span> },
         {
-            key: 'skills', title: 'Skills',
-            render: (_, row) => {
-                const skills = row.student?.skills || [];
+            key: 'matchScore', title: 'AI Best Recommendation', align: 'center',
+            render: (v, row) => {
+                const score = typeof v === 'number' ? v : null;
+                const reason = row.matchDetails?.reason;
+                if (score === null) {
+                    const label =
+                        reason === 'missing_job_skills'
+                            ? 'Add job skills'
+                            : reason === 'missing_student_skills'
+                                ? 'No student skills'
+                                : 'N/A';
+                    return <span className="text-xs text-gray-400">{label}</span>;
+                }
+                const oppId = row.opportunity?._id;
+                const isTop = oppId && bestMatchByOpportunity[oppId] != null && bestMatchByOpportunity[oppId] === score;
                 return (
-                    <div className="flex flex-wrap gap-1">
-                        {skills.slice(0, 2).map((s, i) => <span key={i} className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded text-[10px]">{s}</span>)}
-                        {skills.length > 2 && <span className="text-xs text-gray-400">+{skills.length - 2}</span>}
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                        <span>{score}% match</span>
+                        {isTop && (
+                            <span className="flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400">
+                                <Sparkles size={12} />
+                                Top
+                            </span>
+                        )}
                     </div>
                 );
             },

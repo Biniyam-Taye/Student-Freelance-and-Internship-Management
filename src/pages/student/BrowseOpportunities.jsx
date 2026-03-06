@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink, RefreshCw } from 'lucide-react';
+import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import SearchFilter from '../../components/common/SearchFilter';
 import Pagination from '../../components/ui/Pagination';
@@ -19,6 +19,7 @@ export default function BrowseOpportunities() {
     const navigate = useNavigate();
     const { items: opportunities, loading, error } = useSelector(state => state.opportunities);
     const { loading: applyLoading } = useSelector(state => state.applications);
+    const { user } = useSelector(state => state.auth);
 
     const [search, setSearch] = useState('');
     const [filters, setFilters] = useState({});
@@ -31,6 +32,74 @@ export default function BrowseOpportunities() {
     const [viewModal, setViewModal] = useState(null);
     const [coverLetter, setCoverLetter] = useState('');
     const PER_PAGE = 4;
+
+    // Local deterministic skill-based match between a job and the current student
+    const computeSkillMatch = (jobSkills = [], studentSkills = []) => {
+        const normalize = (s) =>
+            s
+                .toString()
+                .toLowerCase()
+                .trim()
+                .replace(/[()]/g, ' ')
+                .replace(/[\s]+/g, ' ')
+                .replace(/[.+]/g, '.');
+
+        const alias = new Map([
+            ['js', 'javascript'],
+            ['java script', 'javascript'],
+            ['ts', 'typescript'],
+            ['node', 'node.js'],
+            ['nodejs', 'node.js'],
+            ['reactjs', 'react'],
+            ['nextjs', 'next.js'],
+            ['expressjs', 'express'],
+            ['mongo', 'mongodb'],
+            ['postgres', 'postgresql'],
+            ['py', 'python'],
+            ['c sharp', 'c#'],
+            ['dotnet', '.net'],
+        ]);
+
+        const splitSkillString = (value) => {
+            const str = normalize(value);
+            return str
+                .split(/[,/|]/g)
+                .map((t) => t.trim())
+                .filter(Boolean);
+        };
+
+        const canonicalize = (raw) => {
+            const n = normalize(raw);
+            return alias.get(n) || n;
+        };
+
+        const rawJob = Array.isArray(jobSkills) ? jobSkills : [];
+        const rawStudent = Array.isArray(studentSkills) ? studentSkills : [];
+
+        const jobTokens = rawJob.flatMap(splitSkillString).map(canonicalize).filter(Boolean);
+        const studentTokens = rawStudent.flatMap(splitSkillString).map(canonicalize).filter(Boolean);
+
+        if (jobTokens.length === 0 || studentTokens.length === 0) {
+            return null;
+        }
+
+        const studentSet = new Set(studentTokens);
+        const isMatched = (jobSkill) => {
+            if (studentSet.has(jobSkill)) return true;
+            for (const s of studentSet) {
+                if (!s || !jobSkill) continue;
+                if (s.includes(jobSkill) || jobSkill.includes(s)) return true;
+            }
+            return false;
+        };
+
+        const uniqueJob = [...new Set(jobTokens)];
+        const matched = uniqueJob.filter(isMatched);
+        const requiredCount = uniqueJob.length;
+        const matchedCount = matched.length;
+        const ratio = requiredCount === 0 ? 0 : matchedCount / requiredCount;
+        return Math.round(ratio * 100);
+    };
 
     useEffect(() => {
         dispatch(fetchOpportunities({ keyword: search, type: typeFilter }));
@@ -47,8 +116,14 @@ export default function BrowseOpportunities() {
         }
     }, [openApplyId, loading, opportunities, navigate, location.pathname]);
 
+    // Enrich opportunities with skill-based matchScore for the current student
+    const scored = opportunities.map((o) => ({
+        ...o,
+        matchScore: user ? computeSkillMatch(o.skills, user.skills || []) : null,
+    }));
+
     // Local filter/sort on the fetched items
-    const filtered = [...opportunities].filter((o) => {
+    const filtered = [...scored].filter((o) => {
         // Search API usually handles basic search, but this double-filters just in case
         if (search && !o.position.toLowerCase().includes(search.toLowerCase()) && !o.company.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
@@ -58,11 +133,17 @@ export default function BrowseOpportunities() {
             return getVal(b.stipend) - getVal(a.stipend);
         }
         if (sortBy === 'Best Match') {
-            // Mock sort by title length just to have a deterministic "match" shuffle
-            return b.position.length - a.position.length;
+            const getScore = (o) => (typeof o.matchScore === 'number' ? o.matchScore : -1);
+            return getScore(b) - getScore(a);
         }
-        return 0; // Newest (default order in mock)
+        return 0; // Newest (default order from backend)
     });
+
+    // Best match among the currently filtered list, for highlighting
+    const bestScore = filtered.reduce(
+        (max, o) => (typeof o.matchScore === 'number' && o.matchScore > max ? o.matchScore : max),
+        -1
+    );
 
     const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
@@ -148,7 +229,7 @@ export default function BrowseOpportunities() {
                         <div key={opp._id}
                             className="bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-100 dark:border-gray-700/60 p-5 shadow-sm hover:shadow-lg dark:hover:shadow-gray-900/50 hover:-translate-y-0.5 transition-all duration-200">
                             {/* Card Header */}
-                            <div className="flex items-start justify-between gap-3 mb-4">
+                            <div className="flex items-start justify-between gap-3 mb-3">
                                 <div className="flex items-center gap-3">
                                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 dark:from-blue-900/30 dark:to-violet-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 font-black text-lg flex-shrink-0">
                                         {opp.company[0]}
@@ -165,6 +246,21 @@ export default function BrowseOpportunities() {
                                     </button>
                                 </div>
                             </div>
+
+                            {/* AI match pill (before applying) */}
+                            {typeof opp.matchScore === 'number' && (
+                                <div className="mb-3">
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold text-slate-700 dark:text-slate-200">
+                                        <span>{opp.matchScore}% match</span>
+                                        {opp.matchScore === bestScore && bestScore >= 0 && (
+                                            <span className="flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400">
+                                                <Sparkles size={12} />
+                                                Best for you
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+                            )}
 
                             {/* Description */}
                             <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{opp.description}</p>

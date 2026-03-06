@@ -61,16 +61,137 @@ const getMyApplications = asyncHandler(async (req, res) => {
     res.json(applications);
 });
 
+// Helper: compute skill match between a job and a student (deterministic + explainable)
+// Returns { matchScore: number|null, details: { matchedSkills, missingSkills, matchedCount, requiredCount, reason } }
+const computeSkillMatch = (jobSkills = [], studentSkills = []) => {
+    const normalize = (s) =>
+        s
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/[()]/g, ' ')
+            .replace(/[\s]+/g, ' ')
+            .replace(/[.+]/g, '.'); // keep node.js style dots
+
+    // Common aliases so "js" matches "javascript", etc.
+    const alias = new Map([
+        ['js', 'javascript'],
+        ['java script', 'javascript'],
+        ['ts', 'typescript'],
+        ['node', 'node.js'],
+        ['nodejs', 'node.js'],
+        ['reactjs', 'react'],
+        ['nextjs', 'next.js'],
+        ['expressjs', 'express'],
+        ['mongo', 'mongodb'],
+        ['postgres', 'postgresql'],
+        ['py', 'python'],
+        ['c sharp', 'c#'],
+        ['dotnet', '.net'],
+    ]);
+
+    const splitSkillString = (value) => {
+        const str = normalize(value);
+        // Handle "React, Node, MongoDB" or "React / Node" inside a single entry
+        return str
+            .split(/[,/|]/g)
+            .map((t) => t.trim())
+            .filter(Boolean);
+    };
+
+    const canonicalize = (raw) => {
+        const n = normalize(raw);
+        return alias.get(n) || n;
+    };
+
+    const rawJob = Array.isArray(jobSkills) ? jobSkills : [];
+    const rawStudent = Array.isArray(studentSkills) ? studentSkills : [];
+
+    const jobTokens = rawJob.flatMap(splitSkillString).map(canonicalize).filter(Boolean);
+    const studentTokens = rawStudent.flatMap(splitSkillString).map(canonicalize).filter(Boolean);
+
+    if (jobTokens.length === 0) {
+        return {
+            matchScore: null,
+            details: {
+                matchedSkills: [],
+                missingSkills: [],
+                matchedCount: 0,
+                requiredCount: 0,
+                reason: 'missing_job_skills',
+            },
+        };
+    }
+    if (studentTokens.length === 0) {
+        return {
+            matchScore: null,
+            details: {
+                matchedSkills: [],
+                missingSkills: [...new Set(jobTokens)],
+                matchedCount: 0,
+                requiredCount: jobTokens.length,
+                reason: 'missing_student_skills',
+            },
+        };
+    }
+
+    const studentSet = new Set(studentTokens);
+
+    // Match rule:
+    // - exact canonical match, OR
+    // - substring match for multi-word skills (e.g., "react native" matches "react")
+    const isMatched = (jobSkill) => {
+        if (studentSet.has(jobSkill)) return true;
+        for (const s of studentSet) {
+            if (!s || !jobSkill) continue;
+            if (s.includes(jobSkill) || jobSkill.includes(s)) return true;
+        }
+        return false;
+    };
+
+    const uniqueJob = [...new Set(jobTokens)];
+    const matched = uniqueJob.filter(isMatched);
+    const missing = uniqueJob.filter((s) => !matched.includes(s));
+
+    const requiredCount = uniqueJob.length;
+    const matchedCount = matched.length;
+    const ratio = requiredCount === 0 ? 0 : matchedCount / requiredCount;
+    const matchScore = Math.round(ratio * 100);
+
+    return {
+        matchScore,
+        details: {
+            matchedSkills: matched,
+            missingSkills: missing,
+            matchedCount,
+            requiredCount,
+            reason: 'ok',
+        },
+    };
+};
+
 // @desc    Get all applications for the recruiter across all their jobs
 // @route   GET /api/applications/recruiter
 // @access  Private/Recruiter
 const getRecruiterApplications = asyncHandler(async (req, res) => {
     const applications = await Application.find({ recruiter: req.user._id })
         .populate('student', 'name email university major skills avatar')
-        .populate('opportunity', 'position company type')
+        .populate('opportunity', 'position company type skills')
         .sort({ createdAt: -1 });
 
-    res.json(applications);
+    const withMatch = applications.map(app => {
+        const obj = app.toObject();
+        const jobSkills = obj.opportunity?.skills || [];
+        const studentSkills = obj.student?.skills || [];
+        const { matchScore, details } = computeSkillMatch(jobSkills, studentSkills);
+        return {
+            ...obj,
+            matchScore,
+            matchDetails: details,
+        };
+    });
+
+    res.json(withMatch);
 });
 
 // @desc    Get applications for a specific job (Recruiter view)
@@ -92,9 +213,22 @@ const getApplicationsForJob = asyncHandler(async (req, res) => {
 
     const applications = await Application.find({ opportunity: req.params.opportunityId })
         .populate('student', 'name email university major skills avatar')
+        .populate('opportunity', 'position company type skills')
         .sort({ createdAt: -1 });
 
-    res.json(applications);
+    const withMatch = applications.map(app => {
+        const obj = app.toObject();
+        const jobSkills = obj.opportunity?.skills || [];
+        const studentSkills = obj.student?.skills || [];
+        const { matchScore, details } = computeSkillMatch(jobSkills, studentSkills);
+        return {
+            ...obj,
+            matchScore,
+            matchDetails: details,
+        };
+    });
+
+    res.json(withMatch);
 });
 
 // @desc    Update application status (Recruiter Action)
