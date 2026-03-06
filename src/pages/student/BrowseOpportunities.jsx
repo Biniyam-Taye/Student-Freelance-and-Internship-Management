@@ -105,6 +105,15 @@ export default function BrowseOpportunities() {
         dispatch(fetchOpportunities({ keyword: search, type: typeFilter }));
     }, [dispatch, search, typeFilter]);
 
+    // When coming from "Browse all matches" (AI Recommends), default to Best Match sort
+    useEffect(() => {
+        if (location.state?.sortByBestMatch) {
+            setSortBy('Best Match');
+            setPage(1);
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [location.state?.sortByBestMatch, navigate, location.pathname]);
+
     // Open Apply modal when navigated from AI Recommends with a specific job id
     const openApplyId = location.state?.openApplyId;
     useEffect(() => {

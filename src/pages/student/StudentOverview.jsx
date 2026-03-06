@@ -422,7 +422,7 @@ export default function StudentOverview() {
                                 )}
                             </div>
                             <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
-                                <Link to="/student/browse" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                <Link to="/student/browse" state={{ sortByBestMatch: true }} className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
                                     Browse all matches →
                                 </Link>
                             </div>
