@@ -8,8 +8,7 @@ import { uploadPostImage } from '../../services/uploadService';
 import clsx from 'clsx';
 import {
     Image as ImageIcon,
-    Video,
-    FileText,
+    Type,
     ThumbsUp,
     MessageSquare,
     Repeat,
@@ -216,9 +215,12 @@ export default function StudentOverview() {
                             </div>
                         </div>
                         <div className="flex justify-around items-center pt-1">
-                            <button className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors">
-                                <Video size={24} className="text-[#378fe9] fill-[#378fe9]" />
-                                <span>Video</span>
+                            <button
+                                onClick={() => setIsPosting(true)}
+                                className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors"
+                            >
+                                <Type size={24} className="text-[#378fe9] fill-[#378fe9]" />
+                                <span>Text</span>
                             </button>
                             <button
                                 onClick={() => { setIsPosting(true); setTimeout(() => photoInputRef.current?.click(), 50); }}
@@ -228,10 +230,6 @@ export default function StudentOverview() {
                                 <span>Photo</span>
                             </button>
                             <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
-                            <button className="flex items-center gap-2 px-3 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-colors">
-                                <FileText size={24} className="text-[#e16745] fill-[#e16745]" />
-                                <span>Write article</span>
-                            </button>
                         </div>
                     </div>
 
