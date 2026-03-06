@@ -69,6 +69,32 @@ export const uploadCV = async (file) => {
     return response.data.url;
 };
 
+/**
+ * Download student CV as PDF with correct filename (via backend proxy).
+ * @param {string} cvUrl - The Cloudinary URL of the CV.
+ * @param {string} filename - Desired filename (e.g. "Biniyam_Taye_CV.pdf").
+ */
+export const downloadCV = async (cvUrl, filename = 'CV.pdf') => {
+    const token = localStorage.getItem('authToken');
+    const safeFilename = (filename || 'CV').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9._-]/g, '') || 'CV';
+    const finalFilename = safeFilename.endsWith('.pdf') ? safeFilename : `${safeFilename}_CV.pdf`;
+    const url = `${BASE_URL}/upload/cv/download?url=${encodeURIComponent(cvUrl)}&filename=${encodeURIComponent(finalFilename)}`;
+    const response = await axios.get(url, {
+        responseType: 'blob',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        timeout: 60000,
+    });
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const objectUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = objectUrl;
+    a.download = finalFilename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(objectUrl);
+};
+
 export const uploadPostImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);

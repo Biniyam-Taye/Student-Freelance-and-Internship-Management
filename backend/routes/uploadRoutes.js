@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
+const https = require('https');
+const http = require('http');
 const { protect } = require('../middlewares/authMiddleware');
 const { uploadAvatar, uploadPost, cloudinary } = require('../utils/cloudinary');
 
@@ -75,6 +77,43 @@ router.post(
         }
 
         res.json({ url: result.secure_url });
+    })
+);
+
+// @route   GET /api/upload/cv/download
+// @desc    Proxy CV download with correct filename (fixes browser saving as Cloudinary ID)
+// @access  Private
+router.get(
+    '/cv/download',
+    protect,
+    asyncHandler(async (req, res) => {
+        const { url, filename } = req.query;
+        if (!url || typeof url !== 'string') {
+            res.status(400);
+            throw new Error('Missing url parameter');
+        }
+        const decodedUrl = decodeURIComponent(url);
+        if (!decodedUrl.startsWith('https://res.cloudinary.com/') && !decodedUrl.startsWith('http://res.cloudinary.com/')) {
+            res.status(400);
+            throw new Error('Invalid CV URL');
+        }
+        const safeFilename = (filename || 'CV.pdf').replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.{2,}/g, '.') || 'CV.pdf';
+        const finalFilename = safeFilename.endsWith('.pdf') ? safeFilename : `${safeFilename}.pdf`;
+
+        const protocol = decodedUrl.startsWith('https') ? https : http;
+        protocol.get(decodedUrl, (proxyRes) => {
+            if (proxyRes.statusCode !== 200) {
+                res.status(proxyRes.statusCode || 500);
+                return res.json({ message: 'Failed to fetch CV' });
+            }
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${finalFilename}"`);
+            proxyRes.pipe(res);
+        }).on('error', (err) => {
+            console.error('CV download proxy error:', err);
+            res.status(502);
+            res.json({ message: 'Failed to fetch CV' });
+        });
     })
 );
 
