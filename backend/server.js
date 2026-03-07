@@ -6,7 +6,9 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 // Load environment variables
-dotenv.config({ path: './.env' });
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config({ path: './.env' });
+}
 
 const app = express();
 
