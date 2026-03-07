@@ -6,7 +6,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: './.env' });
 
 const app = express();
 
