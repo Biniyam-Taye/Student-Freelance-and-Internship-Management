@@ -62,10 +62,18 @@ const verifyRecruiter = asyncHandler(async (req, res) => {
 const updateUserStatus = asyncHandler(async (req, res) => {
     const { status } = req.body;
     const user = await User.findById(req.params.id);
+
     if (!user) {
         res.status(404);
         throw new Error('User not found');
     }
+
+    // Never allow the main admin account to be suspended or set to pending
+    if (user.role === 'admin' && status !== 'active') {
+        res.status(400);
+        throw new Error('Cannot change admin account status to non-active');
+    }
+
     user.status = status;
     await user.save();
     res.json({ message: `User status updated to ${status}`, user });

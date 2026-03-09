@@ -10,14 +10,30 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
     const adminExists = await User.findOne({ email: 'admin@freelaunch.com' });
 
     if (adminExists) {
+        let updated = false;
+
         if (adminExists.role !== 'admin') {
             adminExists.role = 'admin';
-            adminExists.isVerified = true;
-            await adminExists.save();
-            console.log('Existing user updated to Admin role.');
-        } else {
-            console.log('Admin already exists.');
+            updated = true;
         }
+
+        if (!adminExists.isVerified) {
+            adminExists.isVerified = true;
+            updated = true;
+        }
+
+        if (adminExists.status !== 'active') {
+            adminExists.status = 'active';
+            updated = true;
+        }
+
+        if (updated) {
+            await adminExists.save();
+            console.log('Existing admin user normalized (role, verification, status).');
+        } else {
+            console.log('Admin already exists and is correctly configured.');
+        }
+
         process.exit();
     }
 
@@ -26,7 +42,8 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
         email: 'admin@freelaunch.com',
         password: 'adminpassword123',
         role: 'admin',
-        isVerified: true
+        isVerified: true,
+        status: 'active'
     });
 
     console.log('Admin user created successfully:');

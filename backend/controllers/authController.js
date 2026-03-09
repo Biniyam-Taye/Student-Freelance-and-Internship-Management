@@ -60,7 +60,8 @@ const authUser = asyncHandler(async (req, res) => {
             throw new Error('Account pending approval');
         }
 
-        if (user.status === 'suspended') {
+        // Only non-admin users can be blocked by suspension
+        if (user.role !== 'admin' && user.status === 'suspended') {
             res.status(403);
             throw new Error('Your account is suspended.');
         }
