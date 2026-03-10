@@ -6,13 +6,24 @@ const asyncHandler = require('express-async-handler');
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, role, university, major, company, position } = req.body;
+    const { name, email, password, role, university, major, company, position, managerRecruiter } = req.body;
 
     const userExists = await User.findOne({ email });
 
     if (userExists) {
         res.status(400);
         throw new Error('User already exists');
+    }
+
+    // Optional: link supervisor to a recruiter at registration time
+    let recruiterRef = undefined;
+    if (role === 'supervisor' && managerRecruiter) {
+        const recruiter = await User.findById(managerRecruiter);
+        if (!recruiter || recruiter.role !== 'recruiter') {
+            res.status(400);
+            throw new Error('Selected recruiter is invalid');
+        }
+        recruiterRef = recruiter._id;
     }
 
     const user = await User.create({
@@ -23,7 +34,8 @@ const registerUser = asyncHandler(async (req, res) => {
         university,
         major,
         company,
-        position
+        position,
+        managerRecruiter: recruiterRef,
     });
 
     if (user) {

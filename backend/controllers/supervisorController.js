@@ -10,7 +10,7 @@ const assertRecruiterManager = (req) => {
     }
 };
 
-// @desc    List pending supervisors (not yet assigned to any recruiter)
+// @desc    List pending supervisors visible to this recruiter
 // @route   GET /api/supervisors/pending
 // @access  Private/Recruiter
 const getPendingSupervisors = asyncHandler(async (req, res) => {
@@ -18,13 +18,14 @@ const getPendingSupervisors = asyncHandler(async (req, res) => {
 
     const supervisors = await User.find({
         role: 'supervisor',
-        // Consider "pending" any supervisor who is not yet assigned to a recruiter,
-        // regardless of current status/isVerified flags.
+        status: 'pending',
+        // Show supervisors who either explicitly picked this recruiter
+        // or haven't picked anyone yet (global pending pool).
         $or: [
+            { managerRecruiter: req.user._id },
             { managerRecruiter: { $exists: false } },
             { managerRecruiter: null },
         ],
-        status: { $ne: 'suspended' },
     })
         .select('-password')
         .sort({ createdAt: -1 });

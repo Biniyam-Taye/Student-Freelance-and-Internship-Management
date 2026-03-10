@@ -9,6 +9,7 @@ import { Mail, Lock, User, GraduationCap, Briefcase, ArrowRight, Eye, EyeOff, Ch
 import { registerUser, mockLogin } from '../../features/auth/authSlice';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
+import api from '../../services/api';
 import clsx from 'clsx';
 
 const schema = yup.object().shape({
@@ -30,6 +31,9 @@ export default function RegisterPage() {
     const [showPass, setShowPass] = useState(false);
     const [showConfirmPass, setShowConfirmPass] = useState(false);
     const [localError, setLocalError] = useState(null);
+    const [recruiters, setRecruiters] = useState([]);
+    const [recruiterLoading, setRecruiterLoading] = useState(false);
+    const [selectedRecruiterId, setSelectedRecruiterId] = useState('');
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
@@ -41,6 +45,20 @@ export default function RegisterPage() {
         setValue('role', r);
     };
 
+    const loadRecruiters = async () => {
+        try {
+            setRecruiterLoading(true);
+            // Public endpoint: returns verified, active recruiters
+            const res = await api.get('/public/recruiters');
+            const list = res.data || [];
+            setRecruiters(list);
+        } catch (error) {
+            console.error('Failed to load recruiters', error);
+        } finally {
+            setRecruiterLoading(false);
+        }
+    };
+
     const onSubmit = async (data) => {
         setLoading(true);
         setLocalError(null);
@@ -49,11 +67,27 @@ export default function RegisterPage() {
                 name: data.fullName,
                 email: data.email,
                 password: data.password,
-                role: data.role
+                role: data.role,
+                // If supervisor chose a recruiter, send that as managerRecruiter
+                ...(data.role === 'supervisor' && selectedRecruiterId
+                    ? { managerRecruiter: selectedRecruiterId }
+                    : {}),
             };
             const resultAction = await dispatch(registerUser(formData)).unwrap();
             const role = resultAction.role || 'student';
-            navigate(`/${role}`);
+
+            // For supervisors: redirect to login, recruiter will see their request
+            if (role === 'supervisor') {
+                navigate('/login', {
+                    state: {
+                        info: selectedRecruiterId
+                            ? 'Your supervisor account has been created and a request has been sent to the selected recruiter. You will be able to log in once they approve your account.'
+                            : 'Your supervisor account has been created and is pending approval. Please contact a recruiter to approve your account.',
+                    },
+                });
+            } else {
+                navigate(`/${role}`);
+            }
         } catch (err) {
             setLocalError(err || 'Failed to register');
         } finally {
@@ -188,7 +222,12 @@ export default function RegisterPage() {
 
                             <button
                                 type="button"
-                                onClick={() => handleRoleSelect('supervisor')}
+                                onClick={async () => {
+                                    handleRoleSelect('supervisor');
+                                    if (recruiters.length === 0) {
+                                        await loadRecruiters();
+                                    }
+                                }}
                                 className={clsx(
                                     'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
                                     selectedRole === 'supervisor'
@@ -213,6 +252,37 @@ export default function RegisterPage() {
                             </button>
                         </div>
                     </div>
+
+                    {/* For supervisors: choose recruiter/company to send request to */}
+                    {selectedRole === 'supervisor' && (
+                        <div className="mb-6">
+                            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 md:text-left">
+                                Choose recruiter / company to supervise for
+                            </p>
+                            <div className="space-y-2">
+                                <select
+                                    value={selectedRecruiterId}
+                                    onChange={(e) => setSelectedRecruiterId(e.target.value)}
+                                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                >
+                                    <option value="">
+                                        {recruiterLoading
+                                            ? 'Loading recruiters...'
+                                            : 'Select a recruiter / company (optional)'}
+                                    </option>
+                                    {recruiters.map((r) => (
+                                        <option key={r._id} value={r._id}>
+                                            {r.company || r.name} — {r.email}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                    We&apos;ll send a request to the selected recruiter so they can approve your supervisor
+                                    account. You can skip this step and ask a recruiter to approve you later.
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="relative mb-8">
                         <div className="absolute inset-0 flex items-center">

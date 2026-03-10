@@ -119,11 +119,23 @@ const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.loading = false;
-                state.user = action.payload;
-                state.token = action.payload.token;
+
+                const newUser = action.payload;
+
+                // Supervisors should not be auto-logged in after registration
+                if (newUser?.role === 'supervisor') {
+                    state.user = null;
+                    state.token = null;
+                    state.isAuthenticated = false;
+                    localStorage.removeItem('authToken');
+                    return;
+                }
+
+                state.user = newUser;
+                state.token = newUser.token;
                 state.isAuthenticated = true;
-                if (action.payload.token) {
-                    localStorage.setItem('authToken', action.payload.token);
+                if (newUser.token) {
+                    localStorage.setItem('authToken', newUser.token);
                 }
             })
             .addCase(registerUser.rejected, (state, action) => {

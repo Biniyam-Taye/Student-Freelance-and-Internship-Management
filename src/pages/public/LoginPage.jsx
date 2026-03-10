@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
@@ -19,11 +19,13 @@ export default function LoginPage() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const themeMode = useSelector(state => state.theme.mode);
     const { loading: authLoading, error: authError } = useSelector(state => state.auth);
     const [showPass, setShowPass] = useState(false);
     const [loginLoading, setLoginLoading] = useState(false);
     const [localError, setLocalError] = useState(null);
+    const pendingInfo = location.state?.info;
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
@@ -122,6 +124,12 @@ export default function LoginPage() {
                     <div className="text-left md:text-center mb-10">
                         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{t('auth.login_title')}</h1>
                         <p className="text-slate-600 dark:text-slate-400">{t('auth.login_subtitle')}</p>
+
+                        {pendingInfo && (
+                            <div className="mt-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-sm font-medium border border-amber-100 dark:border-amber-900/50">
+                                {pendingInfo}
+                            </div>
+                        )}
 
                         {(authError || localError) && (
                             <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium border border-red-100 dark:border-red-900/50">
