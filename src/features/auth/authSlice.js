@@ -122,8 +122,9 @@ const authSlice = createSlice({
 
                 const newUser = action.payload;
 
-                // Supervisors should not be auto-logged in after registration
-                if (newUser?.role === 'supervisor') {
+                // Recruiters & supervisors should not be auto-logged in after registration.
+                // They must be approved first.
+                if (newUser?.role === 'supervisor' || newUser?.role === 'recruiter') {
                     state.user = null;
                     state.token = null;
                     state.isAuthenticated = false;

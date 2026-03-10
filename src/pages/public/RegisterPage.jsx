@@ -85,7 +85,16 @@ export default function RegisterPage() {
                             : 'Your supervisor account has been created and is pending approval. Please contact a recruiter to approve your account.',
                     },
                 });
+            }
+            // For recruiters: also redirect to login and wait for admin approval
+            else if (role === 'recruiter') {
+                navigate('/login', {
+                    state: {
+                        info: 'Your recruiter account has been created and is pending admin approval. You will be able to log in once an admin verifies your account.',
+                    },
+                });
             } else {
+                // Students can be logged in immediately
                 navigate(`/${role}`);
             }
         } catch (err) {
