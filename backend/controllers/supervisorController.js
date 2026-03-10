@@ -44,8 +44,9 @@ const getMySupervisors = asyncHandler(async (req, res) => {
     const supervisors = await User.find({
         role: 'supervisor',
         managerRecruiter: recruiterId,
-        // Don't show supervisors that were manually "deleted" / suspended
-        status: { $ne: 'suspended' },
+        // Only show fully approved / active supervisors here
+        status: 'active',
+        isVerified: true,
     })
         .select('-password')
         .sort({ createdAt: -1 });
