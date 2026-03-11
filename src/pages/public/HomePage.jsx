@@ -13,6 +13,16 @@ export default function HomePage() {
     const { mode } = useSelector((state) => state.theme);
     const { lang } = useSelector((state) => state.language);
 
+    React.useEffect(() => {
+        if (window.location.hash) {
+            const id = window.location.hash.substring(1);
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    }, [window.location.hash]);
+
     const handleToggleTheme = () => {
         dispatch(toggleTheme());
     };
@@ -42,7 +52,7 @@ export default function HomePage() {
                             <div className="hidden md:flex items-center gap-8 font-medium">
                                 <a href="#how-it-works" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('how_it_works.title')}</a>
                                 <a href="#features" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('features.title')}</a>
-                                <a href="#testimonials" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('testimonials.title')}</a>
+                                <Link to="/success-stories" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('testimonials.title')}</Link>
                             </div>
 
                             {/* Controls */}
@@ -291,15 +301,15 @@ export default function HomePage() {
                         <div>
                             <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Useful Links</h4>
                             <ul className="space-y-3">
-                                {[
-                                    { label: 'How It Works', to: '/#how-it-works' },
-                                    { label: 'Success Stories', to: '/#testimonials' },
-                                    { label: 'Register Now', to: '/register' },
-                                ].map(({ label, to }) => (
-                                    <li key={label}>
-                                        <Link to={to} className="text-sm text-slate-400 hover:text-blue-400 transition-colors">{label}</Link>
-                                    </li>
-                                ))}
+                                <li>
+                                    <a href="#how-it-works" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">How It Works</a>
+                                </li>
+                                <li>
+                                    <Link to="/success-stories" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Success Stories</Link>
+                                </li>
+                                <li>
+                                    <Link to="/register" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Register Now</Link>
+                                </li>
                             </ul>
                         </div>
 
