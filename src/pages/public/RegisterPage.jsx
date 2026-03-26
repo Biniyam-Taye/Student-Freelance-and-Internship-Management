@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Mail, Lock, User, GraduationCap, Briefcase, ArrowRight, Eye, EyeOff, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { Mail, Lock, User, GraduationCap, Briefcase, ArrowRight, Eye, EyeOff, CheckCircle2, Sun, Moon, ChevronDown, UserCircle2, ShieldCheck } from 'lucide-react';
 import { registerUser, mockLogin } from '../../features/auth/authSlice';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
@@ -34,6 +34,18 @@ export default function RegisterPage() {
     const [recruiters, setRecruiters] = useState([]);
     const [recruiterLoading, setRecruiterLoading] = useState(false);
     const [selectedRecruiterId, setSelectedRecruiterId] = useState('');
+    const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+    const roleDropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (roleDropdownRef.current && !roleDropdownRef.current.contains(e.target)) {
+                setRoleDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }, []);
 
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
@@ -191,76 +203,132 @@ export default function RegisterPage() {
                         )}
                     </div>
 
-                    {/* Role selection */}
-                    <div className="mb-8">
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 md:text-center">
-                            {t('auth.select_role')}
-                        </p>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <button type="button" onClick={() => handleRoleSelect('student')}
-                                className={clsx(
-                                    'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
-                                    selectedRole === 'student'
-                                        ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 shadow-md shadow-blue-500/10'
-                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-blue-300 dark:hover:border-blue-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                                )}>
-                                <div className={`p-3 rounded-xl ${selectedRole === 'student' ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                                    <GraduationCap className="w-6 h-6" />
-                                </div>
-                                <div className="text-center">
-                                    <span className="font-bold block text-sm">{t('auth.role_student')}</span>
-                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Find work &amp; grow</span>
-                                </div>
-                            </button>
+                    {/* Role selection — custom dropdown */}
+                    {(() => {
+                        const roles = [
+                            {
+                                key: 'student',
+                                label: t('auth.role_student'),
+                                subtitle: 'Find work & grow',
+                                icon: UserCircle2,
+                                color: 'blue',
+                                triggerCls: 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 text-blue-700 dark:text-blue-300 shadow-blue-200 dark:shadow-blue-900/30',
+                                iconBg: 'bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400',
+                                hoverCls: 'hover:bg-blue-50/80 dark:hover:bg-blue-900/20',
+                                activeBadge: 'bg-blue-600',
+                                activeRow: 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 text-blue-700 dark:text-blue-300',
+                                dot: 'bg-blue-500',
+                            },
+                            {
+                                key: 'recruiter',
+                                label: t('auth.role_recruiter'),
+                                subtitle: 'Hire top talent',
+                                icon: Briefcase,
+                                color: 'emerald',
+                                triggerCls: 'border-emerald-500 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40 text-emerald-700 dark:text-emerald-300 shadow-emerald-200 dark:shadow-emerald-900/30',
+                                iconBg: 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400',
+                                hoverCls: 'hover:bg-emerald-50/80 dark:hover:bg-emerald-900/20',
+                                activeBadge: 'bg-emerald-600',
+                                activeRow: 'bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50 text-emerald-700 dark:text-emerald-300',
+                                dot: 'bg-emerald-500',
+                            },
+                            {
+                                key: 'supervisor',
+                                label: t('auth.role_supervisor'),
+                                subtitle: 'Guide users for managers',
+                                icon: ShieldCheck,
+                                color: 'violet',
+                                triggerCls: 'border-violet-500 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/40 dark:to-purple-950/40 text-violet-700 dark:text-violet-300 shadow-violet-200 dark:shadow-violet-900/30',
+                                iconBg: 'bg-violet-100 dark:bg-violet-900/60 text-violet-600 dark:text-violet-400',
+                                hoverCls: 'hover:bg-violet-50/80 dark:hover:bg-violet-900/20',
+                                activeBadge: 'bg-violet-600',
+                                activeRow: 'bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-950/50 dark:to-purple-950/50 text-violet-700 dark:text-violet-300',
+                                dot: 'bg-violet-500',
+                            },
+                        ];
+                        const active = roles.find(r => r.key === selectedRole) || roles[0];
+                        const ActiveIcon = active.icon;
+                        return (
+                            <div className="mb-8" ref={roleDropdownRef}>
+                                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
+                                    {t('auth.select_role')}
+                                </p>
 
-                            <button type="button" onClick={() => handleRoleSelect('recruiter')}
-                                className={clsx(
-                                    'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
-                                    selectedRole === 'recruiter'
-                                        ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 shadow-md shadow-emerald-500/10'
-                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                                )}>
-                                <div className={`p-3 rounded-xl ${selectedRole === 'recruiter' ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                                    <Briefcase className="w-6 h-6" />
-                                </div>
-                                <div className="text-center">
-                                    <span className="font-bold block text-sm">{t('auth.role_recruiter')}</span>
-                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Hire top talent</span>
-                                </div>
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={async () => {
-                                    handleRoleSelect('supervisor');
-                                    if (recruiters.length === 0) {
-                                        await loadRecruiters();
-                                    }
-                                }}
-                                className={clsx(
-                                    'flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200',
-                                    selectedRole === 'supervisor'
-                                        ? 'border-violet-600 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 shadow-md shadow-violet-500/10'
-                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:border-violet-300 dark:hover:border-violet-700 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                                )}
-                            >
-                                <div
+                                {/* Trigger Button */}
+                                <button
+                                    type="button"
+                                    onClick={() => setRoleDropdownOpen(o => !o)}
                                     className={clsx(
-                                        'p-3 rounded-xl',
-                                        selectedRole === 'supervisor'
-                                            ? 'bg-violet-100 dark:bg-violet-900/50 text-violet-600 dark:text-violet-400'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                                        'w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl border-2 transition-all duration-300 shadow-md',
+                                        active.triggerCls
                                     )}
                                 >
-                                    <Briefcase className="w-6 h-6" />
+                                    <span className={clsx('p-2 rounded-xl flex-shrink-0', active.iconBg)}>
+                                        <ActiveIcon className="w-5 h-5" />
+                                    </span>
+                                    <span className="flex-1 text-left">
+                                        <span className="font-bold text-sm block leading-tight">{active.label}</span>
+                                        <span className="text-[11px] opacity-70 block mt-0.5">{active.subtitle}</span>
+                                    </span>
+                                    <ChevronDown
+                                        className={clsx(
+                                            'w-4 h-4 opacity-60 transition-transform duration-300 flex-shrink-0',
+                                            roleDropdownOpen ? 'rotate-180' : 'rotate-0'
+                                        )}
+                                    />
+                                </button>
+
+                                {/* Dropdown Panel */}
+                                <div
+                                    className={clsx(
+                                        'mt-2 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/60 dark:shadow-slate-900/60 transition-all duration-300 origin-top',
+                                        roleDropdownOpen
+                                            ? 'opacity-100 scale-y-100 max-h-72 pointer-events-auto'
+                                            : 'opacity-0 scale-y-95 max-h-0 pointer-events-none'
+                                    )}
+                                    style={{ transformOrigin: 'top' }}
+                                >
+                                    <div className="p-1.5 space-y-1">
+                                        {roles.map((role) => {
+                                            const Icon = role.icon;
+                                            const isActive = selectedRole === role.key;
+                                            return (
+                                                <button
+                                                    key={role.key}
+                                                    type="button"
+                                                    onClick={async () => {
+                                                        handleRoleSelect(role.key);
+                                                        setRoleDropdownOpen(false);
+                                                        if (role.key === 'supervisor' && recruiters.length === 0) {
+                                                            await loadRecruiters();
+                                                        }
+                                                    }}
+                                                    className={clsx(
+                                                        'w-full flex items-center gap-3.5 px-4 py-3 rounded-xl transition-all duration-200 group',
+                                                        isActive ? role.activeRow : `text-slate-600 dark:text-slate-300 ${role.hoverCls}`
+                                                    )}
+                                                >
+                                                    <span className={clsx(
+                                                        'p-2 rounded-xl flex-shrink-0 transition-all duration-200',
+                                                        isActive ? role.iconBg : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 group-hover:' + role.iconBg
+                                                    )}>
+                                                        <Icon className="w-4 h-4" />
+                                                    </span>
+                                                    <span className="flex-1 text-left">
+                                                        <span className="font-semibold text-sm block leading-tight">{role.label}</span>
+                                                        <span className="text-[11px] opacity-60 block mt-0.5">{role.subtitle}</span>
+                                                    </span>
+                                                    {isActive && (
+                                                        <span className={clsx('w-2 h-2 rounded-full flex-shrink-0', role.dot)} />
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                                <div className="text-center">
-                                    <span className="font-bold block text-sm">{t('auth.role_supervisor')}</span>
-                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Guide users for managers</span>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* For supervisors: choose manager/company to send request to */}
                     {selectedRole === 'supervisor' && (
