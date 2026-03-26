@@ -46,6 +46,7 @@ export default function Navbar({ onMenuToggle, sidebarOpen }) {
     };
 
     const rolePaths = { student: '/student', recruiter: '/recruiter', admin: '/admin' };
+    const roleLabel = (role) => (role === 'recruiter' ? 'manager' : role);
 
     return (
         <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800">
@@ -157,7 +158,7 @@ export default function Navbar({ onMenuToggle, sidebarOpen }) {
                                     </div>
                                     <div className="hidden sm:block text-left">
                                         <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-none">{user.name?.split(' ')[0]}</p>
-                                        <p className="text-[10px] text-gray-400 capitalize mt-0.5">{user.role}</p>
+                                        <p className="text-[10px] text-gray-400 capitalize mt-0.5">{roleLabel(user.role)}</p>
                                     </div>
                                     <ChevronDown size={14} className="text-gray-400 hidden sm:block" />
                                 </button>

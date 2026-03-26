@@ -113,7 +113,7 @@ export default function StudentOverview() {
                                     {user?.name || 'Student Name'}
                                 </h2>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 px-2">
-                                    {user?.bio || user?.major || 'Add a bio to tell recruiters about yourself.'}
+                                    {user?.bio || user?.major || 'Add a bio to tell managers about yourself.'}
                                 </p>
                                 <p className="text-[11px] text-gray-500 mt-1">{user?.location || 'Location not specified'}</p>
 

@@ -243,7 +243,7 @@ export default function SuccessStoriesPage() {
                             </h2>
                             <div className="space-y-6">
                                 {[
-                                    { title: 'Skills Validation', desc: 'Get your skills verified by industry experts and build a profile that recruiters trust.', icon: CheckCircle2 },
+                                    { title: 'Skills Validation', desc: 'Get your skills verified by industry experts and build a profile that managers trust.', icon: CheckCircle2 },
                                     { title: 'Project Experience', desc: 'Work on real freelance projects and internships that add value to your CV.', icon: Zap },
                                     { title: 'Earnings & Rewards', desc: 'Earn money while you learn and get rewarded for high-quality work.', icon: BarChart3 }
                                 ].map((item, i) => (

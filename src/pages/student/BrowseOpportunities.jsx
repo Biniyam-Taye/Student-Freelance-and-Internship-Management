@@ -341,7 +341,7 @@ export default function BrowseOpportunities() {
                     </div>
                     <div>
                         <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Cover Letter (Optional)</label>
-                        <textarea rows={4} placeholder="Tell the recruiter why you're a great fit..."
+                        <textarea rows={4} placeholder="Tell the manager why you're a great fit..."
                             value={coverLetter}
                             onChange={(e) => setCoverLetter(e.target.value)}
                             className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />

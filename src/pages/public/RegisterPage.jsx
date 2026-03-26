@@ -81,8 +81,8 @@ export default function RegisterPage() {
                 navigate('/login', {
                     state: {
                         info: selectedRecruiterId
-                            ? 'Your supervisor account has been created and a request has been sent to the selected recruiter. You will be able to log in once they approve your account.'
-                            : 'Your supervisor account has been created and is pending approval. Please contact a recruiter to approve your account.',
+                            ? 'Your supervisor account has been created and a request has been sent to the selected manager. You will be able to log in once they approve your account.'
+                            : 'Your supervisor account has been created and is pending approval. Please contact a manager to approve your account.',
                     },
                 });
             }
@@ -90,7 +90,7 @@ export default function RegisterPage() {
             else if (role === 'recruiter') {
                 navigate('/login', {
                     state: {
-                        info: 'Your recruiter account has been created and is pending admin approval. You will be able to log in once an admin verifies your account.',
+                        info: 'Your manager account has been created and is pending admin approval. You will be able to log in once an admin verifies your account.',
                     },
                 });
             } else {
@@ -256,17 +256,17 @@ export default function RegisterPage() {
                                 </div>
                                 <div className="text-center">
                                     <span className="font-bold block text-sm">{t('auth.role_supervisor')}</span>
-                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Guide students for recruiters</span>
+                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Guide students for managers</span>
                                 </div>
                             </button>
                         </div>
                     </div>
 
-                    {/* For supervisors: choose recruiter/company to send request to */}
+                    {/* For supervisors: choose manager/company to send request to */}
                     {selectedRole === 'supervisor' && (
                         <div className="mb-6">
                             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 md:text-left">
-                                Choose recruiter / company to supervise for
+                                Choose manager / company to supervise for
                             </p>
                             <div className="space-y-2">
                                 <select
@@ -277,7 +277,7 @@ export default function RegisterPage() {
                                     <option value="">
                                         {recruiterLoading
                                             ? 'Loading recruiters...'
-                                            : 'Select a recruiter / company (optional)'}
+                                            : 'Select a manager / company (optional)'}
                                     </option>
                                     {recruiters.map((r) => (
                                         <option key={r._id} value={r._id}>
@@ -286,8 +286,8 @@ export default function RegisterPage() {
                                     ))}
                                 </select>
                                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                                    We&apos;ll send a request to the selected recruiter so they can approve your supervisor
-                                    account. You can skip this step and ask a recruiter to approve you later.
+                                    We&apos;ll send a request to the selected manager so they can approve your supervisor
+                                    account. You can skip this step and ask a manager to approve you later.
                                 </p>
                             </div>
                         </div>

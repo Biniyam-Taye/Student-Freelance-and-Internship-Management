@@ -185,7 +185,7 @@ export default function HomePage() {
                                     { Icon: Target, title: 'Smart Matching', desc: 'Our AI engine connects students to opportunities that match their exact skillset and career goals.' },
                                     { Icon: BarChart2, title: 'Skill Analytics', desc: 'Track your growth month by month with visual skill progression charts and performance scores.' },
                                     { Icon: ClipboardList, title: 'Task Management', desc: 'Manage assigned freelance tasks with deadlines, priorities, and built-in progress tracking.' },
-                                    { Icon: MessageCircle, title: 'Real-time Chat', desc: 'Communicate directly with recruiters and team members via instant messaging inside the platform.' },
+                                    { Icon: MessageCircle, title: 'Real-time Chat', desc: 'Communicate directly with managers and team members via instant messaging inside the platform.' },
                                 ].map(({ Icon, title, desc }, i) => (
                                     <div key={i} className={`flex gap-4 p-4 rounded-2xl border transition-colors ${mode === 'dark' ? 'border-slate-700 bg-slate-900/50 hover:border-blue-700' : 'border-slate-200 bg-white hover:border-blue-300'}`}>
                                         <div className={`w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center ${mode === 'dark' ? 'bg-slate-800 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>

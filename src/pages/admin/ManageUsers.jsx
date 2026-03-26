@@ -57,7 +57,15 @@ export default function ManageUsers() {
                 </div>
             ),
         },
-        { key: 'role', title: 'Role', render: (v) => <Badge variant={v === 'student' ? 'info' : v === 'recruiter' ? 'purple' : 'warning'} dot className="capitalize">{v}</Badge> },
+        {
+            key: 'role',
+            title: 'Role',
+            render: (v) => (
+                <Badge variant={v === 'student' ? 'info' : v === 'recruiter' ? 'purple' : 'warning'} dot className="capitalize">
+                    {v === 'recruiter' ? 'manager' : v}
+                </Badge>
+            ),
+        },
         {
             key: 'company', title: 'Organization',
             render: (_, row) => <span className="text-sm text-gray-600 dark:text-gray-400">{row.company || row.university || '—'}</span>,
@@ -105,7 +113,7 @@ export default function ManageUsers() {
                         className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 px-4 py-2 rounded-xl text-sm font-semibold border border-amber-200 dark:border-amber-800/30 hover:bg-amber-100 transition-colors animate-pulse"
                     >
                         <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-                        {pendingRecruiters.length} Pending Recruiter Approvals
+                        {pendingRecruiters.length} Pending Manager Approvals
                     </button>
                 )}
             </div>
@@ -119,7 +127,7 @@ export default function ManageUsers() {
                             <button key={r} onClick={() => setRoleFilter(r)}
                                 className={clsx('px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize whitespace-nowrap',
                                     roleFilter === r ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200')}>
-                                {r === 'all' ? t('common.all_roles') : r === 'pending' ? 'Pending Approvals' : r}
+                                {r === 'all' ? t('common.all_roles') : r === 'pending' ? 'Pending Approvals' : (r === 'recruiter' ? 'manager' : r)}
                                 <span className={clsx("ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full bg-gray-200/50 dark:bg-gray-700", r === 'pending' && count > 0 && "bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 font-bold")}>
                                     {count}
                                 </span>

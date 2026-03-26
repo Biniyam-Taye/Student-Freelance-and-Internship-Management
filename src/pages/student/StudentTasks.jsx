@@ -49,7 +49,7 @@ export default function StudentTasks() {
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-black text-gray-900 dark:text-white">{t('dashboard.tasks')}</h1>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage and submit your assigned tasks. Completed tasks show recruiter feedback and ratings.</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage and submit your assigned tasks. Completed tasks show manager feedback and ratings.</p>
                 </div>
                 <button
                     type="button"
@@ -130,7 +130,7 @@ export default function StudentTasks() {
                                             onClick={() => setFeedbackModal(task)}
                                             className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
                                         >
-                                            <MessageSquare size={12} /> View recruiter feedback
+                                            <MessageSquare size={12} /> View manager feedback
                                         </button>
                                     </div>
                                 )}
@@ -138,7 +138,7 @@ export default function StudentTasks() {
                             {task.status === 'completed' && (task.rating != null || (task.feedback && task.feedback.trim())) && (
                                 <div className="ml-[30px] mt-3 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/50">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Recruiter feedback</span>
+                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Manager feedback</span>
                                         {task.rating != null && task.rating !== undefined && (
                                             <span className="flex items-center gap-0.5">
                                                 {[1, 2, 3, 4, 5].map((s) => (
@@ -197,8 +197,8 @@ export default function StudentTasks() {
                 </div>
             </Modal>
 
-            {/* View recruiter feedback modal */}
-            <Modal isOpen={!!feedbackModal} onClose={() => setFeedbackModal(null)} title="Recruiter feedback" size="md"
+            {/* View manager feedback modal */}
+            <Modal isOpen={!!feedbackModal} onClose={() => setFeedbackModal(null)} title="Manager feedback" size="md"
                 footer={<Button variant="secondary" onClick={() => setFeedbackModal(null)}>Close</Button>}>
                 {feedbackModal && (
                     <div className="space-y-4">

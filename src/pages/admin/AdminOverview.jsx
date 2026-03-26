@@ -90,7 +90,7 @@ export default function AdminOverview() {
                             <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
                             <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', fontSize: '12px' }} />
                             <Area type="monotone" dataKey="students" stroke="#3b82f6" fill="url(#colorStudents)" strokeWidth={2.5} dot={false} name="Students" />
-                            <Area type="monotone" dataKey="recruiters" stroke="#8b5cf6" fill="url(#colorRecruiters)" strokeWidth={2.5} dot={false} name="Recruiters" />
+                            <Area type="monotone" dataKey="recruiters" stroke="#8b5cf6" fill="url(#colorRecruiters)" strokeWidth={2.5} dot={false} name="Managers" />
                         </AreaChart>
                     </ResponsiveContainer>
                 </Card>
@@ -102,7 +102,7 @@ export default function AdminOverview() {
                         <PieChart>
                             <Pie data={[
                                 { name: 'Students', value: studentCount || 1 },
-                                { name: 'Recruiters', value: recruiterCount || 1 },
+                                { name: 'Managers', value: recruiterCount || 1 },
                             ]} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4} dataKey="value">
                                 <Cell fill="#3b82f6" />
                                 <Cell fill="#8b5cf6" />
@@ -112,7 +112,7 @@ export default function AdminOverview() {
                         </PieChart>
                     </ResponsiveContainer>
                     <div className="mt-2 grid grid-cols-2 gap-3">
-                        {[{ label: 'Students', val: studentCount, color: 'bg-blue-500' }, { label: 'Recruiters', val: recruiterCount, color: 'bg-violet-500' }].map(({ label, val, color }) => (
+                        {[{ label: 'Students', val: studentCount, color: 'bg-blue-500' }, { label: 'Managers', val: recruiterCount, color: 'bg-violet-500' }].map(({ label, val, color }) => (
                             <div key={label} className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3 text-center">
                                 <div className={`w-3 h-3 rounded-full ${color} mx-auto mb-1`} />
                                 <div className="text-sm font-black text-gray-900 dark:text-white">{val}</div>

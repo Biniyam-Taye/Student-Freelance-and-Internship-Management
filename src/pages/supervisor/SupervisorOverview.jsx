@@ -75,7 +75,7 @@ export default function SupervisorOverview() {
                     {t('dashboard.welcome')}, {user?.name?.split(' ')[0]} 👋
                 </h1>
                 <p className="text-sm mt-1 text-indigo-100/90">
-                    Coordinate between recruiters and students, and keep internships on track.
+                    Coordinate between managers and students, and keep internships on track.
                 </p>
             </div>
 

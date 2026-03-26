@@ -73,13 +73,13 @@ export default function LoginPage() {
                         <span className="text-blue-600 dark:text-blue-400">career journey.</span>
                     </h2>
                     <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md leading-relaxed mb-12">
-                        Log in to connect with top recruiters, track your skill progression, and manage your tasks.
+                        Log in to connect with top managers, track your skill progression, and manage your tasks.
                     </p>
 
                     <div className="space-y-6">
                         {[
                             { title: 'Smart matching', desc: 'AI connects you with the right opportunities.' },
-                            { title: 'Verified recruiters', desc: 'Work with established companies in Ethiopia.' },
+                            { title: 'Verified managers', desc: 'Work with established companies in Ethiopia.' },
                             { title: 'Secure payments', desc: 'Guaranteed stipends and milestone tracking.' }
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-start gap-4">
@@ -148,7 +148,7 @@ export default function LoginPage() {
                         <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/50 text-center shadow-sm">
                             <Briefcase className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mb-1.5" />
                             <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">Verified</span>
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Recruiters</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Managers</span>
                         </div>
                         <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/50 text-center shadow-sm">
                             <ShieldCheck className="w-6 h-6 text-purple-600 dark:text-purple-400 mb-1.5" />

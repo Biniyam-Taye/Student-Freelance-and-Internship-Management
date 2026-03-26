@@ -210,7 +210,7 @@ export default function StudentProfile() {
                 </div>
                 <div className="mt-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">{t('profile.bio')}</label>
-                    <textarea rows={3} placeholder={isSupervisor ? "Brief description of your background and responsibilities as a supervisor..." : "Tell recruiters about yourself, your goals, and what makes you unique..."}
+                    <textarea rows={3} placeholder={isSupervisor ? "Brief description of your background and responsibilities as a supervisor..." : "Tell managers about yourself, your goals, and what makes you unique..."}
                         name="bio" value={formData.bio} onChange={handleChange}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
                 </div>
