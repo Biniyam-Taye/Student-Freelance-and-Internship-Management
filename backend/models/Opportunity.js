@@ -30,11 +30,13 @@ const opportunitySchema = new mongoose.Schema({
     },
     stipend: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     duration: {
         type: String,
-        required: true
+        required: false,
+        default: ''
     },
     deadline: {
         type: Date,
