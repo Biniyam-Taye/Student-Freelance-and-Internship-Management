@@ -256,7 +256,7 @@ export default function RegisterPage() {
                                 </div>
                                 <div className="text-center">
                                     <span className="font-bold block text-sm">{t('auth.role_supervisor')}</span>
-                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Guide students for managers</span>
+                                    <span className="text-[11px] opacity-75 mt-1 block leading-tight">Guide users for managers</span>
                                 </div>
                             </button>
                         </div>

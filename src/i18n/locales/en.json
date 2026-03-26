@@ -75,7 +75,7 @@
         "sign_in": "Sign In",
         "sign_up": "Sign Up",
         "select_role": "I am a...",
-        "role_student": "Student",
+        "role_student": "User",
         "role_recruiter": "Manager",
         "role_supervisor": "Supervisor",
         "remember_me": "Remember me",
