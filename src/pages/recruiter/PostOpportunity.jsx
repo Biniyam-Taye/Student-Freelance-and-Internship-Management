@@ -8,6 +8,7 @@ import {
     Briefcase, MapPin, DollarSign, Clock, AlignLeft, X, CheckCircle2,
     Timer, Banknote, CalendarDays, ChevronDown, Zap, Calendar,
     CalendarRange, Layers, FolderOpen, RefreshCw, Hourglass,
+    Code, PenTool, Megaphone, Stethoscope, BarChart, PenBox, Wrench, MoreHorizontal
 } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -17,12 +18,26 @@ import { createOpportunity } from '../../features/opportunities/opportunitySlice
 const schema = yup.object().shape({
     title: yup.string().min(5).required('Title is required'),
     description: yup.string().min(20).required('Description is required'),
+    category: yup.string().required('Please select a category'),
     location: yup.string().required('Location is required'),
     stipend: yup.string().optional(),
     duration: yup.string().optional(),
     deadline: yup.string().required('Deadline is required'),
     type: yup.string().oneOf(['internship', 'freelance']).required(),
 });
+
+// Professional Categories
+const CATEGORIES = [
+    { value: '', label: 'Select category', icon: Briefcase, tag: '', desc: '' },
+    { value: 'Software Development', label: 'Software Development', icon: Code, tag: 'Tech', desc: 'Web, Mobile, AI, Systems' },
+    { value: 'Design & Creative', label: 'Design & Creative', icon: PenTool, tag: 'Design', desc: 'UI/UX, Graphics, Animation' },
+    { value: 'Marketing & Sales', label: 'Marketing & Sales', icon: Megaphone, tag: 'Growth', desc: 'SEO, Content, Ads, Sales' },
+    { value: 'Writing & Translation', label: 'Writing & Translation', icon: PenBox, tag: 'Content', desc: 'Copywriting, Translation' },
+    { value: 'Data & Analytics', label: 'Data & Analytics', icon: BarChart, tag: 'Data', desc: 'Data Science, BI, DBs' },
+    { value: 'Healthcare & Sciences', label: 'Healthcare & Sciences', icon: Stethoscope, tag: 'Health', desc: 'Nursing, Research, Med' },
+    { value: 'Engineering & Architecture', label: 'Engineering & Architecture', icon: Wrench, tag: 'Eng', desc: 'Civil, Mech, Electrical' },
+    { value: 'Other / Specialized', label: 'Other', icon: MoreHorizontal, tag: 'General', desc: 'Various unique fields' },
+];
 
 // Freelance delivery times — range-based like Fiverr/Upwork
 const FREELANCE_DURATIONS = [
@@ -159,11 +174,17 @@ export default function PostOpportunity() {
     const [success, setSuccess] = useState(false);
     const [type, setType] = useState('internship');
     const [duration, setDuration] = useState('');
+    const [category, setCategory] = useState('');
 
     const { register, handleSubmit, setValue, formState: { errors } } = useForm({
         resolver: yupResolver(schema),
-        defaultValues: { type: 'internship' },
+        defaultValues: { type: 'internship', category: '' },
     });
+
+    const handleCategoryChange = (val) => {
+        setCategory(val);
+        setValue('category', val, { shouldValidate: true });
+    };
 
     const handleTypeChange = (opt) => {
         setType(opt);
@@ -192,6 +213,7 @@ export default function PostOpportunity() {
                 position: data.title,
                 company: user?.company || user?.name || 'Unknown Company',
                 description: data.description,
+                category: data.category || category,
                 location: data.location,
                 stipend: data.stipend || '',
                 duration: data.duration || duration || '',
@@ -280,6 +302,22 @@ export default function PostOpportunity() {
                                 />
                             </div>
                             {errors.description && <p className="text-xs text-red-500 mt-0.5">{errors.description.message}</p>}
+                        </div>
+
+                        {/* Category Selection */}
+                        <div>
+                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1.5 mb-1.5">
+                                {t('opportunity.category') || 'Category'} <span className="text-red-500">*</span>
+                            </label>
+                            <div className={errors.category ? "p-0.5 rounded-xl bg-red-50 border border-red-300" : ""}>
+                                <IconSelect
+                                    options={CATEGORIES}
+                                    value={category}
+                                    onChange={handleCategoryChange}
+                                    accentColor="blue"
+                                />
+                            </div>
+                            {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>}
                         </div>
                     </div>
                 </Card>

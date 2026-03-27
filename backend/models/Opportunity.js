@@ -19,6 +19,10 @@ const opportunitySchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add a description']
     },
+    category: {
+        type: String,
+        required: [true, 'Please select a category']
+    },
     type: {
         type: String,
         required: true,

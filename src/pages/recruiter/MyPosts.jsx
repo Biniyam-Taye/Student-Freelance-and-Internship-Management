@@ -79,9 +79,16 @@ export default function MyPosts() {
                             </Dropdown>
                         </div>
 
+                        <div className="flex flex-wrap gap-2 mb-2">
+                            {opp.category && (
+                                <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium rounded-md text-[11px] uppercase tracking-wider border border-blue-200 dark:border-blue-800 border-opacity-50">
+                                    {opp.category}
+                                </span>
+                            )}
+                        </div>
                         <div className="flex flex-wrap gap-2 mb-4">
                             {opp.skills?.slice(0, 3).map(s => (
-                                <span key={s} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-xs">{s}</span>
+                                <span key={s} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-[11px]">{s}</span>
                             ))}
                         </div>
 

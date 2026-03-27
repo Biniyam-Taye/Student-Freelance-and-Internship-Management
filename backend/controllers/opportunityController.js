@@ -48,7 +48,7 @@ const getOpportunityById = asyncHandler(async (req, res) => {
 // @route   POST /api/opportunities
 // @access  Private/Recruiter
 const createOpportunity = asyncHandler(async (req, res) => {
-    let { position, company, description, type, location, stipend, duration, deadline, skills } = req.body;
+    let { position, company, description, category, type, location, stipend, duration, deadline, skills } = req.body;
 
     // Fallback: if company isn't explicitly provided in the request,
     // derive it from the authenticated recruiter profile so opportunities
@@ -62,6 +62,7 @@ const createOpportunity = asyncHandler(async (req, res) => {
         position,
         company,
         description,
+        category,
         type,
         location,
         stipend,
@@ -78,7 +79,7 @@ const createOpportunity = asyncHandler(async (req, res) => {
 // @route   PUT /api/opportunities/:id
 // @access  Private/Recruiter
 const updateOpportunity = asyncHandler(async (req, res) => {
-    const { position, company, description, type, location, stipend, duration, deadline, skills, status } = req.body;
+    const { position, company, description, category, type, location, stipend, duration, deadline, skills, status } = req.body;
 
     const opportunity = await Opportunity.findById(req.params.id);
 
@@ -92,6 +93,7 @@ const updateOpportunity = asyncHandler(async (req, res) => {
         opportunity.position = position || opportunity.position;
         opportunity.company = company || opportunity.company;
         opportunity.description = description || opportunity.description;
+        opportunity.category = category || opportunity.category;
         opportunity.type = type || opportunity.type;
         opportunity.location = location || opportunity.location;
         opportunity.stipend = stipend || opportunity.stipend;
