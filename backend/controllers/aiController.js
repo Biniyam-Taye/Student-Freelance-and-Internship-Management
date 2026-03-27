@@ -12,55 +12,62 @@ const getRecommendations = asyncHandler(async (req, res) => {
     const student = await User.findById(req.user._id);
     const opportunities = await Opportunity.find({ status: 'open' }).lean();
 
-    if (!student.skills || student.skills.length === 0) {
-        // Fall back to returning 5 newest opportunities if no skills set
-        return res.json(opportunities.slice(0, 5).map(o => ({ ...o, matchScore: 50 })));
-    }
+    if (!student.skills || student.skills.length === 0) return res.json([]);
+    if (opportunities.length === 0) return res.json([]);
 
-    if (opportunities.length === 0) {
-        return res.json([]);
-    }
+    // 1. CALCULATE MATHEMATICAL MATCH SCORE
+    const calculatedMatches = opportunities.map(opp => {
+        if (!opp.skills || opp.skills.length === 0) return { ...opp, matchScore: 0 };
+
+        const matched = opp.skills.filter(jobSkill => 
+            student.skills.some(userSkill => 
+                userSkill.toLowerCase().trim() === jobSkill.toLowerCase().trim() ||
+                userSkill.toLowerCase().includes(jobSkill.toLowerCase()) ||
+                jobSkill.toLowerCase().includes(userSkill.toLowerCase())
+            )
+        );
+
+        const score = Math.round((matched.length / opp.skills.length) * 100);
+        return { ...opp, matchScore: score };
+    })
+    .filter(o => o.matchScore > 0) // HARD FILTER: Must have at least one matching skill
+    .sort((a, b) => b.matchScore - a.matchScore);
+
+    // 2. USE AI ONLY TO REFINEMENT RANKING AND SEMANTIC MATCHES (e.g. CSS vs Tailwind)
+    // We only send the top 15 "candidate" jobs to AI for final sorting
+    const candidates = calculatedMatches.slice(0, 15);
+    
+    if (candidates.length === 0) return res.json([]);
 
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
     const prompt = `
-You are a job matching AI assistant.
-Given a student profile and a list of job opportunities, score each job's match percentage (0-100) for the student.
-Student profile:
-- Name: ${student.name}
-- Major: ${student.major || 'Not specified'}
-- Skills: ${student.skills.join(', ')}
-- Bio: ${student.bio || 'Not specified'}
+Act as a job matching assistant. 
+Student Skills: ${student.skills.join(', ')}
+Candidate Jobs (JSON with matchScore):
+${JSON.stringify(candidates.map(c => ({ id: c._id, position: c.position, skills: c.skills, matchScore: c.matchScore })))}
 
-Job Opportunities (JSON array):
-${JSON.stringify(opportunities.map(o => ({ id: o._id, position: o.position, skills: o.skills, type: o.type })))}
-
-Return ONLY a valid JSON array in this exact format (no text before or after):
-[{"id":"<opportunity_id>","matchScore":<number_0_to_100>}]
-Sort by matchScore descending.
+TASK:
+Review the calculated matchScores. If you see semantic matches (like "Node.js" and "Backend") that the basic calculator missed, you may adjust the score UP slightly. If it's a weak match despite sharing a generic word, adjust it DOWN.
+Return ONLY a JSON array: [{"id":"<id>","matchScore":<number_10_to_100>}]
     `.trim();
 
     try {
         const result = await model.generateContent(prompt);
         const responseText = result.response.text().trim();
-
-        // Extract JSON array from response defensively
         const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-        if (!jsonMatch) throw new Error('No JSON array in AI response');
-
-        const scores = JSON.parse(jsonMatch[0]);
-
-        // Merge scores back with full opportunity data
-        const scoredOpportunities = scores.map(score => {
-            const opp = opportunities.find(o => o._id.toString() === score.id.toString());
-            return opp ? { ...opp, matchScore: score.matchScore } : null;
-        }).filter(Boolean);
-
-        res.json(scoredOpportunities);
-    } catch (err) {
-        console.error('Gemini AI error:', err.message);
-        // Graceful fallback: return opportunities with mock match score
-        res.json(opportunities.slice(0, 5).map(o => ({ ...o, matchScore: Math.floor(Math.random() * 30) + 60 })));
+        
+        if (jsonMatch) {
+            const aiScores = JSON.parse(jsonMatch[0]);
+            const finalResults = candidates.map(c => {
+                const aiScore = aiScores.find(as => as.id.toString() === c._id.toString());
+                return { ...c, matchScore: aiScore ? aiScore.matchScore : c.matchScore };
+            })
+            .sort((a, b) => b.matchScore - a.matchScore);
+            return res.json(finalResults);
+        }
+        res.json(candidates);
+    } catch {
+        res.json(candidates);
     }
 });
 
