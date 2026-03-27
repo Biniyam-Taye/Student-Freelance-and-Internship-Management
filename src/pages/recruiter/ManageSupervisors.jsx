@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { UserCheck, UserX, UserPlus, MessageSquare } from 'lucide-react';
+import { UserCheck, UserX, UserPlus, MessageSquare, Mail, Building, GraduationCap, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
+import Modal from '../../components/ui/Modal';
 import SearchFilter from '../../components/common/SearchFilter';
 import {
     fetchPendingSupervisors,
@@ -12,7 +13,6 @@ import {
     approveSupervisor,
     rejectSupervisor,
 } from '../../features/supervisors/supervisorSlice';
-import { useState } from 'react';
 
 export default function ManageSupervisors() {
     const { t } = useTranslation();
@@ -20,6 +20,7 @@ export default function ManageSupervisors() {
     const navigate = useNavigate();
     const { pending, mine, loading } = useSelector((s) => s.supervisors);
     const [search, setSearch] = useState('');
+    const [selectedSupervisor, setSelectedSupervisor] = useState(null);
 
     useEffect(() => {
         dispatch(fetchPendingSupervisors());
@@ -49,15 +50,19 @@ export default function ManageSupervisors() {
             key: 'name',
             title: 'Supervisor',
             render: (_, row) => (
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                        {row.name?.[0] || 'S'}
-                    </div>
+                <div className="flex items-center gap-3 p-1 -ml-1">
+                    {row.avatar ? (
+                        <img src={row.avatar} alt={row.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-white text-base font-bold flex-shrink-0">
+                            {row.name?.[0] || 'S'}
+                        </div>
+                    )}
                     <div>
-                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                             {row.name}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             {row.email}
                         </p>
                     </div>
@@ -89,14 +94,14 @@ export default function ManageSupervisors() {
             render: (_, row) => (
                 <div className="flex items-center gap-1.5 justify-end">
                     <button
-                        onClick={() => dispatch(approveSupervisor(row._id))}
+                        onClick={(e) => { e.stopPropagation(); dispatch(approveSupervisor(row._id)); }}
                         disabled={loading}
                         className="flex items-center gap-1 px-2.5 py-1 text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-medium transition-colors"
                     >
                         <UserCheck size={12} /> {t('common.approve')}
                     </button>
                     <button
-                        onClick={() => dispatch(rejectSupervisor(row._id))}
+                        onClick={(e) => { e.stopPropagation(); dispatch(rejectSupervisor(row._id)); }}
                         disabled={loading}
                         className="flex items-center gap-1 px-2.5 py-1 text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 font-medium transition-colors"
                     >
@@ -112,15 +117,19 @@ export default function ManageSupervisors() {
             key: 'name',
             title: 'Supervisor',
             render: (_, row) => (
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                        {row.name?.[0] || 'S'}
-                    </div>
+                <div className="flex items-center gap-3 p-1 -ml-1">
+                    {row.avatar ? (
+                        <img src={row.avatar} alt={row.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-base font-bold flex-shrink-0">
+                            {row.name?.[0] || 'S'}
+                        </div>
+                    )}
                     <div>
-                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm">
+                        <p className="font-semibold text-gray-800 dark:text-gray-200 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {row.name}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                             {row.email}
                         </p>
                     </div>
@@ -155,7 +164,8 @@ export default function ManageSupervisors() {
             render: (_, row) => (
                 <div className="flex items-center gap-1.5 justify-end">
                     <button
-                        onClick={() =>
+                        onClick={(e) => {
+                            e.stopPropagation();
                             navigate('/recruiter/messages', {
                                 state: {
                                     initialContact: {
@@ -167,14 +177,14 @@ export default function ManageSupervisors() {
                                         avatar: row.avatar,
                                     },
                                 },
-                            })
-                        }
+                            });
+                        }}
                         className="flex items-center gap-1 px-2.5 py-1 text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 font-medium transition-colors"
                     >
                         <MessageSquare size={12} /> Message
                     </button>
                     <button
-                        onClick={() => dispatch(rejectSupervisor(row._id))}
+                        onClick={(e) => { e.stopPropagation(); dispatch(rejectSupervisor(row._id)); }}
                         disabled={loading}
                         className="flex items-center gap-1 px-2.5 py-1 text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 font-medium transition-colors"
                     >
@@ -218,6 +228,7 @@ export default function ManageSupervisors() {
                         data={filteredPending}
                         loading={loading}
                         emptyMessage="No pending supervisors."
+                        onRowClick={(row) => setSelectedSupervisor(row)}
                     />
                 </div>
 
@@ -230,9 +241,89 @@ export default function ManageSupervisors() {
                         data={filteredMine}
                         loading={loading}
                         emptyMessage="No supervisors have been approved yet."
+                        onRowClick={(row) => setSelectedSupervisor(row)}
                     />
                 </div>
             </div>
+
+            {/* Supervisor Profile Modal */}
+            <Modal isOpen={!!selectedSupervisor} onClose={() => setSelectedSupervisor(null)} title="Supervisor Profile">
+                {selectedSupervisor && (
+                    <div className="p-4 space-y-6">
+                        <div className="flex flex-col items-center text-center">
+                            {selectedSupervisor.avatar ? (
+                                <img src={selectedSupervisor.avatar} alt="Avatar" className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 shadow-md object-cover mb-4" />
+                            ) : (
+                                <div className="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 shadow-md bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-4xl font-black text-white mb-4">
+                                    {selectedSupervisor.name?.[0] || 'S'}
+                                </div>
+                            )}
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{selectedSupervisor.name}</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 capitalize">{selectedSupervisor.role || 'Supervisor'}</p>
+                            <Badge variant={selectedSupervisor.status === 'active' || selectedSupervisor.status === 'accepted' ? 'accepted' : 'pending'} dot className="mt-3">
+                                {selectedSupervisor.status === 'active' || selectedSupervisor.status === 'accepted' ? 'Approved & Active' : 'Pending Approval'}
+                            </Badge>
+                        </div>
+
+                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Contact & Info</h3>
+                            
+                            <div className="flex items-center gap-3 text-sm">
+                                <span className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0"><Mail size={16} /></span>
+                                <div>
+                                    <p className="font-semibold text-gray-900 dark:text-white">Email Address</p>
+                                    <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.email}</p>
+                                </div>
+                            </div>
+
+                            {(selectedSupervisor.university || selectedSupervisor.company) && (
+                                <div className="flex items-center gap-3 text-sm">
+                                    <span className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                                        {selectedSupervisor.university ? <GraduationCap size={16} /> : <Building size={16} />}
+                                    </span>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">Institution / Company</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.university || selectedSupervisor.company}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="flex items-center gap-3 text-sm">
+                                <span className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><CalendarDays size={16} /></span>
+                                <div>
+                                    <p className="font-semibold text-gray-900 dark:text-white">Joined Platform</p>
+                                    <p className="text-gray-500 dark:text-gray-400">{new Date(selectedSupervisor.createdAt).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Actions Footer inside Modal (Only for pending ones to quickly approve/reject while reading) */}
+                        {selectedSupervisor.status === 'pending' || !selectedSupervisor.status || selectedSupervisor.status === 'rejected' ? (
+                            <div className="flex gap-3 justify-center pt-2">
+                                <button
+                                    onClick={() => { dispatch(rejectSupervisor(selectedSupervisor._id)); setSelectedSupervisor(null); }}
+                                    className="flex-1 py-2.5 rounded-xl font-semibold bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors"
+                                >
+                                    Reject
+                                </button>
+                                <button
+                                    onClick={() => { dispatch(approveSupervisor(selectedSupervisor._id)); setSelectedSupervisor(null); }}
+                                    className="flex-1 py-2.5 rounded-xl font-semibold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
+                                >
+                                    Approve Profile
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => setSelectedSupervisor(null)}
+                                className="w-full py-2.5 rounded-xl font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                            >
+                                Close Profile
+                            </button>
+                        )}
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 }
