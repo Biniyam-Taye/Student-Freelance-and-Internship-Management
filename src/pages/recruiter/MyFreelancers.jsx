@@ -6,18 +6,36 @@ import { useNavigate } from 'react-router-dom';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import SearchFilter from '../../components/common/SearchFilter';
-import { fetchRecruiterApplications } from '../../features/applications/applicationSlice';
+import { fetchRecruiterApplications, assignSupervisor } from '../../features/applications/applicationSlice';
+import { fetchMySupervisors } from '../../features/supervisors/supervisorSlice';
+import Modal from '../../components/ui/Modal';
+import Button from '../../components/ui/Button';
 
 export default function MyFreelancers() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { items: apps, loading } = useSelector((s) => s.applications);
+    const { mine: supervisors } = useSelector((s) => s.supervisors);
     const [search, setSearch] = useState('');
+    
+    const [assignModalOpen, setAssignModalOpen] = useState(false);
+    const [selectedAppId, setSelectedAppId] = useState(null);
+    const [selectedSupervisorId, setSelectedSupervisorId] = useState('');
 
     useEffect(() => {
         dispatch(fetchRecruiterApplications());
+        dispatch(fetchMySupervisors());
     }, [dispatch]);
+
+    const handleAssign = () => {
+        if (selectedAppId) {
+            dispatch(assignSupervisor({ id: selectedAppId, supervisorId: selectedSupervisorId }));
+            setAssignModalOpen(false);
+            setSelectedAppId(null);
+            setSelectedSupervisorId('');
+        }
+    };
 
     const accepted = useMemo(
         () =>
@@ -101,6 +119,15 @@ export default function MyFreelancers() {
             ),
         },
         {
+            key: 'supervisor',
+            title: 'Assigned Supervisor',
+            render: (_, row) => (
+                <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                    {row.assignedSupervisor ? row.assignedSupervisor.name : 'Unassigned'}
+                </span>
+            ),
+        },
+        {
             key: '_id',
             title: 'Actions',
             align: 'right',
@@ -121,9 +148,19 @@ export default function MyFreelancers() {
                                 },
                             })
                         }
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 font-medium transition-colors"
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/40 font-medium transition-colors"
                     >
                         <MessageSquare size={12} /> Message
+                    </button>
+                    <button
+                        onClick={() => {
+                            setSelectedAppId(row._id);
+                            setSelectedSupervisorId(row.assignedSupervisor?._id || '');
+                            setAssignModalOpen(true);
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 font-medium transition-colors"
+                    >
+                        Assign
                     </button>
                 </div>
             ),
@@ -160,6 +197,33 @@ export default function MyFreelancers() {
                 loading={loading}
                 emptyMessage="No accepted freelancers yet."
             />
+
+            <Modal
+                isOpen={assignModalOpen}
+                onClose={() => setAssignModalOpen(false)}
+                title="Assign Supervisor"
+                size="sm"
+            >
+                <div className="space-y-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Select a supervisor to oversee this student.
+                    </p>
+                    <select
+                        className="w-full form-input text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
+                        value={selectedSupervisorId}
+                        onChange={(e) => setSelectedSupervisorId(e.target.value)}
+                    >
+                        <option value="">-- Unassigned --</option>
+                        {supervisors.map(sup => (
+                            <option key={sup._id} value={sup._id}>{sup.name}</option>
+                        ))}
+                    </select>
+                    <div className="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+                        <Button variant="secondary" onClick={() => setAssignModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handleAssign}>Save Assignment</Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }

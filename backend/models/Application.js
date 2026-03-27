@@ -16,6 +16,10 @@ const applicationSchema = new mongoose.Schema({
         required: true,
         ref: 'User'
     },
+    assignedSupervisor: { // The specific supervisor assigned to this student
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
     coverLetter: {
         type: String,
         trim: true

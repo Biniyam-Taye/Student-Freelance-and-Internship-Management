@@ -17,6 +17,7 @@ export default function SupervisorApplications() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { items: apps, loading } = useSelector(state => state.applications);
+    const { user } = useSelector(state => state.auth);
     const assignedTasks = useSelector(state => state.tasks.items);
     const [search, setSearch] = useState('');
     const [selectedApp, setSelectedApp] = useState(null);
@@ -116,8 +117,8 @@ export default function SupervisorApplications() {
             key: '_id', title: 'Actions', align: 'right',
             render: (_, row) => (
                 <div className="flex items-center gap-1.5 justify-end">
-                    {/* Supervisor chats with the student on behalf of the recruiter */}
-                    {row.status === 'accepted' && row.student && (
+                    {/* Supervisor chats with the student on behalf of the recruiter ONLY if they are assigned to this supervisor */}
+                    {row.status === 'accepted' && row.student && (row.assignedSupervisor?._id === user?._id || row.assignedSupervisor === user?._id) && (
                         <button
                             onClick={() => navigate('/supervisor/messages', {
                                 state: {

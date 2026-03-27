@@ -46,6 +46,15 @@ export const updateApplicationStatus = createAsyncThunk('applications/updateStat
     }
 });
 
+export const assignSupervisor = createAsyncThunk('applications/assignSupervisor', async ({ id, supervisorId }, thunkAPI) => {
+    try {
+        const response = await applicationService.assignSupervisor(id, supervisorId);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
+    }
+});
+
 const initialState = {
     items: [], // holds my applications OR recruiter job applications depending on view
     loading: false,
@@ -110,6 +119,22 @@ const applicationSlice = createSlice({
                 }
             })
             .addCase(updateApplicationStatus.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+            })
+            // Assign Supervisor
+            .addCase(assignSupervisor.pending, (state) => { state.loading = true; state.error = null; })
+            .addCase(assignSupervisor.fulfilled, (state, action) => {
+                state.loading = false;
+                const index = state.items.findIndex(item => item._id === action.payload._id);
+                if (index !== -1) {
+                    // Overwrite the existing logic to ensure we keep any populated details if they aren't fully returned 
+                    // though mongoose save usually doesn't return populated fields unless explicitly populated again. 
+                    // To keep UI in sync without a refetch, we manually spread.
+                    state.items[index] = { ...state.items[index], assignedSupervisor: action.payload.assignedSupervisor };
+                }
+            })
+            .addCase(assignSupervisor.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
             });

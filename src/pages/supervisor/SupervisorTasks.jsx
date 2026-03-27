@@ -14,11 +14,17 @@ export default function SupervisorTasks() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
 
+    const { user } = useSelector(state => state.auth);
     const { items: tasks, loading } = useSelector(state => state.tasks);
     const { items: applications } = useSelector(state => state.applications);
 
-    // Supervisors can assign tasks only to accepted applicants
-    const acceptedApplicants = applications.filter(a => a.status === 'accepted' && a.student && a.opportunity);
+    // Supervisors can assign tasks ONLY to accepted applicants explicitly assigned to them by the manager
+    const acceptedApplicants = applications.filter(a => 
+        a.status === 'accepted' && 
+        a.student && 
+        a.opportunity && 
+        (a.assignedSupervisor?._id === user?._id || a.assignedSupervisor === user?._id)
+    );
 
     const [newTaskModal, setNewTaskModal] = useState(false);
     const [feedbackModal, setFeedbackModal] = useState(null);

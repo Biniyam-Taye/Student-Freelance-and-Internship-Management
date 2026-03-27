@@ -175,14 +175,20 @@ const computeSkillMatch = (jobSkills = [], studentSkills = []) => {
 // @route   GET /api/applications/recruiter
 // @access  Private/Recruiter or Supervisor
 const getRecruiterApplications = asyncHandler(async (req, res) => {
-    const effectiveRecruiterId =
-        req.user.role === 'supervisor' && req.user.managerRecruiter
-            ? req.user.managerRecruiter
-            : req.user._id;
+    const targetRecruiterId = req.user.role === 'supervisor' && req.user.managerRecruiter
+        ? req.user.managerRecruiter
+        : req.user._id;
 
-    const applications = await Application.find({ recruiter: effectiveRecruiterId })
+    // Filter logic:
+    // If Admin -> see all
+    // If Recruiter -> see their jobs
+    // If Supervisor -> see jobs of their manager (so they can accept students first)
+    const query = { recruiter: targetRecruiterId };
+
+    const applications = await Application.find(query)
         .populate('student', 'name email university major skills avatar cv')
         .populate('opportunity', 'position company type skills')
+        .populate('assignedSupervisor', 'name')
         .sort({ createdAt: -1 });
 
     const withMatch = applications.map(app => {
@@ -293,10 +299,34 @@ const updateApplicationStatus = asyncHandler(async (req, res) => {
     res.json(updatedApplication);
 });
 
+// @desc    Assign an application (a student's opportunity) to a supervisor
+// @route   PUT /api/applications/:id/assign
+// @access  Private/Recruiter
+const assignSupervisor = asyncHandler(async (req, res) => {
+    const { supervisorId } = req.body;
+    const application = await Application.findById(req.params.id);
+
+    if (!application) {
+        res.status(404);
+        throw new Error('Application not found');
+    }
+
+    if (application.recruiter.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        res.status(401);
+        throw new Error('Not authorized to assign supervisor for this application');
+    }
+
+    application.assignedSupervisor = supervisorId || null;
+    const updatedApplication = await application.save();
+
+    res.json(updatedApplication);
+});
+
 module.exports = {
     applyForOpportunity,
     getMyApplications,
     getApplicationsForJob,
     getRecruiterApplications,
-    updateApplicationStatus
+    updateApplicationStatus,
+    assignSupervisor
 };

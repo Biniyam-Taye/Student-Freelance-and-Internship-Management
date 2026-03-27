@@ -6,6 +6,7 @@ const applicationService = {
     getRecruiterApplications: () => api.get('/applications/recruiter'),
     getApplicationsForJob: (opportunityId) => api.get(`/applications/job/${opportunityId}`),
     updateStatus: (applicationId, status) => api.put(`/applications/${applicationId}/status`, { status }),
+    assignSupervisor: (applicationId, supervisorId) => api.put(`/applications/${applicationId}/assign`, { supervisorId }),
 };
 
 export default applicationService;

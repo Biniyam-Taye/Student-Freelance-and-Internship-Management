@@ -5,7 +5,8 @@ const {
     getMyApplications,
     getApplicationsForJob,
     getRecruiterApplications,
-    updateApplicationStatus
+    updateApplicationStatus,
+    assignSupervisor
 } = require('../controllers/applicationController');
 const { protect, recruiter } = require('../middlewares/authMiddleware');
 
@@ -17,5 +18,6 @@ router.get('/myapplications', protect, getMyApplications);
 router.get('/recruiter', protect, recruiter, getRecruiterApplications);
 router.get('/job/:opportunityId', protect, recruiter, getApplicationsForJob);
 router.put('/:id/status', protect, recruiter, updateApplicationStatus);
+router.put('/:id/assign', protect, recruiter, assignSupervisor);
 
 module.exports = router;
