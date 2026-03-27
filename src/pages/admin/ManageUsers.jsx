@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { CheckCircle2, UserX, Mail, Building, GraduationCap, CalendarDays } from 'lucide-react';
+import { CheckCircle2, UserX, Mail, Building, GraduationCap, CalendarDays, Phone, MapPin, Linkedin, Github, Globe, Briefcase, FileText } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
@@ -170,7 +170,7 @@ export default function ManageUsers() {
             </div>
 
             {/* Profile Review Modal */}
-            <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} title="User Profile Details">
+            <Modal size="lg" isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} title="User Profile Details">
                 {selectedUser && (
                     <div className="p-4 space-y-6">
                         <div className="flex flex-col items-center text-center">
@@ -192,37 +192,101 @@ export default function ManageUsers() {
                             </Badge>
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Account Information</h3>
-                            
-                            <div className="flex items-center gap-3 text-sm">
-                                <span className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0"><Mail size={16} /></span>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">Email Address</p>
-                                    <p className="text-gray-500 dark:text-gray-400">{selectedUser.email}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Account & Contact</h3>
+                                
+                                <div className="flex items-center gap-3 text-sm">
+                                    <span className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0"><Mail size={16} /></span>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">Email Address</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{selectedUser.email}</p>
+                                    </div>
+                                </div>
+
+                                {selectedUser.phone && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0"><Phone size={16} /></span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">Phone Number</p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedUser.phone}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedUser.location && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0"><MapPin size={16} /></span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">Location</p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedUser.location}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-3 text-sm">
+                                    <span className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><CalendarDays size={16} /></span>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">Registered On</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{new Date(selectedUser.createdAt).toLocaleDateString()} at {new Date(selectedUser.createdAt).toLocaleTimeString()}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3 text-sm">
-                                <span className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                                    {selectedUser.role === 'student' ? <GraduationCap size={16} /> : <Building size={16} />}
-                                </span>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">{selectedUser.role === 'student' ? 'University / Department' : 'Company / Organization'}</p>
-                                    <p className="text-gray-500 dark:text-gray-400">
-                                        {selectedUser.role === 'student' ? `${selectedUser.university || 'N/A'} - ${selectedUser.department || ''}` : `${selectedUser.company || 'Not provided'}`}
-                                    </p>
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Professional Information</h3>
+                                
+                                <div className="flex items-center gap-3 text-sm">
+                                    <span className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                                        {selectedUser.role === 'student' ? <GraduationCap size={16} /> : <Building size={16} />}
+                                    </span>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">
+                                            {selectedUser.role === 'student' ? 'University / Department' : (selectedUser.role === 'supervisor' ? t('profile.org_institution') : 'Company / Organization')}
+                                        </p>
+                                        <p className="text-gray-500 dark:text-gray-400">
+                                            {selectedUser.role === 'student' ? `${selectedUser.university || 'N/A'} - ${selectedUser.department || ''}` : `${selectedUser.company || 'Not provided'}`}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="flex items-center gap-3 text-sm">
-                                <span className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><CalendarDays size={16} /></span>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">Registered On</p>
-                                    <p className="text-gray-500 dark:text-gray-400">{new Date(selectedUser.createdAt).toLocaleDateString()} at {new Date(selectedUser.createdAt).toLocaleTimeString()}</p>
-                                </div>
+                                {selectedUser.position && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0"><Briefcase size={16} /></span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">
+                                                {selectedUser.role === 'supervisor' ? t('profile.supervisor_role') : t('profile.position')}
+                                            </p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedUser.position}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {(selectedUser.linkedin || selectedUser.github || selectedUser.website) && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center flex-shrink-0"><Globe size={16} /></span>
+                                        <div className="flex flex-col gap-1">
+                                            <p className="font-semibold text-gray-900 dark:text-white">Web & Socials</p>
+                                            <div className="flex gap-2">
+                                                {selectedUser.linkedin && <a href={selectedUser.linkedin} target="_blank" rel="noreferrer" className="text-sky-500 hover:text-sky-600 transition-colors"><Linkedin size={16} /></a>}
+                                                {selectedUser.github && <a href={selectedUser.github} target="_blank" rel="noreferrer" className="text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"><Github size={16} /></a>}
+                                                {selectedUser.website && <a href={selectedUser.website} target="_blank" rel="noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors"><Globe size={16} /></a>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
+
+                        {selectedUser.bio && (
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 shadow-inner">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <FileText size={16} className="text-gray-400" />
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">About (Bio)</h3>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{selectedUser.bio}</p>
+                            </div>
+                        )}
 
                         {/* Quick Actions Footer inside Modal */}
                         {selectedUser.role === 'recruiter' && !selectedUser.isVerified ? (

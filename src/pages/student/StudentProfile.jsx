@@ -201,8 +201,8 @@ export default function StudentProfile() {
                     <Input label={t('profile.location')} icon={MapPin} name="location" value={formData.location} onChange={handleChange} placeholder="Addis Ababa, Ethiopia" />
                     {isSupervisor && (
                         <>
-                            <Input label={t('profile.company_name')} icon={Building2} name="company" value={formData.company} onChange={handleChange} placeholder="Company or organization" />
-                            <Input label={t('profile.position')} icon={Briefcase} name="position" value={formData.position} onChange={handleChange} placeholder="Your role or title" />
+                            <Input label={t('profile.org_institution')} icon={Building2} name="company" value={formData.company} onChange={handleChange} placeholder="Company or organization" />
+                            <Input label={t('profile.supervisor_role')} icon={Briefcase} name="position" value={formData.position} onChange={handleChange} placeholder="Your role or title" />
                         </>
                     )}
                     <Input label={t('profile.linkedin')} icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="linkedin.com/in/yourname" />

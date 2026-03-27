@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { UserCheck, UserX, UserPlus, MessageSquare, Mail, Building, GraduationCap, CalendarDays } from 'lucide-react';
+import { UserCheck, UserX, UserPlus, MessageSquare, Mail, Building, GraduationCap, CalendarDays, Phone, MapPin, Linkedin, Github, Globe, Briefcase, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
@@ -247,7 +247,7 @@ export default function ManageSupervisors() {
             </div>
 
             {/* Supervisor Profile Modal */}
-            <Modal isOpen={!!selectedSupervisor} onClose={() => setSelectedSupervisor(null)} title="Supervisor Profile">
+            <Modal size="lg" isOpen={!!selectedSupervisor} onClose={() => setSelectedSupervisor(null)} title="Supervisor Profile">
                 {selectedSupervisor && (
                     <div className="p-4 space-y-6">
                         <div className="flex flex-col items-center text-center">
@@ -265,37 +265,97 @@ export default function ManageSupervisors() {
                             </Badge>
                         </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Contact & Info</h3>
-                            
-                            <div className="flex items-center gap-3 text-sm">
-                                <span className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0"><Mail size={16} /></span>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">Email Address</p>
-                                    <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.email}</p>
-                                </div>
-                            </div>
-
-                            {(selectedSupervisor.university || selectedSupervisor.company) && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Contact Details</h3>
+                                
                                 <div className="flex items-center gap-3 text-sm">
-                                    <span className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                                        {selectedSupervisor.university ? <GraduationCap size={16} /> : <Building size={16} />}
-                                    </span>
+                                    <span className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0"><Mail size={16} /></span>
                                     <div>
-                                        <p className="font-semibold text-gray-900 dark:text-white">Institution / Company</p>
-                                        <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.university || selectedSupervisor.company}</p>
+                                        <p className="font-semibold text-gray-900 dark:text-white">Email Address</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.email}</p>
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="flex items-center gap-3 text-sm">
-                                <span className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><CalendarDays size={16} /></span>
-                                <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">Joined Platform</p>
-                                    <p className="text-gray-500 dark:text-gray-400">{new Date(selectedSupervisor.createdAt).toLocaleDateString()}</p>
+                                {selectedSupervisor.phone && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0"><Phone size={16} /></span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">Phone Number</p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.phone}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedSupervisor.location && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0"><MapPin size={16} /></span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">Location</p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.location}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-3 text-sm">
+                                    <span className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0"><CalendarDays size={16} /></span>
+                                    <div>
+                                        <p className="font-semibold text-gray-900 dark:text-white">Joined Platform</p>
+                                        <p className="text-gray-500 dark:text-gray-400">{new Date(selectedSupervisor.createdAt).toLocaleDateString()}</p>
+                                    </div>
                                 </div>
                             </div>
+
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 space-y-4 shadow-inner">
+                                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Professional Info</h3>
+
+                                {(selectedSupervisor.university || selectedSupervisor.company) && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                                            {selectedSupervisor.university ? <GraduationCap size={16} /> : <Building size={16} />}
+                                        </span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">{t('profile.org_institution')}</p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.university || selectedSupervisor.company}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedSupervisor.position && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center flex-shrink-0"><Briefcase size={16} /></span>
+                                        <div>
+                                            <p className="font-semibold text-gray-900 dark:text-white">{t('profile.supervisor_role')}</p>
+                                            <p className="text-gray-500 dark:text-gray-400">{selectedSupervisor.position}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {(selectedSupervisor.linkedin || selectedSupervisor.github || selectedSupervisor.website) && (
+                                    <div className="flex items-center gap-3 text-sm">
+                                        <span className="w-8 h-8 rounded-lg bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 flex items-center justify-center flex-shrink-0"><Globe size={16} /></span>
+                                        <div className="flex flex-col gap-1">
+                                            <p className="font-semibold text-gray-900 dark:text-white">Socials & Links</p>
+                                            <div className="flex gap-2">
+                                                {selectedSupervisor.linkedin && <a href={selectedSupervisor.linkedin} target="_blank" rel="noreferrer" className="text-sky-500 hover:text-sky-600 transition-colors"><Linkedin size={16} /></a>}
+                                                {selectedSupervisor.github && <a href={selectedSupervisor.github} target="_blank" rel="noreferrer" className="text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"><Github size={16} /></a>}
+                                                {selectedSupervisor.website && <a href={selectedSupervisor.website} target="_blank" rel="noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors"><Globe size={16} /></a>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
+
+                        {selectedSupervisor.bio && (
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-5 shadow-inner">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <FileText size={16} className="text-gray-400" />
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">About (Bio)</h3>
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{selectedSupervisor.bio}</p>
+                            </div>
+                        )}
 
                         {/* Quick Actions Footer inside Modal (Only for pending ones to quickly approve/reject while reading) */}
                         {selectedSupervisor.status === 'pending' || !selectedSupervisor.status || selectedSupervisor.status === 'rejected' ? (
