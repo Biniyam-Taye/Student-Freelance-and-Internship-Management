@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink, RefreshCw, Sparkles } from 'lucide-react';
+import { MapPin, DollarSign, Clock, Users, Calendar, Bookmark, Send, ExternalLink, RefreshCw, Sparkles, ChevronDown, Check } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import SearchFilter from '../../components/common/SearchFilter';
 import Pagination from '../../components/ui/Pagination';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
 import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
 import { applyForJob } from '../../features/applications/applicationSlice';
 import clsx from 'clsx';
@@ -212,15 +213,26 @@ export default function BrowseOpportunities() {
 
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Sort by:</span>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block px-3 py-1.5 cursor-pointer outline-none"
+                    <Dropdown
+                        trigger={
+                            <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer">
+                                {sortBy}
+                                <ChevronDown size={14} className="text-gray-400" />
+                            </div>
+                        }
                     >
-                        <option>Newest</option>
-                        <option>Best Match</option>
-                        <option>Highest Stipend</option>
-                    </select>
+                        {['Newest', 'Best Match', 'Highest Stipend'].map((opt) => (
+                            <DropdownItem
+                                key={opt}
+                                onClick={() => setSortBy(opt)}
+                                icon={sortBy === opt ? Check : null}
+                            >
+                                <span className={clsx(sortBy === opt && "font-bold text-blue-600 dark:text-blue-400")}>
+                                    {opt}
+                                </span>
+                            </DropdownItem>
+                        ))}
+                    </Dropdown>
                 </div>
             </div>
 

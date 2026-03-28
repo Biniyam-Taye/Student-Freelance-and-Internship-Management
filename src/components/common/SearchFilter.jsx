@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search as SearchIcon, SlidersHorizontal, X, ChevronDown } from 'lucide-react';
+import { Search as SearchIcon, SlidersHorizontal, X, ChevronDown, Check } from 'lucide-react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import Dropdown, { DropdownItem } from '../ui/Dropdown';
 import clsx from 'clsx';
 
 const SKILLS = ['React', 'Python', 'JavaScript', 'TypeScript', 'Figma', 'Node.js', 'Flutter', 'Machine Learning', 'Java', 'SQL'];
@@ -35,6 +36,14 @@ export default function SearchFilter({ onSearch, onFilterChange }) {
 
     const activeCount = Object.values(filters).filter(v => v && v !== 'newest').length;
 
+    const sortOptions = [
+        { value: 'newest', label: t('common.newest') },
+        { value: 'best_match', label: t('common.best_match') },
+        { value: 'highest_stipend', label: t('common.highest_stipend') }
+    ];
+
+    const currentSortLabel = sortOptions.find(o => o.value === filters.sort)?.label || t('common.newest');
+
     return (
         <div className="space-y-3">
             <div className="flex gap-2">
@@ -49,24 +58,35 @@ export default function SearchFilter({ onSearch, onFilterChange }) {
                     />
                 </div>
 
-                {/* Sort */}
-                <select
-                    value={filters.sort}
-                    onChange={(e) => handleFilter('sort', e.target.value)}
-                    className="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                {/* Sort Dropdown */}
+                <Dropdown
+                    trigger={
+                        <div className="flex items-center gap-2 px-3.5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer whitespace-nowrap min-w-[140px] justify-between">
+                            {currentSortLabel}
+                            <ChevronDown size={15} className="text-gray-400" />
+                        </div>
+                    }
                 >
-                    <option value="newest">{t('common.newest')}</option>
-                    <option value="best_match">{t('common.best_match')}</option>
-                    <option value="highest_stipend">{t('common.highest_stipend')}</option>
-                </select>
+                    {sortOptions.map((opt) => (
+                        <DropdownItem
+                            key={opt.value}
+                            onClick={() => handleFilter('sort', opt.value)}
+                            icon={filters.sort === opt.value ? Check : null}
+                        >
+                            <span className={clsx(filters.sort === opt.value && "font-bold text-blue-600 dark:text-blue-400")}>
+                                {opt.label}
+                            </span>
+                        </DropdownItem>
+                    ))}
+                </Dropdown>
 
                 <button
                     onClick={() => setFiltersOpen(!filtersOpen)}
                     className={clsx(
                         'flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all duration-200',
                         filtersOpen || activeCount > 0
-                            ? 'bg-blue-600 border-blue-600 text-white'
-                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/20'
+                            : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     )}
                 >
                     <SlidersHorizontal size={15} />
@@ -78,73 +98,100 @@ export default function SearchFilter({ onSearch, onFilterChange }) {
             </div>
 
             {filtersOpen && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 animate-fade-in-up">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Skill */}
-                        <div>
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">{t('search.skill_filter')}</label>
-                            <select
-                                value={filters.skill}
-                                onChange={(e) => handleFilter('skill', e.target.value)}
-                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-5 shadow-sm animate-fade-in-up">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Skill Filter */}
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider block ml-1">{t('search.skill_filter')}</label>
+                            <Dropdown
+                                className="w-full"
+                                trigger={
+                                    <div className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer">
+                                        <span className="truncate">{filters.skill || 'All Skills'}</span>
+                                        <ChevronDown size={14} className="text-gray-400 flex-shrink-0" />
+                                    </div>
+                                }
                             >
-                                <option value="">All Skills</option>
-                                {SKILLS.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
+                                <DropdownItem onClick={() => handleFilter('skill', '')} icon={!filters.skill ? Check : null}>All Skills</DropdownItem>
+                                {SKILLS.map(s => (
+                                    <DropdownItem key={s} onClick={() => handleFilter('skill', s)} icon={filters.skill === s ? Check : null}>
+                                        <span className={clsx(filters.skill === s && "font-bold text-blue-600")}>{s}</span>
+                                    </DropdownItem>
+                                ))}
+                            </Dropdown>
                         </div>
 
-                        {/* Duration */}
-                        <div>
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">{t('search.duration_filter')}</label>
-                            <select
-                                value={filters.duration}
-                                onChange={(e) => handleFilter('duration', e.target.value)}
-                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        {/* Duration Filter */}
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider block ml-1">{t('search.duration_filter')}</label>
+                            <Dropdown
+                                className="w-full"
+                                trigger={
+                                    <div className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer">
+                                        <span className="truncate">{filters.duration || 'Any Duration'}</span>
+                                        <ChevronDown size={14} className="text-gray-400 flex-shrink-0" />
+                                    </div>
+                                }
                             >
-                                <option value="">Any Duration</option>
-                                {DURATIONS.map(d => <option key={d} value={d}>{d}</option>)}
-                            </select>
+                                <DropdownItem onClick={() => handleFilter('duration', '')} icon={!filters.duration ? Check : null}>Any Duration</DropdownItem>
+                                {DURATIONS.map(d => (
+                                    <DropdownItem key={d} onClick={() => handleFilter('duration', d)} icon={filters.duration === d ? Check : null}>
+                                        <span className={clsx(filters.duration === d && "font-bold text-blue-600")}>{d}</span>
+                                    </DropdownItem>
+                                ))}
+                            </Dropdown>
                         </div>
 
-                        {/* Location */}
-                        <div>
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">{t('search.location_filter')}</label>
-                            <select
-                                value={filters.location}
-                                onChange={(e) => handleFilter('location', e.target.value)}
-                                className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        {/* Location Filter */}
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider block ml-1">{t('search.location_filter')}</label>
+                            <Dropdown
+                                className="w-full"
+                                trigger={
+                                    <div className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm hover:border-gray-300 dark:hover:border-gray-600 transition-colors cursor-pointer">
+                                        <span className="truncate">{filters.location || 'Any Location'}</span>
+                                        <ChevronDown size={14} className="text-gray-400 flex-shrink-0" />
+                                    </div>
+                                }
                             >
-                                <option value="">Any Location</option>
-                                {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                            </select>
+                                <DropdownItem onClick={() => handleFilter('location', '')} icon={!filters.location ? Check : null}>Any Location</DropdownItem>
+                                {LOCATIONS.map(l => (
+                                    <DropdownItem key={l} onClick={() => handleFilter('location', l)} icon={filters.location === l ? Check : null}>
+                                        <span className={clsx(filters.location === l && "font-bold text-blue-600")}>{l}</span>
+                                    </DropdownItem>
+                                ))}
+                            </Dropdown>
                         </div>
 
                         {/* Stipend Range */}
-                        <div>
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5 block">{t('search.stipend_range')}</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider block ml-1">{t('search.stipend_range')}</label>
                             <div className="flex gap-2">
                                 <input
                                     type="number"
                                     placeholder="Min"
                                     value={filters.stipendMin}
                                     onChange={(e) => handleFilter('stipendMin', e.target.value)}
-                                    className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
                                 />
                                 <input
                                     type="number"
                                     placeholder="Max"
                                     value={filters.stipendMax}
                                     onChange={(e) => handleFilter('stipendMax', e.target.value)}
-                                    className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all font-medium"
                                 />
                             </div>
                         </div>
                     </div>
 
                     {activeCount > 0 && (
-                        <button onClick={clearFilters} className="mt-3 flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors">
-                            <X size={14} /> Clear all filters
-                        </button>
+                        <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-700/60 flex justify-between items-center">
+                            <p className="text-[11px] text-gray-400 font-medium">Clear filters to see all results</p>
+                            <button onClick={clearFilters} className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors font-bold">
+                                <X size={14} /> Clear all filters
+                            </button>
+                        </div>
                     )}
                 </div>
             )}
