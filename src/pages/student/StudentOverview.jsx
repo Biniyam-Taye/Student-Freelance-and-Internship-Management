@@ -110,7 +110,7 @@ export default function StudentOverview() {
 
                             <div className="text-center">
                                 <h2 className="text-base font-bold text-gray-900 dark:text-white hover:underline cursor-pointer">
-                                    {user?.name || 'Student Name'}
+                                    {user?.name || 'User Name'}
                                 </h2>
                                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2 px-2">
                                     {user?.bio || user?.major || 'Add a bio to tell managers about yourself.'}

@@ -111,7 +111,7 @@ export default function SupervisorTasks() {
                         {task.status !== 'completed' && (
                             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60 ml-[32px] pr-2">
                                 <div className="flex items-center justify-between mb-1.5">
-                                    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1">Student Progress</span>
+                                    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1">User Progress</span>
                                     <span className={clsx("text-xs font-bold", task.progress > 0 ? "text-blue-600 dark:text-blue-400" : "text-gray-400")}>{task.progress || 0}%</span>
                                 </div>
                                 <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
@@ -123,7 +123,7 @@ export default function SupervisorTasks() {
                         {/* Submitted Work Display */}
                         {task.status === 'completed' && (task.submissionNotes || (task.submissionFiles && task.submissionFiles.length > 0)) && (
                             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60">
-                                <h4 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Student Submission</h4>
+                                <h4 className="text-[11px] font-bold text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">User Submission</h4>
                                 {task.submissionNotes && (
                                     <div className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-700/50 mb-3 whitespace-pre-wrap">
                                         {task.submissionNotes}
@@ -143,7 +143,7 @@ export default function SupervisorTasks() {
                                                             if (!url.hostname) throw new Error();
                                                             window.open(url.href, '_blank', 'noreferrer');
                                                         } catch (err) {
-                                                            alert(`Invalid file link submitted:\n\n"${file}"\n\nPlease message the student to update their submission link.`);
+                                                            alert(`Invalid file link submitted:\n\n"${file}"\n\nPlease message the user to update their submission link.`);
                                                         }
                                                     }}
                                                     className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-100 dark:border-blue-800/30 shadow-sm"
@@ -200,7 +200,7 @@ export default function SupervisorTasks() {
                         />
                     </div>
                     <div>
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Assignee (Accepted Student)</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">Assignee (Accepted User)</label>
                         <select
                             className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
                             value={newTask.selectedAppId}

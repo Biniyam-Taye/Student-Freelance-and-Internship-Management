@@ -143,7 +143,7 @@ export default function LoginPage() {
                         <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/50 text-center shadow-sm">
                             <GraduationCap className="w-6 h-6 text-blue-600 dark:text-blue-400 mb-1.5" />
                             <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">Skilled</span>
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Students</span>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Users</span>
                         </div>
                         <div className="flex flex-col items-center justify-center py-4 px-2 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/50 text-center shadow-sm">
                             <Briefcase className="w-6 h-6 text-emerald-600 dark:text-emerald-400 mb-1.5" />

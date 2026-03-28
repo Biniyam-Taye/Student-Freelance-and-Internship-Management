@@ -61,7 +61,7 @@ export default function MyFreelancers() {
     const columns = [
         {
             key: 'student',
-            title: 'Student',
+            title: 'User',
             render: (_, row) => (
                 <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 overflow-hidden">

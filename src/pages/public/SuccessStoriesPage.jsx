@@ -35,7 +35,7 @@ const SUCCESS_STATS = [
     { label: 'Placements', value: '1,200+', icon: Users, color: 'text-blue-600' },
     { label: 'Companies', value: '450+', icon: Briefcase, color: 'text-violet-600' },
     { label: 'Avg. Rating', value: '4.9/5', icon: Star, color: 'text-amber-500' },
-    { label: 'Student Earnings', value: '$250k+', icon: TrendingUp, color: 'text-emerald-600' },
+    { label: 'User Earnings', value: '$250k+', icon: TrendingUp, color: 'text-emerald-600' },
 ];
 
 

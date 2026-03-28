@@ -92,7 +92,7 @@ export default function SupervisorApplications() {
                         reason === 'missing_job_skills'
                             ? 'Add job skills'
                             : reason === 'missing_student_skills'
-                                ? 'No student skills'
+                                ? 'No user skills'
                                 : 'N/A';
                     return <span className="text-xs text-gray-400">{label}</span>;
                 }
@@ -191,7 +191,7 @@ export default function SupervisorApplications() {
             <Modal
                 isOpen={!!selectedApp}
                 onClose={() => setSelectedApp(null)}
-                title="Student details"
+                title="User details"
                 size="sm"
                 footer={<Button variant="secondary" onClick={() => setSelectedApp(null)}>Close</Button>}
             >
@@ -243,7 +243,7 @@ export default function SupervisorApplications() {
                                 <div className="flex flex-wrap gap-2">
                                     <button
                                         type="button"
-                                        onClick={() => downloadCV(selectedApp.student.cv, `${(selectedApp.student?.name || 'Student').replace(/\s+/g, '_')}_CV.pdf`)}
+                                        onClick={() => downloadCV(selectedApp.student.cv, `${(selectedApp.student?.name || 'User').replace(/\s+/g, '_')}_CV.pdf`)}
                                         className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors"
                                     >
                                         <Download size={16} />
@@ -273,7 +273,7 @@ export default function SupervisorApplications() {
                             </div>
                         )}
                         {!studentReviewStats && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400">No task reviews for this student yet.</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">No task reviews for this user yet.</p>
                         )}
                     </div>
                 )}

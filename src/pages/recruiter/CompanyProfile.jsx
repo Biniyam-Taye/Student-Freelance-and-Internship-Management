@@ -108,7 +108,7 @@ export default function CompanyProfile() {
             {/* Industries / Tags */}
             <Card>
                 <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">{t('profile.industry')}</h3>
-                <p className="text-xs text-gray-400 mb-3">Add industry tags to help students find you</p>
+                <p className="text-xs text-gray-400 mb-3">Add industry tags to help users find you</p>
                 <div className="flex flex-wrap gap-2 min-h-[44px]">
                     {industries.map((s) => (
                         <span key={s} className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-300 rounded-xl text-sm font-medium">
