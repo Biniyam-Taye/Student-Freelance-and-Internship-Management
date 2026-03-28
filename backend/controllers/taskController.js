@@ -95,7 +95,7 @@ const getAssignedTasks = asyncHandler(async (req, res) => {
 // @route   PUT /api/tasks/:id/status
 // @access  Private (Both Student and Recruiter can do this)
 const updateTaskStatus = asyncHandler(async (req, res) => {
-    const { status } = req.body;
+    const { status, progress } = req.body;
     const task = await Task.findById(req.params.id);
 
     if (!task) {
@@ -114,7 +114,10 @@ const updateTaskStatus = asyncHandler(async (req, res) => {
         throw new Error('Not authorized to update this task');
     }
 
-    task.status = status;
+    if (status) task.status = status;
+    if (progress !== undefined) task.progress = Number(progress);
+    if (task.status === 'completed') task.progress = 100; // Auto 100% on completion
+
     const updatedTask = await task.save();
     res.json(updatedTask);
 });
@@ -138,6 +141,7 @@ const submitTask = asyncHandler(async (req, res) => {
     }
 
     task.status = 'completed';
+    task.progress = 100;
     task.submissionNotes = submissionNotes;
     task.submissionFiles = submissionFiles || [];
     task.submissionDate = Date.now();

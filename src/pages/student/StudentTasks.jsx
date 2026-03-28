@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyTasks, submitTask, updateTaskStatus } from '../../features/tasks/taskSlice';
-import { Clock, CheckCircle2, AlertCircle, Circle, Upload, Link as LinkIcon, Star, MessageSquare, RefreshCw } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, Circle, Upload, Link as LinkIcon, Star, MessageSquare, RefreshCw, Save } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
@@ -23,6 +23,7 @@ export default function StudentTasks() {
     const [feedbackModal, setFeedbackModal] = useState(null);
     const [submissionNotes, setSubmissionNotes] = useState('');
     const [submissionFileDetails, setSubmissionFileDetails] = useState('');
+    const [progresses, setProgresses] = useState({});
     const [filter, setFilter] = useState('all');
 
     useEffect(() => {
@@ -103,6 +104,33 @@ export default function StudentTasks() {
                             </div>
 
                             <p className="text-sm text-gray-600 dark:text-gray-400 ml-[30px] mb-4 line-clamp-2">{task.description}</p>
+
+                            {task.status === 'in_progress' && (
+                                <div className="ml-[30px] mb-4 bg-gray-50 dark:bg-gray-800/40 p-3 rounded-xl border border-gray-100 dark:border-gray-700/50">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Update Progress</span>
+                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">{progresses[task._id] !== undefined ? progresses[task._id] : (task.progress || 0)}%</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <input 
+                                            type="range" 
+                                            className="w-full accent-blue-600 cursor-pointer" 
+                                            min="0" max="100" step="5"
+                                            value={progresses[task._id] !== undefined ? progresses[task._id] : (task.progress || 0)}
+                                            onChange={(e) => setProgresses(prev => ({...prev, [task._id]: Number(e.target.value)}))}
+                                        />
+                                        {(progresses[task._id] !== undefined && progresses[task._id] !== (task.progress || 0)) && (
+                                            <button 
+                                                onClick={() => dispatch(updateTaskStatus({ id: task._id, progress: progresses[task._id] }))}
+                                                className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-1.5 transition-colors shadow-sm"
+                                                title="Save progress"
+                                            >
+                                                <Save size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between ml-[30px] gap-3 mt-4">
                                 <div className="flex items-center gap-1.5 flex-shrink-0">

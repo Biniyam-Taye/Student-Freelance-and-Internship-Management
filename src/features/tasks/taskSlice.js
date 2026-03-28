@@ -23,9 +23,9 @@ export const assignTask = createAsyncThunk('tasks/assign', async (data, thunkAPI
     } catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || error.message); }
 });
 
-export const updateTaskStatus = createAsyncThunk('tasks/updateStatus', async ({ id, status }, thunkAPI) => {
+export const updateTaskStatus = createAsyncThunk('tasks/updateStatus', async ({ id, ...payload }, thunkAPI) => {
     try {
-        const response = await taskService.updateStatus(id, status);
+        const response = await taskService.updateStatus(id, payload);
         return response.data;
     } catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || error.message); }
 });

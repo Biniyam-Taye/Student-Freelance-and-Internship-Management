@@ -43,6 +43,12 @@ const taskSchema = new mongoose.Schema({
         enum: ['pending', 'in_progress', 'completed'],
         default: 'pending'
     },
+    progress: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 100
+    },
     // Student Submission Fields
     submissionNotes: {
         type: String

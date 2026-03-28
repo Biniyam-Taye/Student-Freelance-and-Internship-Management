@@ -107,6 +107,19 @@ export default function SupervisorTasks() {
                             </div>
                         </div>
 
+                        {/* Task Progress Bar */}
+                        {task.status !== 'completed' && (
+                            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60 ml-[32px] pr-2">
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider flex items-center gap-1">Student Progress</span>
+                                    <span className={clsx("text-xs font-bold", task.progress > 0 ? "text-blue-600 dark:text-blue-400" : "text-gray-400")}>{task.progress || 0}%</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-blue-500 dark:bg-blue-600 transition-all duration-500 rounded-full" style={{ width: `${task.progress || 0}%` }} />
+                                </div>
+                            </div>
+                        )}
+
                         {/* Submitted Work Display */}
                         {task.status === 'completed' && (task.submissionNotes || (task.submissionFiles && task.submissionFiles.length > 0)) && (
                             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700/60">
