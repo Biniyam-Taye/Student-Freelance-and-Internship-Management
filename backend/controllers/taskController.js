@@ -27,6 +27,16 @@ const assignTask = asyncHandler(async (req, res) => {
             res.status(400);
             throw new Error('Supervisor is not linked to a recruiter');
         }
+
+        // BACKEND ENFORCEMENT: A supervisor can ONLY assign a task if the manager specifically assigned this student to them
+        const Application = require('../models/Application');
+        const application = await Application.findOne({ student: studentId, opportunity: opportunityId });
+        
+        if (!application || !application.assignedSupervisor || application.assignedSupervisor.toString() !== req.user._id.toString()) {
+            res.status(403);
+            throw new Error('Not authorized to assign tasks to this student. The manager must assign them to you first.');
+        }
+
         recruiterId = supervisor.managerRecruiter;
         supervisorId = supervisor._id;
     }
