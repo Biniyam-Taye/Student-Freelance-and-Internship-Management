@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { CheckCircle2, UserX, Mail, Building, GraduationCap, CalendarDays, Phone, MapPin, Linkedin, Github, Globe, Briefcase, FileText } from 'lucide-react';
+import { CheckCircle2, UserX, Trash2, Mail, Building, GraduationCap, CalendarDays, Phone, MapPin, Linkedin, Github, Globe, Briefcase, FileText } from 'lucide-react';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import SearchFilter from '../../components/common/SearchFilter';
-import { fetchAllUsers, verifyRecruiter, updateUserStatus } from '../../features/admin/adminSlice';
+import { fetchAllUsers, verifyRecruiter, updateUserStatus, deleteUser } from '../../features/admin/adminSlice';
 import clsx from 'clsx';
 
 const ROLES = ['all', 'student', 'recruiter', 'pending'];
@@ -31,6 +31,12 @@ export default function ManageUsers() {
     const toggleSuspend = (id, currentStatus) => {
         const newStatus = currentStatus === 'suspended' ? 'active' : 'suspended';
         dispatch(updateUserStatus({ id, status: newStatus }));
+    };
+
+    const handleDeleteUser = (id, name) => {
+        if (window.confirm(`Are you sure you want to completely remove ${name}'s account? This action cannot be undone.`)) {
+            dispatch(deleteUser(id));
+        }
     };
 
     const pendingRecruiters = users.filter((u) => u.role === 'recruiter' && !u.isVerified);
@@ -105,11 +111,18 @@ export default function ManageUsers() {
                         disabled={loading} 
                         className={clsx('flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg font-medium transition-colors',
                             row.status !== 'suspended'
-                                ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40'
+                                ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40'
                                 : 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40'
                         )}
                     >
                         <UserX size={11} /> {row.status !== 'suspended' ? 'Suspend' : 'Restore'}
+                    </button>
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); handleDeleteUser(row._id, row.name); }} 
+                        disabled={loading} 
+                        className="flex items-center gap-1 px-2.5 py-1 text-xs bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 font-medium transition-colors"
+                    >
+                        <Trash2 size={11} /> Delete
                     </button>
                 </div>
             ),

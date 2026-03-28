@@ -22,6 +22,13 @@ export const updateUserStatus = createAsyncThunk('admin/updateStatus', async ({ 
     } catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || error.message); }
 });
 
+export const deleteUser = createAsyncThunk('admin/deleteUser', async (id, thunkAPI) => {
+    try {
+        await adminService.deleteUser(id);
+        return id;
+    } catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || error.message); }
+});
+
 export const fetchAnalytics = createAsyncThunk('admin/fetchAnalytics', async (_, thunkAPI) => {
     try {
         const response = await adminService.getAnalytics();
@@ -54,6 +61,10 @@ const adminSlice = createSlice({
             .addCase(updateUserStatus.fulfilled, (state, action) => {
                 const index = state.users.findIndex(u => u._id === action.payload._id);
                 if (index !== -1) state.users[index] = action.payload;
+            })
+
+            .addCase(deleteUser.fulfilled, (state, action) => {
+                state.users = state.users.filter(u => u._id !== action.payload);
             })
 
             .addCase(fetchAnalytics.pending, (state) => { state.loading = true; })
