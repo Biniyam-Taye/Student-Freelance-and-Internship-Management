@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Users, MessageSquare } from 'lucide-react';
+import { Users, MessageSquare, UserX, CheckCircle2, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Badge from '../../components/ui/Badge';
 import Table from '../../components/ui/Table';
@@ -10,6 +10,7 @@ import { fetchRecruiterApplications, assignSupervisor } from '../../features/app
 import { fetchMySupervisors } from '../../features/supervisors/supervisorSlice';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
+import clsx from 'clsx';
 
 export default function MyTeam() {
     const { t } = useTranslation();
@@ -22,6 +23,9 @@ export default function MyTeam() {
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [selectedAppId, setSelectedAppId] = useState(null);
     const [selectedSupervisorId, setSelectedSupervisorId] = useState('');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    
+    const activeSup = useMemo(() => supervisors.find(s => s._id === selectedSupervisorId), [supervisors, selectedSupervisorId]);
 
     useEffect(() => {
         dispatch(fetchRecruiterApplications());
@@ -32,6 +36,7 @@ export default function MyTeam() {
         if (selectedAppId) {
             dispatch(assignSupervisor({ id: selectedAppId, supervisorId: selectedSupervisorId }));
             setAssignModalOpen(false);
+            setIsDropdownOpen(false);
             setSelectedAppId(null);
             setSelectedSupervisorId('');
         }
@@ -199,25 +204,94 @@ export default function MyTeam() {
                 isOpen={assignModalOpen}
                 onClose={() => setAssignModalOpen(false)}
                 title="Assign Supervisor"
-                size="sm"
+                size="md"
+                footer={<>
+                    <Button variant="secondary" onClick={() => setAssignModalOpen(false)}>Cancel</Button>
+                    <Button onClick={handleAssign}>Save Assignment</Button>
+                </>}
             >
-                <div className="space-y-4">
+                <div className="space-y-5 p-5 min-h-[380px]">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                         Select a supervisor to oversee this student.
                     </p>
-                    <select
-                        className="w-full form-input text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl"
-                        value={selectedSupervisorId}
-                        onChange={(e) => setSelectedSupervisorId(e.target.value)}
-                    >
-                        <option value="">-- Unassigned --</option>
-                        {supervisors.map(sup => (
-                            <option key={sup._id} value={sup._id}>{sup.name}</option>
-                        ))}
-                    </select>
-                    <div className="flex justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-                        <Button variant="secondary" onClick={() => setAssignModalOpen(false)}>Cancel</Button>
-                        <Button onClick={handleAssign}>Save Assignment</Button>
+                    <div className="relative z-10">
+                        <button
+                            type="button"
+                            onClick={() => setIsDropdownOpen(prev => !prev)}
+                            className={clsx(
+                                "w-full text-left bg-white dark:bg-gray-800 border rounded-2xl px-5 py-6 flex items-center justify-between shadow-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all",
+                                isDropdownOpen ? "border-blue-400 dark:border-blue-500 ring-2 ring-blue-50 dark:ring-blue-900/20" : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                            )}
+                        >
+                            {selectedSupervisorId === '' ? (
+                                <div className="flex items-center gap-3.5 text-gray-500 dark:text-gray-400">
+                                    <div className="w-10 h-10 rounded-full border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-800/50">
+                                        <UserX size={16} />
+                                    </div>
+                                    <div>
+                                        <span className="text-[15px] font-semibold text-gray-700 dark:text-gray-300 block">-- Unassigned --</span>
+                                        <span className="text-xs text-gray-400 block mt-0.5">Click to choose a supervisor</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-3.5">
+                                    {activeSup?.avatar ? (
+                                        <img src={activeSup.avatar} alt="" className="w-10 h-10 rounded-full object-cover shadow-sm ring-2 ring-gray-100 dark:ring-gray-700" />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[13px] font-bold shadow-sm">
+                                            {activeSup?.name?.[0]}
+                                        </div>
+                                    )}
+                                    <div>
+                                        <span className="font-semibold text-[15px] text-gray-900 dark:text-white block leading-tight">{activeSup?.name}</span>
+                                        <span className="text-xs text-gray-500 dark:text-gray-400 block mt-0.5">{activeSup?.email}</span>
+                                    </div>
+                                </div>
+                            )}
+                            <ChevronDown size={18} className={clsx("transition-transform duration-200 text-gray-400 ml-2", isDropdownOpen && "rotate-180")} />
+                        </button>
+
+                        {/* Dropdown Options List */}
+                        {isDropdownOpen && (
+                            <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl max-h-56 overflow-y-auto animate-fade-in-up z-50 py-1">
+                                <button
+                                    type="button"
+                                    onClick={() => { setSelectedSupervisorId(''); setIsDropdownOpen(false); }}
+                                    className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-3 transition-colors outline-none"
+                                >
+                                    <div className="w-8 h-8 rounded-full border-2 border-dashed border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400 dark:text-gray-500 bg-gray-50/50 dark:bg-gray-800/50">
+                                        <UserX size={14} />
+                                    </div>
+                                    <div>
+                                        <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 block">Unassigned</span>
+                                        <span className="text-[10px] text-gray-400 block -mt-0.5">Clear supervisor assignment</span>
+                                    </div>
+                                    {selectedSupervisorId === '' && <CheckCircle2 size={16} className="ml-auto text-blue-500 shadow-sm" />}
+                                </button>
+                                
+                                {supervisors.map(sup => (
+                                    <button
+                                        key={sup._id}
+                                        type="button"
+                                        onClick={() => { setSelectedSupervisorId(sup._id); setIsDropdownOpen(false); }}
+                                        className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-3 transition-colors outline-none group"
+                                    >
+                                        {sup.avatar ? (
+                                            <img src={sup.avatar} alt="" className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-gray-100 dark:ring-gray-700" />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm ring-1 ring-white/10">
+                                                {sup.name[0]}
+                                            </div>
+                                        )}
+                                        <div>
+                                            <span className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors block leading-tight">{sup.name}</span>
+                                            <span className="text-[10px] text-gray-500 dark:text-gray-400 block">{sup.email}</span>
+                                        </div>
+                                        {selectedSupervisorId === sup._id && <CheckCircle2 size={16} className="ml-auto text-blue-500 shadow-sm" />}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </Modal>

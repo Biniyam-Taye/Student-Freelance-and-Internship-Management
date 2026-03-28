@@ -43,7 +43,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" />
             <div className={clsx(
                 'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl',
-                'animate-fade-in-up overflow-hidden',
+                'animate-fade-in-up',
                 sizes[size]
             )}>
                 <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800">
@@ -52,7 +52,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
                         <X size={18} />
                     </button>
                 </div>
-                <div className="p-6 max-h-[75vh] overflow-y-auto">{children}</div>
+                <div className="p-6 overflow-visible">{children}</div>
                 {footer && (
                     <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 dark:border-gray-800">
                         {footer}
