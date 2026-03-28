@@ -11,8 +11,6 @@ import {
     Type,
     ThumbsUp,
     MessageSquare,
-    Repeat,
-    Send,
     MoreHorizontal,
     Bookmark,
     Users,
@@ -308,31 +306,25 @@ export default function StudentOverview() {
                             </div>
 
                             {/* Action Buttons */}
-                            <div className="px-2 py-1 flex justify-between gap-1 mt-1 mb-1">
+                            <div className="px-2 py-1 flex justify-start gap-3 mt-1 mb-1">
                                 <button
                                     onClick={() => handleLike(post._id || post.id)}
                                     className={clsx(
-                                        "flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md transition-colors font-semibold text-sm",
+                                        "flex-1 max-w-[120px] flex items-center justify-center gap-1.5 py-3 rounded-md transition-colors font-semibold text-sm",
                                         (post.likes || []).includes(user?._id)
                                             ? "text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10"
                                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                     )}
                                 >
-                                    <ThumbsUp size={20} className={clsx((post.likes || []).includes(user?._id) ? "fill-current" : "text-gray-500")} />
-                                    <span className="hidden sm:inline">Like</span>
+                                    <ThumbsUp size={18} className={clsx((post.likes || []).includes(user?._id) ? "fill-current" : "text-gray-500")} />
+                                    <span>Like</span>
                                 </button>
                                 <button
                                     onClick={() => setActiveCommentPost(activeCommentPost === (post._id || post.id) ? null : (post._id || post.id))}
-                                    className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors"
+                                    className="flex-1 max-w-[140px] flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors"
                                 >
-                                    <MessageSquare size={20} className="text-gray-500 flex-shrink-0 translate-y-[1px]" style={{ transform: 'scaleX(-1)' }} />
-                                    <span className="hidden sm:inline">Comment</span>
-                                </button>
-                                <button className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors">
-                                    <Repeat size={20} className="text-gray-500" /> <span className="hidden sm:inline">Repost</span>
-                                </button>
-                                <button className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 font-semibold text-sm transition-colors">
-                                    <Send size={20} className="text-gray-500 -rotate-45 -translate-y-[2px]" /> <span className="hidden sm:inline">Send</span>
+                                    <MessageSquare size={18} className="text-gray-500 flex-shrink-0 translate-y-[1px]" style={{ transform: 'scaleX(-1)' }} />
+                                    <span>Comment</span>
                                 </button>
                             </div>
 
