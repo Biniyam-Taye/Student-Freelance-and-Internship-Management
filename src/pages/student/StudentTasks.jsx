@@ -104,36 +104,49 @@ export default function StudentTasks() {
 
                             <p className="text-sm text-gray-600 dark:text-gray-400 ml-[30px] mb-4 line-clamp-2">{task.description}</p>
 
-                            <div className="flex items-center justify-between ml-[30px]">
-                                <div className="flex items-center gap-1.5">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between ml-[30px] gap-3 mt-4">
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
                                     <Clock size={13} className={daysLeft <= 2 ? 'text-red-400' : 'text-gray-400'} />
                                     <span className={clsx('text-xs font-medium', daysLeft <= 2 ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400')}>
                                         {daysLeft > 0 ? `${daysLeft} days left` : 'Overdue'}
                                     </span>
-                                    <span className="text-xs text-gray-400 ml-1">· {new Date(task.deadline).toLocaleDateString()}</span>
+                                    <span className="text-xs text-gray-400 ml-1 whitespace-nowrap">· {new Date(task.deadline).toLocaleDateString()}</span>
                                 </div>
-                                {task.status === 'pending' && (
-                                    <Button size="xs" variant="secondary" onClick={() => dispatch(updateTaskStatus({ id: task._id, status: 'in_progress' }))}>
-                                        Start Task
-                                    </Button>
-                                )}
-                                {task.status === 'in_progress' && (
-                                    <Button size="xs" variant="gradient" icon={Upload} onClick={() => { setSubmissionNotes(''); setSubmissionFileDetails(''); setSubmitModal(task); }}>
-                                        Submit
-                                    </Button>
-                                )}
-                                {task.status === 'completed' && (
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <Badge variant="accepted" dot>Completed</Badge>
-                                        <button
-                                            type="button"
-                                            onClick={() => setFeedbackModal(task)}
-                                            className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-                                        >
-                                            <MessageSquare size={12} /> View manager feedback
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="flex items-center gap-3 flex-wrap sm:justify-end">
+                                    {task.status === 'pending' && (
+                                        <Button size="xs" variant="secondary" onClick={() => dispatch(updateTaskStatus({ id: task._id, status: 'in_progress' }))}>
+                                            Start Task
+                                        </Button>
+                                    )}
+                                    {task.status === 'in_progress' && (
+                                        <Button size="xs" variant="gradient" icon={Upload} onClick={() => { setSubmissionNotes(''); setSubmissionFileDetails(''); setSubmitModal(task); }}>
+                                            Submit
+                                        </Button>
+                                    )}
+                                    {task.status === 'completed' && (
+                                        <>
+                                            <Badge variant="accepted" dot>Completed</Badge>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setSubmissionNotes(task.submissionNotes || '');
+                                                    setSubmissionFileDetails(task.submissionFiles?.[0] || '');
+                                                    setSubmitModal(task);
+                                                }}
+                                                className="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                                            >
+                                                <Upload size={12} /> Edit
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFeedbackModal(task)}
+                                                className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                                            >
+                                                <MessageSquare size={12} /> Feedback
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                             {task.status === 'completed' && (task.rating != null || (task.feedback && task.feedback.trim())) && (
                                 <div className="ml-[30px] mt-3 p-3 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/50">
