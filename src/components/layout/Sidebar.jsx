@@ -111,23 +111,26 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             )}
 
             {/* Sidebar */}
-            <aside className={clsx(
-                'fixed top-16 left-0 bottom-0 z-30 flex flex-col',
+        <aside className={clsx(
+                'fixed top-20 left-0 bottom-0 z-30 flex flex-col',
                 'bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800',
-                'sidebar-transition overflow-hidden',
+                'sidebar-transition',
                 // Desktop
                 collapsed ? 'w-[72px]' : 'w-64',
                 // Mobile
                 'lg:translate-x-0',
                 mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
             )}>
-                {/* Collapse toggle (desktop) */}
+                {/* Collapse toggle (desktop) — rendered outside aside to avoid clipping */}
                 <button
                     onClick={onToggle}
                     id="sidebar-collapse-btn"
-                    className="hidden lg:flex absolute -right-3 top-6 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full items-center justify-center shadow-md text-gray-500 hover:text-blue-600 dark:text-gray-400 z-10 transition-colors"
+                    className={clsx(
+                        "hidden lg:flex fixed top-24 z-40 w-7 h-7 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full items-center justify-center shadow-md text-gray-500 hover:text-blue-600 dark:text-gray-400 transition-all duration-300",
+                        collapsed ? "left-[58px]" : "left-[252px]"
+                    )}
                 >
-                    {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+                    {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
                 </button>
 
                 {/* Nav items */}
