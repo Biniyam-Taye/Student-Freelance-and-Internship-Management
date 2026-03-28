@@ -30,7 +30,7 @@ export default function DashboardLayout() {
                 onMobileClose={() => setMobileOpen(false)}
             />
             <main className={clsx(
-                'pt-16 min-h-screen transition-all duration-300',
+                'pt-20 min-h-screen transition-all duration-300',
                 collapsed ? 'lg:ml-[72px]' : 'lg:ml-64'
             )}>
                 <div className="p-4 sm:p-6 max-w-7xl mx-auto">
