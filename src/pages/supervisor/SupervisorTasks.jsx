@@ -119,18 +119,25 @@ export default function SupervisorTasks() {
                                 {task.submissionFiles && task.submissionFiles.length > 0 && (
                                     <div className="flex flex-wrap gap-2">
                                         {task.submissionFiles.map((file, idx) => {
-                                            const isImage = file.match(/\.(jpeg|jpg|gif|png|webp)$/i) != null;
                                             return (
-                                                <a
+                                                <button
                                                     key={idx}
-                                                    href={file}
-                                                    target="_blank"
-                                                    rel="noreferrer"
+                                                    type="button"
+                                                    onClick={() => {
+                                                        try {
+                                                            const urlStr = file.startsWith('http://') || file.startsWith('https://') ? file : `https://${file}`;
+                                                            const url = new URL(urlStr);
+                                                            if (!url.hostname) throw new Error();
+                                                            window.open(url.href, '_blank', 'noreferrer');
+                                                        } catch (err) {
+                                                            alert(`Invalid file link submitted:\n\n"${file}"\n\nPlease message the student to update their submission link.`);
+                                                        }
+                                                    }}
                                                     className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors border border-blue-100 dark:border-blue-800/30 shadow-sm"
                                                 >
                                                     <FileText size={14} />
                                                     View Attachment {idx + 1}
-                                                </a>
+                                                </button>
                                             );
                                         })}
                                     </div>
