@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import authService from '../../services/authService';
 
 export default function ForgotPasswordPage() {
     const { t } = useTranslation();
@@ -11,13 +12,21 @@ export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
 
+    const [error, setError] = useState(null);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email) return;
         setLoading(true);
-        await new Promise(r => setTimeout(r, 1500));
-        setSent(true);
-        setLoading(false);
+        setError(null);
+        try {
+            await authService.forgotPassword(email);
+            setSent(true);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to send reset email. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -37,6 +46,11 @@ export default function ForgotPasswordPage() {
                             <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{t('auth.reset_title')}</h1>
                             <p className="text-gray-500 dark:text-gray-400 mb-8">{t('auth.reset_subtitle')}</p>
                             <form onSubmit={handleSubmit} className="space-y-4">
+                                {error && (
+                                    <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium border border-red-100 dark:border-red-900/50">
+                                        {error}
+                                    </div>
+                                )}
                                 <Input label={t('auth.email')} icon={Mail} type="email" placeholder="you@example.com"
                                     value={email} onChange={(e) => setEmail(e.target.value)} required />
                                 <Button type="submit" variant="gradient" size="lg" fullWidth loading={loading}>

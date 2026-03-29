@@ -7,6 +7,7 @@ import HomePage from './pages/public/HomePage';
 import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
 import ForgotPasswordPage from './pages/public/ForgotPasswordPage';
+import ResetPasswordPage from './pages/public/ResetPasswordPage';
 import SuccessStoriesPage from './pages/public/SuccessStoriesPage';
 
 // Layout
@@ -76,6 +77,7 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password/:resettoken" element={<ResetPasswordPage />} />
 
       {/* Student Routes */}
       <Route path="/student" element={

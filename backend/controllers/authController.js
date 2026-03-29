@@ -1,6 +1,8 @@
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 const asyncHandler = require('express-async-handler');
+const crypto = require('crypto');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Register a new user
 // @route   POST /api/users
@@ -123,8 +125,84 @@ const getUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Forgot Password
+// @route   POST /api/users/forgotpassword
+// @access  Public
+const forgotPassword = asyncHandler(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+        res.status(404);
+        throw new Error('There is no user with that email');
+    }
+
+    // Get reset token
+    const resetToken = user.getResetPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    // Create reset url using FRONTEND_URL from env
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+
+    const message = `Hello ${user.name},\n\nYou requested a password reset for your Frelaunch account.\n\nClick the link below to set a new password (this link expires in 10 minutes):\n\n${resetUrl}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n\nRegards,\nThe Frelaunch Team`;
+
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: 'Password reset token',
+            message
+        });
+
+        res.status(200).json({ success: true, data: 'Email sent' });
+    } catch (err) {
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpire = undefined;
+
+        await user.save({ validateBeforeSave: false });
+
+        res.status(500);
+        throw new Error('Email could not be sent');
+    }
+});
+
+// @desc    Reset Password
+// @route   PUT /api/users/resetpassword/:resettoken
+// @access  Public
+const resetPassword = asyncHandler(async (req, res, next) => {
+    // Get hashed token
+    const resetPasswordToken = crypto
+        .createHash('sha256')
+        .update(req.params.resettoken)
+        .digest('hex');
+
+    const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+        res.status(400);
+        throw new Error('Invalid token');
+    }
+
+    // Set new password
+    user.password = req.body.password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        token: generateToken(user._id)
+    });
+});
+
 module.exports = {
     registerUser,
     authUser,
     getUserProfile,
+    forgotPassword,
+    resetPassword
 };
