@@ -193,82 +193,194 @@ export default function HomePage() {
             </section>
 
 
-            {/* How It Works Section — Modern Timeline */}
-            <section id="how-it-works" className={`py-28 relative overflow-hidden ${mode === 'dark' ? 'bg-slate-950' : 'bg-slate-50'}`}>
+            {/* How It Works — Rich Content Layout */}
+            <section id="how-it-works" className={`py-24 relative overflow-hidden ${mode === 'dark' ? 'bg-slate-900' : 'bg-white'}`}>
 
-                {/* Decorative background blobs */}
-                <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] opacity-10 bg-blue-500 pointer-events-none" />
-                <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[100px] opacity-10 bg-violet-500 pointer-events-none" />
+                {/* Subtle grid pattern */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.025]"
+                    style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-                    {/* Section Label */}
-                    <div className="text-center mb-16">
-                        <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5
-                            ${mode === 'dark' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
-                            <Zap size={12} /> Simple Process
-                        </span>
-                        <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                            {t('how_it_works.title')}
-                        </h2>
-                        <p className={`text-sm max-w-md mx-auto ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {/* Header row */}
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+                        <div>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="h-px w-8 bg-blue-500" />
+                                <span className={`text-xs font-bold uppercase tracking-[0.2em] ${mode === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>How It Works</span>
+                            </div>
+                            <h2 className={`text-3xl md:text-4xl font-bold tracking-tight leading-tight ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                {t('how_it_works.title')}
+                            </h2>
+                        </div>
+                        <p className={`text-sm max-w-xs leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                             {t('how_it_works.subtitle')}
                         </p>
                     </div>
 
-                    {/* Timeline Steps */}
-                    <div className="relative">
-                        {/* Connecting line (desktop) */}
-                        <div className={`hidden md:block absolute top-10 left-[calc(16.66%)] right-[calc(16.66%)] h-px ${mode === 'dark' ? 'bg-gradient-to-r from-transparent via-blue-500/40 to-transparent' : 'bg-gradient-to-r from-transparent via-blue-300 to-transparent'}`} />
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {[
-                                {
-                                    num: '01',
-                                    icon: UserCircle2,
-                                    gradient: 'from-blue-500 to-cyan-400',
-                                    glow: 'shadow-blue-500/30',
-                                    bg: mode === 'dark' ? 'bg-blue-500/5 border-blue-500/20 hover:border-blue-500/40' : 'bg-white border-blue-100 hover:border-blue-300',
-                                    labelColor: 'text-blue-400',
-                                },
-                                {
-                                    num: '02',
-                                    icon: Search,
-                                    gradient: 'from-violet-500 to-purple-400',
-                                    glow: 'shadow-violet-500/30',
-                                    bg: mode === 'dark' ? 'bg-violet-500/5 border-violet-500/20 hover:border-violet-500/40' : 'bg-white border-violet-100 hover:border-violet-300',
-                                    labelColor: 'text-violet-400',
-                                },
-                                {
-                                    num: '03',
-                                    icon: TrendingUp,
-                                    gradient: 'from-emerald-500 to-teal-400',
-                                    glow: 'shadow-emerald-500/30',
-                                    bg: mode === 'dark' ? 'bg-emerald-500/5 border-emerald-500/20 hover:border-emerald-500/40' : 'bg-white border-emerald-100 hover:border-emerald-300',
-                                    labelColor: 'text-emerald-400',
-                                },
-                            ].map(({ num, icon: Icon, gradient, glow, bg, labelColor }, idx) => (
-                                <div key={idx} className="relative flex flex-col items-center md:items-start text-center md:text-left group">
-                                    {/* Step number circle */}
-                                    <div className={`relative z-10 w-20 h-20 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 shadow-xl ${glow} group-hover:scale-105 transition-transform duration-300`}>
-                                        <Icon size={28} className="text-white" />
-                                        <span className={`absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-900 border-2 border-slate-700 text-[10px] font-black text-white flex items-center justify-center ${mode === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200 text-slate-700'}`}>{num}</span>
+                    {/* Step 01 */}
+                    <div className={`rounded-3xl border overflow-hidden mb-5 ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}>
+                        <div className="grid grid-cols-1 md:grid-cols-2">
+                            <div className="p-8 md:p-10 flex flex-col justify-center">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mode === 'dark' ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>Step 01</span>
+                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>2 minutes to set up</span>
+                                </div>
+                                <h3 className={`text-2xl font-bold mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('how_it_works.step1_title')}</h3>
+                                <p className={`text-sm leading-relaxed mb-6 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step1_desc')}</p>
+                                <ul className="space-y-2.5 mb-7">
+                                    {['Add your skills & experience', 'Upload your CV or portfolio', 'Set your career preferences', 'Choose student or recruiter'].map(item => (
+                                        <li key={item} className="flex items-center gap-2.5">
+                                            <CheckCircle2 size={14} className={`flex-shrink-0 ${mode === 'dark' ? 'text-blue-400' : 'text-blue-500'}`} />
+                                            <span className={`text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className={`flex items-center gap-6 pt-5 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
+                                    {[{ v: '720+', l: 'Profiles created' }, { v: '2 min', l: 'Avg setup time' }].map(({ v, l }) => (
+                                        <div key={l}>
+                                            <div className={`text-xl font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{v}</div>
+                                            <div className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{l}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className={`relative flex items-center justify-center p-8 ${mode === 'dark' ? 'bg-slate-800/50' : 'bg-white'}`}>
+                                <span className={`absolute text-[120px] font-black leading-none select-none right-4 top-4 ${mode === 'dark' ? 'text-blue-500/5' : 'text-blue-50'}`}>01</span>
+                                <div className={`relative z-10 w-full max-w-xs rounded-2xl border p-5 shadow-lg ${mode === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">A</div>
+                                        <div>
+                                            <div className={`text-sm font-bold ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>Abebe Tadesse</div>
+                                            <div className={`text-xs ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Computer Science · AAU</div>
+                                        </div>
+                                        <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Active</span>
                                     </div>
-
-                                    {/* Card */}
-                                    <div className={`w-full p-6 rounded-2xl border transition-all duration-300 ${bg}`}>
-                                        <span className={`text-[10px] font-black uppercase tracking-widest ${labelColor} mb-2 block`}>Step {num}</span>
-                                        <h3 className={`text-base font-bold mb-2 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-                                            {t(`how_it_works.step${idx + 1}_title`)}
-                                        </h3>
-                                        <p className={`text-sm leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-                                            {t(`how_it_works.step${idx + 1}_desc`)}
-                                        </p>
+                                    <div className="flex flex-wrap gap-1.5 mb-4">
+                                        {['React', 'Node.js', 'Python', 'UI/UX'].map(s => (
+                                            <span key={s} className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${mode === 'dark' ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>{s}</span>
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-between text-xs mb-1">
+                                        <span className={mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}>Profile completion</span>
+                                        <span className={`font-bold ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>92%</span>
+                                    </div>
+                                    <div className={`h-1.5 rounded-full overflow-hidden ${mode === 'dark' ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                                        <div className="h-full w-[92%] rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" />
                                     </div>
                                 </div>
-                            ))}
+                            </div>
                         </div>
                     </div>
+
+                    {/* Step 02 */}
+                    <div className={`rounded-3xl border overflow-hidden mb-5 ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}>
+                        <div className="grid grid-cols-1 md:grid-cols-2">
+                            <div className={`relative flex items-center justify-center p-8 order-2 md:order-1 ${mode === 'dark' ? 'bg-slate-800/50' : 'bg-white'}`}>
+                                <span className={`absolute text-[120px] font-black leading-none select-none left-4 top-4 ${mode === 'dark' ? 'text-violet-500/5' : 'text-violet-50'}`}>02</span>
+                                <div className={`relative z-10 w-full max-w-xs rounded-2xl border p-5 shadow-lg ${mode === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                                    <div className={`text-xs font-bold mb-3 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>AI Matched Opportunities</div>
+                                    {[
+                                        { role: 'Frontend Developer Intern', co: 'TechStartup Ethiopia', match: '97%', color: 'text-emerald-400' },
+                                        { role: 'UI/UX Freelance Project', co: 'Creative Agency AA', match: '91%', color: 'text-blue-400' },
+                                        { role: 'Full-stack Developer', co: 'FinTech Co.', match: '85%', color: 'text-violet-400' },
+                                    ].map(job => (
+                                        <div key={job.role} className={`flex items-center gap-3 py-2.5 border-b last:border-0 ${mode === 'dark' ? 'border-slate-800' : 'border-slate-100'}`}>
+                                            <div className={`w-8 h-8 rounded-xl flex-shrink-0 flex items-center justify-center text-[10px] font-black ${mode === 'dark' ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'}`}>{job.co[0]}</div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className={`text-xs font-semibold truncate ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{job.role}</div>
+                                                <div className={`text-[10px] ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{job.co}</div>
+                                            </div>
+                                            <span className={`text-xs font-black flex-shrink-0 ${job.color}`}>{job.match}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="p-8 md:p-10 flex flex-col justify-center order-1 md:order-2">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mode === 'dark' ? 'bg-violet-500/15 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>Step 02</span>
+                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>AI-powered matching</span>
+                                </div>
+                                <h3 className={`text-2xl font-bold mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('how_it_works.step2_title')}</h3>
+                                <p className={`text-sm leading-relaxed mb-6 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step2_desc')}</p>
+                                <ul className="space-y-2.5 mb-7">
+                                    {['Browse 100+ live opportunities', 'Apply with one-click smart profile', 'Get AI match score for each role', 'Filter by type, location & pay'].map(item => (
+                                        <li key={item} className="flex items-center gap-2.5">
+                                            <CheckCircle2 size={14} className={`flex-shrink-0 ${mode === 'dark' ? 'text-violet-400' : 'text-violet-500'}`} />
+                                            <span className={`text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className={`flex items-center gap-6 pt-5 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
+                                    {[{ v: '112+', l: 'Active listings' }, { v: '94%', l: 'Match accuracy' }].map(({ v, l }) => (
+                                        <div key={l}>
+                                            <div className={`text-xl font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{v}</div>
+                                            <div className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{l}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Step 03 */}
+                    <div className={`rounded-3xl border overflow-hidden ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}>
+                        <div className="grid grid-cols-1 md:grid-cols-2">
+                            <div className="p-8 md:p-10 flex flex-col justify-center">
+                                <div className="flex items-center gap-3 mb-5">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mode === 'dark' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}>Step 03</span>
+                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Build your career</span>
+                                </div>
+                                <h3 className={`text-2xl font-bold mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('how_it_works.step3_title')}</h3>
+                                <p className={`text-sm leading-relaxed mb-6 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step3_desc')}</p>
+                                <ul className="space-y-2.5 mb-7">
+                                    {['Deliver tasks & earn ratings', 'Build a strong portfolio', 'Get certified by companies', 'Receive guaranteed stipends'].map(item => (
+                                        <li key={item} className="flex items-center gap-2.5">
+                                            <CheckCircle2 size={14} className={`flex-shrink-0 ${mode === 'dark' ? 'text-emerald-400' : 'text-emerald-500'}`} />
+                                            <span className={`text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className={`flex items-center gap-6 pt-5 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
+                                    {[{ v: '85%', l: 'Placement rate' }, { v: '4.9★', l: 'Avg student rating' }].map(({ v, l }) => (
+                                        <div key={l}>
+                                            <div className={`text-xl font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{v}</div>
+                                            <div className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{l}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className={`relative flex items-center justify-center p-8 ${mode === 'dark' ? 'bg-slate-800/50' : 'bg-white'}`}>
+                                <span className={`absolute text-[120px] font-black leading-none select-none right-4 top-4 ${mode === 'dark' ? 'text-emerald-500/5' : 'text-emerald-50'}`}>03</span>
+                                <div className="relative z-10 w-full max-w-xs space-y-3">
+                                    {[
+                                        { label: 'React Skills', pct: 88, color: 'from-blue-500 to-cyan-400' },
+                                        { label: 'Project Delivery', pct: 95, color: 'from-emerald-500 to-teal-400' },
+                                        { label: 'Communication', pct: 91, color: 'from-violet-500 to-purple-400' },
+                                        { label: 'Problem Solving', pct: 78, color: 'from-orange-500 to-amber-400' },
+                                    ].map(({ label, pct, color }) => (
+                                        <div key={label} className={`p-4 rounded-2xl border ${mode === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+                                            <div className="flex justify-between text-xs mb-2">
+                                                <span className={`font-semibold ${mode === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>{label}</span>
+                                                <span className={`font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{pct}%</span>
+                                            </div>
+                                            <div className={`h-1.5 rounded-full overflow-hidden ${mode === 'dark' ? 'bg-slate-700' : 'bg-slate-100'}`}>
+                                                <div className={`h-full rounded-full bg-gradient-to-r ${color}`} style={{ width: `${pct}%` }} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom CTA */}
+                    <div className="mt-10 text-center">
+                        <Link to="/register" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95">
+                            Start Your Journey <ArrowRight size={15} />
+                        </Link>
+                    </div>
+
                 </div>
             </section>
 
