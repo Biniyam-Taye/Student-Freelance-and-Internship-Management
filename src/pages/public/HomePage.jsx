@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Sun, Moon, Globe, ArrowRight, Play, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, ChevronDown } from 'lucide-react';
+import { Sun, Moon, Globe, ArrowRight, Play, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, ChevronDown, UserCircle2, Search, TrendingUp, Zap, Shield, Users } from 'lucide-react';
 import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import { setLanguage } from '../../features/language/languageSlice';
@@ -193,98 +193,239 @@ export default function HomePage() {
             </section>
 
 
-            {/* How it Works Section */}
-            <section id="how-it-works" className={`py-24 ${mode === 'dark' ? 'bg-slate-900' : 'bg-white'}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* How It Works Section — Modern Timeline */}
+            <section id="how-it-works" className={`py-28 relative overflow-hidden ${mode === 'dark' ? 'bg-slate-950' : 'bg-slate-50'}`}>
+
+                {/* Decorative background blobs */}
+                <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] opacity-10 bg-blue-500 pointer-events-none" />
+                <div className="absolute bottom-0 right-1/4 w-80 h-80 rounded-full blur-[100px] opacity-10 bg-violet-500 pointer-events-none" />
+
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                    {/* Section Label */}
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-extrabold mb-4">{t('how_it_works.title')}</h2>
-                        <p className={`text-lg ${mode === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{t('how_it_works.subtitle')}</p>
+                        <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5
+                            ${mode === 'dark' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+                            <Zap size={12} /> Simple Process
+                        </span>
+                        <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                            {t('how_it_works.title')}
+                        </h2>
+                        <p className={`text-sm max-w-md mx-auto ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                            {t('how_it_works.subtitle')}
+                        </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                        {/* Steps */}
-                        {[1, 2, 3].map((stepNum, idx) => (
-                            <div key={idx} className={`p-8 rounded-3xl ${mode === 'dark' ? 'bg-slate-800' : 'bg-slate-50'} border ${mode === 'dark' ? 'border-slate-700' : 'border-slate-100'} text-center`}>
-                                <div className="w-16 h-16 mx-auto bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black mb-6 shadow-lg shadow-blue-500/30">
-                                    {stepNum}
+
+                    {/* Timeline Steps */}
+                    <div className="relative">
+                        {/* Connecting line (desktop) */}
+                        <div className={`hidden md:block absolute top-10 left-[calc(16.66%)] right-[calc(16.66%)] h-px ${mode === 'dark' ? 'bg-gradient-to-r from-transparent via-blue-500/40 to-transparent' : 'bg-gradient-to-r from-transparent via-blue-300 to-transparent'}`} />
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {[
+                                {
+                                    num: '01',
+                                    icon: UserCircle2,
+                                    gradient: 'from-blue-500 to-cyan-400',
+                                    glow: 'shadow-blue-500/30',
+                                    bg: mode === 'dark' ? 'bg-blue-500/5 border-blue-500/20 hover:border-blue-500/40' : 'bg-white border-blue-100 hover:border-blue-300',
+                                    labelColor: 'text-blue-400',
+                                },
+                                {
+                                    num: '02',
+                                    icon: Search,
+                                    gradient: 'from-violet-500 to-purple-400',
+                                    glow: 'shadow-violet-500/30',
+                                    bg: mode === 'dark' ? 'bg-violet-500/5 border-violet-500/20 hover:border-violet-500/40' : 'bg-white border-violet-100 hover:border-violet-300',
+                                    labelColor: 'text-violet-400',
+                                },
+                                {
+                                    num: '03',
+                                    icon: TrendingUp,
+                                    gradient: 'from-emerald-500 to-teal-400',
+                                    glow: 'shadow-emerald-500/30',
+                                    bg: mode === 'dark' ? 'bg-emerald-500/5 border-emerald-500/20 hover:border-emerald-500/40' : 'bg-white border-emerald-100 hover:border-emerald-300',
+                                    labelColor: 'text-emerald-400',
+                                },
+                            ].map(({ num, icon: Icon, gradient, glow, bg, labelColor }, idx) => (
+                                <div key={idx} className="relative flex flex-col items-center md:items-start text-center md:text-left group">
+                                    {/* Step number circle */}
+                                    <div className={`relative z-10 w-20 h-20 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-6 shadow-xl ${glow} group-hover:scale-105 transition-transform duration-300`}>
+                                        <Icon size={28} className="text-white" />
+                                        <span className={`absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-900 border-2 border-slate-700 text-[10px] font-black text-white flex items-center justify-center ${mode === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200 text-slate-700'}`}>{num}</span>
+                                    </div>
+
+                                    {/* Card */}
+                                    <div className={`w-full p-6 rounded-2xl border transition-all duration-300 ${bg}`}>
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${labelColor} mb-2 block`}>Step {num}</span>
+                                        <h3 className={`text-base font-bold mb-2 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                                            {t(`how_it_works.step${idx + 1}_title`)}
+                                        </h3>
+                                        <p className={`text-sm leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                                            {t(`how_it_works.step${idx + 1}_desc`)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold mb-3">{t(`how_it_works.step${stepNum}_title`)}</h3>
-                                <p className={`leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                                    {t(`how_it_works.step${stepNum}_desc`)}
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section — Premium Split Layout */}
+            <section id="features" className={`py-28 relative overflow-hidden ${mode === 'dark' ? 'bg-slate-950' : 'bg-slate-50'}`}>
+
+                {/* Decorative blobs */}
+                <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full blur-[160px] opacity-[0.06] bg-indigo-500 pointer-events-none -translate-x-1/2 -translate-y-1/4" />
+                <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full blur-[120px] opacity-[0.06] bg-blue-400 pointer-events-none translate-x-1/4 translate-y-1/4" />
+
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+                    {/* Top label + heading */}
+                    <div className="text-center mb-16">
+                        <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5
+                            ${mode === 'dark' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                            <Shield size={12} /> Everything You Need
+                        </span>
+                        <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                            {t('features.title')}
+                        </h2>
+                        <p className={`text-sm max-w-md mx-auto ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                            Everything you need to find, manage, and grow your career — all in one powerful platform.
+                        </p>
+                    </div>
+
+                    {/* Main grid: spotlight left + feature list right */}
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-5">
+
+                        {/* Left — Spotlight hero card */}
+                        <div className={`lg:col-span-2 relative rounded-3xl overflow-hidden p-8 flex flex-col justify-between min-h-[420px] border
+                            ${mode === 'dark'
+                                ? 'bg-gradient-to-b from-blue-600/20 via-indigo-900/30 to-slate-900 border-blue-700/30'
+                                : 'bg-gradient-to-b from-blue-500 to-indigo-600 border-transparent'}`}>
+
+                            {/* Decorative rings */}
+                            <div className="absolute top-0 right-0 w-64 h-64 rounded-full border border-white/10 -translate-y-1/2 translate-x-1/2" />
+                            <div className="absolute top-0 right-0 w-44 h-44 rounded-full border border-white/10 -translate-y-1/2 translate-x-1/2" />
+
+                            <div>
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 ${mode === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-white/20 text-white'}`}>
+                                    <Target size={26} />
+                                </div>
+                                <h3 className={`text-2xl font-bold mb-3 leading-tight ${mode === 'dark' ? 'text-white' : 'text-white'}`}>
+                                    Smart AI<br />Opportunity Matching
+                                </h3>
+                                <p className={`text-sm leading-relaxed ${mode === 'dark' ? 'text-blue-200/70' : 'text-blue-100'}`}>
+                                    Our AI engine instantly connects students to internships and freelance work that perfectly matches their profile, skills, and ambitions — no scrolling required.
                                 </p>
                             </div>
-                        ))}
+
+                            {/* Live match metric */}
+                            <div className={`mt-8 p-4 rounded-2xl ${mode === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white/15 border border-white/20'}`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className={`text-xs font-semibold ${mode === 'dark' ? 'text-blue-300' : 'text-white/80'}`}>Match Accuracy</span>
+                                    <span className={`text-xs font-black ${mode === 'dark' ? 'text-white' : 'text-white'}`}>94%</span>
+                                </div>
+                                <div className={`h-1.5 rounded-full overflow-hidden ${mode === 'dark' ? 'bg-white/10' : 'bg-white/20'}`}>
+                                    <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-cyan-400 to-blue-300" />
+                                </div>
+                                <div className="flex gap-2 mt-3">
+                                    {['AI-Powered', 'Real-time', 'Personalized'].map(tag => (
+                                        <span key={tag} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${mode === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-white/20 text-white'}`}>{tag}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right — Stacked feature cards */}
+                        <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            {[
+                                {
+                                    icon: BarChart2,
+                                    num: '01',
+                                    title: 'Skill Analytics',
+                                    desc: 'Visual charts tracking your growth month-by-month with performance scores and progression milestones.',
+                                    accent: mode === 'dark' ? 'from-violet-500/10 to-transparent border-violet-700/30 hover:border-violet-600/50' : 'from-violet-50 to-white border-violet-100 hover:border-violet-300',
+                                    iconBg: mode === 'dark' ? 'bg-violet-500/20 text-violet-400' : 'bg-violet-100 text-violet-600',
+                                    numColor: mode === 'dark' ? 'text-violet-500/30' : 'text-violet-200',
+                                    bar: 'w-3/4 bg-gradient-to-r from-violet-400 to-purple-400',
+                                    barLabel: '75% avg improvement',
+                                },
+                                {
+                                    icon: ClipboardList,
+                                    num: '02',
+                                    title: 'Task Management',
+                                    desc: 'Manage your deliverables with deadlines, priorities, and built-in milestone tracking per project.',
+                                    accent: mode === 'dark' ? 'from-emerald-500/10 to-transparent border-emerald-700/30 hover:border-emerald-600/50' : 'from-emerald-50 to-white border-emerald-100 hover:border-emerald-300',
+                                    iconBg: mode === 'dark' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600',
+                                    numColor: mode === 'dark' ? 'text-emerald-500/30' : 'text-emerald-200',
+                                    bar: 'w-[88%] bg-gradient-to-r from-emerald-400 to-teal-400',
+                                    barLabel: '88% on-time delivery',
+                                },
+                                {
+                                    icon: MessageCircle,
+                                    num: '03',
+                                    title: 'Real-time Chat',
+                                    desc: 'Instant messaging built into the platform — talk directly with managers and your team members.',
+                                    accent: mode === 'dark' ? 'from-orange-500/10 to-transparent border-orange-700/30 hover:border-orange-600/50' : 'from-orange-50 to-white border-orange-100 hover:border-orange-300',
+                                    iconBg: mode === 'dark' ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-600',
+                                    numColor: mode === 'dark' ? 'text-orange-500/30' : 'text-orange-200',
+                                    bar: 'w-[60%] bg-gradient-to-r from-orange-400 to-amber-400',
+                                    barLabel: '< 1min response time',
+                                },
+                                {
+                                    icon: Shield,
+                                    num: '04',
+                                    title: 'Verified & Secure',
+                                    desc: 'Every recruiter and company is manually verified. Your data and payments are fully protected.',
+                                    accent: mode === 'dark' ? 'from-sky-500/10 to-transparent border-sky-700/30 hover:border-sky-600/50' : 'from-sky-50 to-white border-sky-100 hover:border-sky-300',
+                                    iconBg: mode === 'dark' ? 'bg-sky-500/20 text-sky-400' : 'bg-sky-100 text-sky-600',
+                                    numColor: mode === 'dark' ? 'text-sky-500/30' : 'text-sky-200',
+                                    bar: 'w-full bg-gradient-to-r from-sky-400 to-cyan-400',
+                                    barLabel: '100% verified partners',
+                                },
+                            ].map(({ icon: Icon, num, title, desc, accent, iconBg, numColor, bar, barLabel }) => (
+                                <div key={num} className={`relative p-6 rounded-3xl border bg-gradient-to-br overflow-hidden group transition-all duration-300 ${accent}`}>
+                                    {/* Big faded number */}
+                                    <span className={`absolute top-3 right-4 text-6xl font-black leading-none select-none pointer-events-none ${numColor}`}>{num}</span>
+
+                                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 ${iconBg}`}>
+                                        <Icon size={20} />
+                                    </div>
+                                    <h4 className={`text-sm font-bold mb-1.5 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{title}</h4>
+                                    <p className={`text-xs leading-relaxed mb-4 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{desc}</p>
+
+                                    {/* Metric bar */}
+                                    <div>
+                                        <div className={`h-1 rounded-full overflow-hidden mb-1 ${mode === 'dark' ? 'bg-white/5' : 'bg-slate-200'}`}>
+                                            <div className={`h-full rounded-full ${bar}`} />
+                                        </div>
+                                        <span className={`text-[10px] font-semibold ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{barLabel}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </section>
 
-            {/* Features Section */}
-            <section id="features" className={`py-24 ${mode === 'dark' ? 'bg-slate-800' : 'bg-slate-50'}`}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                        {/* Left - Rich Content */}
+                    {/* Bottom CTA strip */}
+                    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-3xl border ${mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
                         <div>
-                            <span className="inline-block text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full mb-4">
-                                Why Frelaunch?
-                            </span>
-                            <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight">
-                                {t('features.title')}
-                            </h2>
-                            <p className={`text-base mb-10 leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>
-                                Everything you need to find, manage, and grow your freelance or internship career — all in one powerful platform built for Ethiopian students and top companies.
-                            </p>
-
-                            {/* Feature Cards */}
-                            <div className="space-y-5 mb-10">
-                                {[
-                                    { Icon: Target, title: 'Smart Matching', desc: 'Our AI engine connects students to opportunities that match their exact skillset and career goals.' },
-                                    { Icon: BarChart2, title: 'Skill Analytics', desc: 'Track your growth month by month with visual skill progression charts and performance scores.' },
-                                    { Icon: ClipboardList, title: 'Task Management', desc: 'Manage assigned freelance tasks with deadlines, priorities, and built-in progress tracking.' },
-                                    { Icon: MessageCircle, title: 'Real-time Chat', desc: 'Communicate directly with managers and team members via instant messaging inside the platform.' },
-                                ].map(({ Icon, title, desc }, i) => (
-                                    <div key={i} className={`flex gap-4 p-4 rounded-2xl border transition-colors ${mode === 'dark' ? 'border-slate-700 bg-slate-900/50 hover:border-blue-700' : 'border-slate-200 bg-white hover:border-blue-300'}`}>
-                                        <div className={`w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center ${mode === 'dark' ? 'bg-slate-800 text-blue-400' : 'bg-blue-50 text-blue-600'}`}>
-                                            <Icon size={20} />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-sm mb-1">{title}</h4>
-                                            <p className={`text-sm leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{desc}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Stats Row */}
-                            <div className={`flex gap-8 py-6 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'} mb-8`}>
-                                {[
-                                    { value: '720+', label: 'Active Students' },
-                                    { value: '112+', label: 'Partner Companies' },
-                                    { value: '85%', label: 'Placement Rate' },
-                                ].map(({ value, label }) => (
-                                    <div key={label}>
-                                        <div className="text-2xl font-black text-blue-600 dark:text-blue-400">{value}</div>
-                                        <div className={`text-xs font-semibold mt-0.5 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-600'}`}>{label}</div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* CTA */}
-                            <Link to="/register" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-7 py-3.5 rounded-full font-bold text-sm shadow-lg shadow-blue-500/25 transition-all active:scale-95">
-                                Get Started for Free <ArrowRight className="w-4 h-4" />
+                            <p className={`font-bold text-sm ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ready to launch your career?</p>
+                            <p className={`text-xs ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Join 720+ students already using Frelaunch — it&apos;s completely free to start.</p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                            {['720+ Students', '112+ Companies', '85% Placement'].map(stat => (
+                                <span key={stat} className={`hidden sm:inline text-xs font-semibold px-3 py-1.5 rounded-full ${mode === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>{stat}</span>
+                            ))}
+                            <Link to="/register" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 whitespace-nowrap">
+                                Get Started <ArrowRight size={14} />
                             </Link>
                         </div>
-
-                        {/* Right - Image */}
-                        <div className="relative">
-                            <div className="absolute inset-0 bg-blue-500 rounded-3xl blur-3xl opacity-20 transform translate-x-5 translate-y-5"></div>
-                            <img
-                                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800"
-                                alt="Dashboard preview"
-                                className="relative rounded-3xl shadow-2xl border-4 border-white dark:border-slate-700 object-cover"
-                            />
-                        </div>
                     </div>
+
                 </div>
             </section>
+
 
 
             {/* Footer */}
