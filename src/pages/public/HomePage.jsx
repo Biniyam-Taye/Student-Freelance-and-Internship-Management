@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Sun, Moon, Globe, ArrowRight, Play, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, ChevronDown, UserCircle2, Search, TrendingUp, Zap, Shield, Users } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import { setLanguage } from '../../features/language/languageSlice';
@@ -12,6 +13,17 @@ export default function HomePage() {
     const dispatch = useDispatch();
     const { mode } = useSelector((state) => state.theme);
     const { lang } = useSelector((state) => state.language);
+
+    // Animation Variants
+    const fadeUp = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    };
+
+    const staggerContainer = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+    };
 
     React.useEffect(() => {
         if (window.location.hash) {
@@ -119,10 +131,15 @@ export default function HomePage() {
                     <div className={`w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 ${mode === 'dark' ? 'bg-blue-500' : 'bg-blue-300'}`} />
                 </div>
 
-                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+                <motion.div 
+                    initial="hidden"
+                    animate="visible"
+                    variants={staggerContainer}
+                    className="relative z-10 text-center px-4 max-w-4xl mx-auto"
+                >
 
                     {/* Pill badge */}
-                    <div className="inline-flex items-center gap-2 mb-6">
+                    <motion.div variants={fadeUp} className="inline-flex items-center gap-2 mb-6">
                         <span className={`inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full border backdrop-blur-sm
                             ${mode === 'dark'
                                 ? 'bg-blue-500/10 border-blue-500/30 text-blue-300'
@@ -130,10 +147,10 @@ export default function HomePage() {
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                             {t('hero.badge')}
                         </span>
-                    </div>
+                    </motion.div>
 
                     {/* Headline — refined size */}
-                    <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.2] mb-5 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                    <motion.h1 variants={fadeUp} className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.2] mb-5 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                         {t('hero.title_part1')}
                         <br />
                         <span className="relative inline-block">
@@ -148,25 +165,25 @@ export default function HomePage() {
                             </svg>
                         </span>
                         {' '}{t('hero.title_part2')}
-                    </h1>
+                    </motion.h1>
 
                     {/* Subheadline */}
-                    <p className={`text-sm sm:text-base font-normal max-w-xl mx-auto mb-8 leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <motion.p variants={fadeUp} className={`text-sm sm:text-base font-normal max-w-xl mx-auto mb-8 leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                         {t('hero.subheadline')}
-                    </p>
+                    </motion.p>
 
                     {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+                    <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
                         <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 rounded-full text-sm font-semibold transition-all shadow-lg shadow-blue-500/30 active:scale-95 whitespace-nowrap">
                             {t('hero.cta_register')} <ArrowRight className="w-4 h-4 flex-shrink-0" />
                         </Link>
                         <Link to="/login" className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 border ${mode === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'} px-7 py-3 rounded-full text-sm font-semibold transition-all active:scale-95 shadow-sm whitespace-nowrap backdrop-blur-sm`}>
                             {t('hero.cta_login')}
                         </Link>
-                    </div>
+                    </motion.div>
 
                     {/* Floating stat cards */}
-                    <div className="flex flex-wrap items-center justify-center gap-3">
+                    <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-3">
                         {[
                             { value: '720+', label: t('hero.stat_students') },
                             { value: '112+', label: t('hero.stat_companies') },
@@ -180,16 +197,21 @@ export default function HomePage() {
                                 <span className={`text-xs font-medium ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{label}</span>
                             </div>
                         ))}
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Scroll indicator */}
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
+                <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 0.5 }} 
+                    transition={{ delay: 1, duration: 1 }}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1"
+                >
                     <span className={`text-[10px] font-semibold uppercase tracking-widest ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('hero.scroll')}</span>
                     <div className={`w-5 h-8 rounded-full border-2 flex items-start justify-center pt-1.5 ${mode === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
                         <div className={`w-1 h-2 rounded-full animate-bounce ${mode === 'dark' ? 'bg-slate-400' : 'bg-slate-400'}`} />
                     </div>
-                </div>
+                </motion.div>
             </section>
 
 
@@ -203,8 +225,14 @@ export default function HomePage() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                     {/* Header row */}
-                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-                        <div>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={staggerContainer}
+                        className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14"
+                    >
+                        <motion.div variants={fadeUp}>
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="h-px w-8 bg-blue-500" />
                                 <span className={`text-xs font-bold uppercase tracking-[0.2em] ${mode === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{t('how_it_works.label')}</span>
@@ -212,14 +240,20 @@ export default function HomePage() {
                             <h2 className={`text-3xl md:text-4xl font-bold tracking-tight leading-tight ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {t('how_it_works.title')}
                             </h2>
-                        </div>
-                        <p className={`text-sm max-w-xs leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                        </motion.div>
+                        <motion.p variants={fadeUp} className={`text-sm max-w-xs leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                             {t('how_it_works.subtitle')}
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
                     {/* Step 01 */}
-                    <div className={`rounded-3xl border overflow-hidden mb-5 ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={fadeUp}
+                        className={`rounded-3xl border overflow-hidden mb-5 ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}
+                    >
                         <div className="grid grid-cols-1 md:grid-cols-2">
                             <div className="p-8 md:p-10 flex flex-col justify-center">
                                 <div className="flex items-center gap-3 mb-5">
@@ -271,10 +305,16 @@ export default function HomePage() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Step 02 */}
-                    <div className={`rounded-3xl border overflow-hidden mb-5 ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={fadeUp}
+                        className={`rounded-3xl border overflow-hidden mb-5 ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}
+                    >
                         <div className="grid grid-cols-1 md:grid-cols-2">
                             <div className={`relative flex items-center justify-center p-8 order-2 md:order-1 ${mode === 'dark' ? 'bg-slate-800/50' : 'bg-white'}`}>
                                 <span className={`absolute text-[120px] font-black leading-none select-none left-4 top-4 ${mode === 'dark' ? 'text-violet-500/5' : 'text-violet-50'}`}>02</span>
@@ -321,10 +361,16 @@ export default function HomePage() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Step 03 */}
-                    <div className={`rounded-3xl border overflow-hidden ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={fadeUp}
+                        className={`rounded-3xl border overflow-hidden ${mode === 'dark' ? 'border-slate-800 bg-slate-800/30' : 'border-slate-100 bg-slate-50'}`}
+                    >
                         <div className="grid grid-cols-1 md:grid-cols-2">
                             <div className="p-8 md:p-10 flex flex-col justify-center">
                                 <div className="flex items-center gap-3 mb-5">
@@ -372,14 +418,20 @@ export default function HomePage() {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Bottom CTA */}
-                    <div className="mt-10 text-center">
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={fadeUp}
+                        className="mt-10 text-center"
+                    >
                         <Link to="/register" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95">
                             {t('how_it_works.cta')} <ArrowRight size={15} />
                         </Link>
-                    </div>
+                    </motion.div>
 
                 </div>
             </section>
@@ -394,27 +446,41 @@ export default function HomePage() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                     {/* Top label + heading */}
-                    <div className="text-center mb-16">
-                        <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5
-                            ${mode === 'dark' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
-                            <Shield size={12} /> {t('features.label')}
-                        </span>
-                        <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={staggerContainer}
+                        className="text-center mb-16"
+                    >
+                        <motion.div variants={fadeUp}>
+                            <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5
+                                ${mode === 'dark' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
+                                <Shield size={12} /> {t('features.label')}
+                            </span>
+                        </motion.div>
+                        <motion.h2 variants={fadeUp} className={`text-3xl md:text-4xl font-bold tracking-tight mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                             {t('features.title')}
-                        </h2>
-                        <p className={`text-sm max-w-md mx-auto ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
+                        </motion.h2>
+                        <motion.p variants={fadeUp} className={`text-sm max-w-md mx-auto ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                             {t('features.section_desc')}
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
 
                     {/* Main grid: spotlight left + feature list right */}
                     <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-5">
 
                         {/* Left — Spotlight hero card */}
-                        <div className={`lg:col-span-2 relative rounded-3xl overflow-hidden p-8 flex flex-col justify-between min-h-[420px] border
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, margin: "-100px" }}
+                            variants={fadeUp}
+                            className={`lg:col-span-2 relative rounded-3xl overflow-hidden p-8 flex flex-col justify-between min-h-[420px] border
                             ${mode === 'dark'
                                 ? 'bg-gradient-to-b from-blue-600/20 via-indigo-900/30 to-slate-900 border-blue-700/30'
-                                : 'bg-gradient-to-b from-blue-500 to-indigo-600 border-transparent'}`}>
+                                : 'bg-gradient-to-b from-blue-500 to-indigo-600 border-transparent'}`}
+                        >
 
                             {/* Decorative rings */}
                             <div className="absolute top-0 right-0 w-64 h-64 rounded-full border border-white/10 -translate-y-1/2 translate-x-1/2" />
@@ -447,10 +513,16 @@ export default function HomePage() {
                                     ))}
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Right — Stacked feature cards */}
-                        <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <motion.div 
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true, margin: "-100px" }}
+                            variants={staggerContainer}
+                            className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-5"
+                        >
                             {[
                                 {
                                     icon: BarChart2,
@@ -497,7 +569,7 @@ export default function HomePage() {
                                     barLabel: t('features.f4_bar'),
                                 },
                             ].map(({ icon: Icon, num, title, desc, accent, iconBg, numColor, bar, barLabel }) => (
-                                <div key={num} className={`relative p-6 rounded-3xl border bg-gradient-to-br overflow-hidden group transition-all duration-300 ${accent}`}>
+                                <motion.div variants={fadeUp} key={num} className={`relative p-6 rounded-3xl border bg-gradient-to-br overflow-hidden group transition-all duration-300 ${accent}`}>
                                     {/* Big faded number */}
                                     <span className={`absolute top-3 right-4 text-6xl font-black leading-none select-none pointer-events-none ${numColor}`}>{num}</span>
 
@@ -514,13 +586,19 @@ export default function HomePage() {
                                         </div>
                                         <span className={`text-[10px] font-semibold ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{barLabel}</span>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
                     </div>
 
                     {/* Bottom CTA strip */}
-                    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-3xl border ${mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+                    <motion.div 
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                        variants={fadeUp}
+                        className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-3xl border ${mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}
+                    >
                         <div>
                             <p className={`font-bold text-sm ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('features.cta_title')}</p>
                             <p className={`text-xs ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('features.cta_desc')}</p>
@@ -533,7 +611,7 @@ export default function HomePage() {
                                 {t('features.cta_btn')} <ArrowRight size={14} />
                             </Link>
                         </div>
-                    </div>
+                    </motion.div>
 
                 </div>
             </section>
@@ -544,8 +622,14 @@ export default function HomePage() {
             <footer className={`${mode === 'dark' ? 'bg-slate-950' : 'bg-slate-900'} text-white`}>
 
                 {/* Main Footer Grid */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+                <motion.div 
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, margin: "-50px" }}
+                    variants={staggerContainer}
+                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10"
+                >
+                    <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
 
                         {/* Brand Column */}
                         <div className="lg:col-span-2">
@@ -637,8 +721,8 @@ export default function HomePage() {
                             <p className="text-xs text-slate-500 mt-3">No spam. Unsubscribe anytime.</p>
                         </div>
 
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Bottom Bar */}
                 <div className="border-t border-slate-800">
