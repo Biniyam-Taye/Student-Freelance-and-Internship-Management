@@ -128,7 +128,7 @@ export default function HomePage() {
                                 ? 'bg-blue-500/10 border-blue-500/30 text-blue-300'
                                 : 'bg-blue-50 border-blue-200 text-blue-600'}`}>
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                            Ethiopia&apos;s #1 Student Career Platform
+                            {t('hero.badge')}
                         </span>
                     </div>
 
@@ -168,9 +168,9 @@ export default function HomePage() {
                     {/* Floating stat cards */}
                     <div className="flex flex-wrap items-center justify-center gap-3">
                         {[
-                            { value: '720+', label: 'Active Students' },
-                            { value: '112+', label: 'Partner Companies' },
-                            { value: '85%', label: 'Placement Rate' },
+                            { value: '720+', label: t('hero.stat_students') },
+                            { value: '112+', label: t('hero.stat_companies') },
+                            { value: '85%', label: t('hero.stat_placement') },
                         ].map(({ value, label }) => (
                             <div key={label} className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border backdrop-blur-sm text-left
                                 ${mode === 'dark'
@@ -185,7 +185,7 @@ export default function HomePage() {
 
                 {/* Scroll indicator */}
                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
-                    <span className={`text-[10px] font-semibold uppercase tracking-widest ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Scroll</span>
+                    <span className={`text-[10px] font-semibold uppercase tracking-widest ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('hero.scroll')}</span>
                     <div className={`w-5 h-8 rounded-full border-2 flex items-start justify-center pt-1.5 ${mode === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
                         <div className={`w-1 h-2 rounded-full animate-bounce ${mode === 'dark' ? 'bg-slate-400' : 'bg-slate-400'}`} />
                     </div>
@@ -207,7 +207,7 @@ export default function HomePage() {
                         <div>
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="h-px w-8 bg-blue-500" />
-                                <span className={`text-xs font-bold uppercase tracking-[0.2em] ${mode === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>Simple 3-Step Process</span>
+                                <span className={`text-xs font-bold uppercase tracking-[0.2em] ${mode === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{t('how_it_works.label')}</span>
                             </div>
                             <h2 className={`text-3xl md:text-4xl font-bold tracking-tight leading-tight ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {t('how_it_works.title')}
@@ -224,12 +224,12 @@ export default function HomePage() {
                             <div className="p-8 md:p-10 flex flex-col justify-center">
                                 <div className="flex items-center gap-3 mb-5">
                                     <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mode === 'dark' ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-100 text-blue-600'}`}>Step 01</span>
-                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>2 minutes to set up</span>
+                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{t('how_it_works.step1_time')}</span>
                                 </div>
                                 <h3 className={`text-2xl font-bold mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('how_it_works.step1_title')}</h3>
                                 <p className={`text-sm leading-relaxed mb-6 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step1_desc')}</p>
                                 <ul className="space-y-2.5 mb-7">
-                                    {['Add your skills & experience', 'Upload your CV or portfolio', 'Set your career preferences', 'Choose student or recruiter'].map(item => (
+                                    {[t('how_it_works.step1_b1'), t('how_it_works.step1_b2'), t('how_it_works.step1_b3'), t('how_it_works.step1_b4')].map(item => (
                                         <li key={item} className="flex items-center gap-2.5">
                                             <CheckCircle2 size={14} className={`flex-shrink-0 ${mode === 'dark' ? 'text-blue-400' : 'text-blue-500'}`} />
                                             <span className={`text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{item}</span>
@@ -237,7 +237,7 @@ export default function HomePage() {
                                     ))}
                                 </ul>
                                 <div className={`flex items-center gap-6 pt-5 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
-                                    {[{ v: '720+', l: 'Profiles created' }, { v: '2 min', l: 'Avg setup time' }].map(({ v, l }) => (
+                                    {[{ v: '720+', l: t('how_it_works.step1_stat1') }, { v: '2 min', l: t('how_it_works.step1_stat2') }].map(({ v, l }) => (
                                         <div key={l}>
                                             <div className={`text-xl font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{v}</div>
                                             <div className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{l}</div>
@@ -254,7 +254,7 @@ export default function HomePage() {
                                             <div className={`text-sm font-bold ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>Abebe Tadesse</div>
                                             <div className={`text-xs ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Computer Science · AAU</div>
                                         </div>
-                                        <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Active</span>
+                                        <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">{t('how_it_works.mock_active')}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1.5 mb-4">
                                         {['React', 'Node.js', 'Python', 'UI/UX'].map(s => (
@@ -262,7 +262,7 @@ export default function HomePage() {
                                         ))}
                                     </div>
                                     <div className="flex justify-between text-xs mb-1">
-                                        <span className={mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}>Profile completion</span>
+                                        <span className={mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}>{t('how_it_works.profile_completion')}</span>
                                         <span className={`font-bold ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>92%</span>
                                     </div>
                                     <div className={`h-1.5 rounded-full overflow-hidden ${mode === 'dark' ? 'bg-slate-700' : 'bg-slate-100'}`}>
@@ -279,7 +279,7 @@ export default function HomePage() {
                             <div className={`relative flex items-center justify-center p-8 order-2 md:order-1 ${mode === 'dark' ? 'bg-slate-800/50' : 'bg-white'}`}>
                                 <span className={`absolute text-[120px] font-black leading-none select-none left-4 top-4 ${mode === 'dark' ? 'text-violet-500/5' : 'text-violet-50'}`}>02</span>
                                 <div className={`relative z-10 w-full max-w-xs rounded-2xl border p-5 shadow-lg ${mode === 'dark' ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
-                                    <div className={`text-xs font-bold mb-3 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>AI Matched Opportunities</div>
+                                    <div className={`text-xs font-bold mb-3 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step2_card_title')}</div>
                                     {[
                                         { role: 'Frontend Developer Intern', co: 'TechStartup Ethiopia', match: '97%', color: 'text-emerald-400' },
                                         { role: 'UI/UX Freelance Project', co: 'Creative Agency AA', match: '91%', color: 'text-blue-400' },
@@ -299,12 +299,12 @@ export default function HomePage() {
                             <div className="p-8 md:p-10 flex flex-col justify-center order-1 md:order-2">
                                 <div className="flex items-center gap-3 mb-5">
                                     <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mode === 'dark' ? 'bg-violet-500/15 text-violet-400' : 'bg-violet-100 text-violet-600'}`}>Step 02</span>
-                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>AI-powered matching</span>
+                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{t('how_it_works.step2_time')}</span>
                                 </div>
                                 <h3 className={`text-2xl font-bold mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('how_it_works.step2_title')}</h3>
                                 <p className={`text-sm leading-relaxed mb-6 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step2_desc')}</p>
                                 <ul className="space-y-2.5 mb-7">
-                                    {['Browse 100+ live opportunities', 'Apply with one-click smart profile', 'Get AI match score for each role', 'Filter by type, location & pay'].map(item => (
+                                    {[t('how_it_works.step2_b1'), t('how_it_works.step2_b2'), t('how_it_works.step2_b3'), t('how_it_works.step2_b4')].map(item => (
                                         <li key={item} className="flex items-center gap-2.5">
                                             <CheckCircle2 size={14} className={`flex-shrink-0 ${mode === 'dark' ? 'text-violet-400' : 'text-violet-500'}`} />
                                             <span className={`text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{item}</span>
@@ -312,7 +312,7 @@ export default function HomePage() {
                                     ))}
                                 </ul>
                                 <div className={`flex items-center gap-6 pt-5 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
-                                    {[{ v: '112+', l: 'Active listings' }, { v: '94%', l: 'Match accuracy' }].map(({ v, l }) => (
+                                    {[{ v: '112+', l: t('how_it_works.step2_stat1') }, { v: '94%', l: t('how_it_works.step2_stat2') }].map(({ v, l }) => (
                                         <div key={l}>
                                             <div className={`text-xl font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{v}</div>
                                             <div className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{l}</div>
@@ -329,12 +329,12 @@ export default function HomePage() {
                             <div className="p-8 md:p-10 flex flex-col justify-center">
                                 <div className="flex items-center gap-3 mb-5">
                                     <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${mode === 'dark' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-600'}`}>Step 03</span>
-                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>Build your career</span>
+                                    <span className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{t('how_it_works.step3_time')}</span>
                                 </div>
                                 <h3 className={`text-2xl font-bold mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('how_it_works.step3_title')}</h3>
                                 <p className={`text-sm leading-relaxed mb-6 ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('how_it_works.step3_desc')}</p>
                                 <ul className="space-y-2.5 mb-7">
-                                    {['Deliver tasks & earn ratings', 'Build a strong portfolio', 'Get certified by companies', 'Receive guaranteed stipends'].map(item => (
+                                    {[t('how_it_works.step3_b1'), t('how_it_works.step3_b2'), t('how_it_works.step3_b3'), t('how_it_works.step3_b4')].map(item => (
                                         <li key={item} className="flex items-center gap-2.5">
                                             <CheckCircle2 size={14} className={`flex-shrink-0 ${mode === 'dark' ? 'text-emerald-400' : 'text-emerald-500'}`} />
                                             <span className={`text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{item}</span>
@@ -342,7 +342,7 @@ export default function HomePage() {
                                     ))}
                                 </ul>
                                 <div className={`flex items-center gap-6 pt-5 border-t ${mode === 'dark' ? 'border-slate-700' : 'border-slate-200'}`}>
-                                    {[{ v: '85%', l: 'Placement rate' }, { v: '4.9★', l: 'Avg student rating' }].map(({ v, l }) => (
+                                    {[{ v: '85%', l: t('how_it_works.step3_stat1') }, { v: '4.9★', l: t('how_it_works.step3_stat2') }].map(({ v, l }) => (
                                         <div key={l}>
                                             <div className={`text-xl font-black ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{v}</div>
                                             <div className={`text-xs ${mode === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>{l}</div>
@@ -377,7 +377,7 @@ export default function HomePage() {
                     {/* Bottom CTA */}
                     <div className="mt-10 text-center">
                         <Link to="/register" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95">
-                            Start Your Journey <ArrowRight size={15} />
+                            {t('how_it_works.cta')} <ArrowRight size={15} />
                         </Link>
                     </div>
 
@@ -397,13 +397,13 @@ export default function HomePage() {
                     <div className="text-center mb-16">
                         <span className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-5
                             ${mode === 'dark' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>
-                            <Shield size={12} /> Everything You Need
+                            <Shield size={12} /> {t('features.label')}
                         </span>
                         <h2 className={`text-3xl md:text-4xl font-bold tracking-tight mb-3 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                             {t('features.title')}
                         </h2>
                         <p className={`text-sm max-w-md mx-auto ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
-                            Everything you need to find, manage, and grow your career — all in one powerful platform.
+                            {t('features.section_desc')}
                         </p>
                     </div>
 
@@ -425,24 +425,24 @@ export default function HomePage() {
                                     <Target size={26} />
                                 </div>
                                 <h3 className={`text-2xl font-bold mb-3 leading-tight ${mode === 'dark' ? 'text-white' : 'text-white'}`}>
-                                    Smart AI<br />Opportunity Matching
+                                    {t('features.spotlight_title')}
                                 </h3>
                                 <p className={`text-sm leading-relaxed ${mode === 'dark' ? 'text-blue-200/70' : 'text-blue-100'}`}>
-                                    Our AI engine instantly connects students to internships and freelance work that perfectly matches their profile, skills, and ambitions — no scrolling required.
+                                    {t('features.spotlight_desc')}
                                 </p>
                             </div>
 
                             {/* Live match metric */}
                             <div className={`mt-8 p-4 rounded-2xl ${mode === 'dark' ? 'bg-white/5 border border-white/10' : 'bg-white/15 border border-white/20'}`}>
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className={`text-xs font-semibold ${mode === 'dark' ? 'text-blue-300' : 'text-white/80'}`}>Match Accuracy</span>
+                                    <span className={`text-xs font-semibold ${mode === 'dark' ? 'text-blue-300' : 'text-white/80'}`}>{t('features.match_accuracy')}</span>
                                     <span className={`text-xs font-black ${mode === 'dark' ? 'text-white' : 'text-white'}`}>94%</span>
                                 </div>
                                 <div className={`h-1.5 rounded-full overflow-hidden ${mode === 'dark' ? 'bg-white/10' : 'bg-white/20'}`}>
                                     <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-cyan-400 to-blue-300" />
                                 </div>
                                 <div className="flex gap-2 mt-3">
-                                    {['AI-Powered', 'Real-time', 'Personalized'].map(tag => (
+                                    {[t('features.tag_ai'), t('features.tag_realtime'), t('features.tag_personal')].map(tag => (
                                         <span key={tag} className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${mode === 'dark' ? 'bg-blue-500/20 text-blue-300' : 'bg-white/20 text-white'}`}>{tag}</span>
                                     ))}
                                 </div>
@@ -455,46 +455,46 @@ export default function HomePage() {
                                 {
                                     icon: BarChart2,
                                     num: '01',
-                                    title: 'Skill Analytics',
-                                    desc: 'Visual charts tracking your growth month-by-month with performance scores and progression milestones.',
+                                    title: t('features.f1_title'),
+                                    desc: t('features.f1_desc'),
                                     accent: mode === 'dark' ? 'from-violet-500/10 to-transparent border-violet-700/30 hover:border-violet-600/50' : 'from-violet-50 to-white border-violet-100 hover:border-violet-300',
                                     iconBg: mode === 'dark' ? 'bg-violet-500/20 text-violet-400' : 'bg-violet-100 text-violet-600',
                                     numColor: mode === 'dark' ? 'text-violet-500/30' : 'text-violet-200',
                                     bar: 'w-3/4 bg-gradient-to-r from-violet-400 to-purple-400',
-                                    barLabel: '75% avg improvement',
+                                    barLabel: t('features.f1_bar'),
                                 },
                                 {
                                     icon: ClipboardList,
                                     num: '02',
-                                    title: 'Task Management',
-                                    desc: 'Manage your deliverables with deadlines, priorities, and built-in milestone tracking per project.',
+                                    title: t('features.f2_title'),
+                                    desc: t('features.f2_desc'),
                                     accent: mode === 'dark' ? 'from-emerald-500/10 to-transparent border-emerald-700/30 hover:border-emerald-600/50' : 'from-emerald-50 to-white border-emerald-100 hover:border-emerald-300',
                                     iconBg: mode === 'dark' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600',
                                     numColor: mode === 'dark' ? 'text-emerald-500/30' : 'text-emerald-200',
                                     bar: 'w-[88%] bg-gradient-to-r from-emerald-400 to-teal-400',
-                                    barLabel: '88% on-time delivery',
+                                    barLabel: t('features.f2_bar'),
                                 },
                                 {
                                     icon: MessageCircle,
                                     num: '03',
-                                    title: 'Real-time Chat',
-                                    desc: 'Instant messaging built into the platform — talk directly with managers and your team members.',
+                                    title: t('features.f3_title'),
+                                    desc: t('features.f3_desc'),
                                     accent: mode === 'dark' ? 'from-orange-500/10 to-transparent border-orange-700/30 hover:border-orange-600/50' : 'from-orange-50 to-white border-orange-100 hover:border-orange-300',
                                     iconBg: mode === 'dark' ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-600',
                                     numColor: mode === 'dark' ? 'text-orange-500/30' : 'text-orange-200',
                                     bar: 'w-[60%] bg-gradient-to-r from-orange-400 to-amber-400',
-                                    barLabel: '< 1min response time',
+                                    barLabel: t('features.f3_bar'),
                                 },
                                 {
                                     icon: Shield,
                                     num: '04',
-                                    title: 'Verified & Secure',
-                                    desc: 'Every recruiter and company is manually verified. Your data and payments are fully protected.',
+                                    title: t('features.f4_title'),
+                                    desc: t('features.f4_desc'),
                                     accent: mode === 'dark' ? 'from-sky-500/10 to-transparent border-sky-700/30 hover:border-sky-600/50' : 'from-sky-50 to-white border-sky-100 hover:border-sky-300',
                                     iconBg: mode === 'dark' ? 'bg-sky-500/20 text-sky-400' : 'bg-sky-100 text-sky-600',
                                     numColor: mode === 'dark' ? 'text-sky-500/30' : 'text-sky-200',
                                     bar: 'w-full bg-gradient-to-r from-sky-400 to-cyan-400',
-                                    barLabel: '100% verified partners',
+                                    barLabel: t('features.f4_bar'),
                                 },
                             ].map(({ icon: Icon, num, title, desc, accent, iconBg, numColor, bar, barLabel }) => (
                                 <div key={num} className={`relative p-6 rounded-3xl border bg-gradient-to-br overflow-hidden group transition-all duration-300 ${accent}`}>
@@ -522,15 +522,15 @@ export default function HomePage() {
                     {/* Bottom CTA strip */}
                     <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 p-6 rounded-3xl border ${mode === 'dark' ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
                         <div>
-                            <p className={`font-bold text-sm ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>Ready to launch your career?</p>
-                            <p className={`text-xs ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Join 720+ students already using Frelaunch — it&apos;s completely free to start.</p>
+                            <p className={`font-bold text-sm ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>{t('features.cta_title')}</p>
+                            <p className={`text-xs ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{t('features.cta_desc')}</p>
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
-                            {['720+ Students', '112+ Companies', '85% Placement'].map(stat => (
+                            {[t('features.stat1'), t('features.stat2'), t('features.stat3')].map(stat => (
                                 <span key={stat} className={`hidden sm:inline text-xs font-semibold px-3 py-1.5 rounded-full ${mode === 'dark' ? 'bg-slate-800 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>{stat}</span>
                             ))}
                             <Link to="/register" className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg shadow-blue-500/25 transition-all active:scale-95 whitespace-nowrap">
-                                Get Started <ArrowRight size={14} />
+                                {t('features.cta_btn')} <ArrowRight size={14} />
                             </Link>
                         </div>
                     </div>
