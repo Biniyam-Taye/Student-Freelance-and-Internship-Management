@@ -177,9 +177,9 @@ export default function HomePage() {
                         <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 rounded-full text-sm font-semibold transition-all shadow-lg shadow-blue-500/30 active:scale-95 whitespace-nowrap">
                             {t('hero.cta_register')} <ArrowRight className="w-4 h-4 flex-shrink-0" />
                         </Link>
-                        <Link to="/login" className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 border ${mode === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'} px-7 py-3 rounded-full text-sm font-semibold transition-all active:scale-95 shadow-sm whitespace-nowrap backdrop-blur-sm`}>
-                            {t('hero.cta_login')}
-                        </Link>
+                        <a href="#how-it-works" className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 border ${mode === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'} px-7 py-3 rounded-full text-sm font-semibold transition-all active:scale-95 shadow-sm whitespace-nowrap backdrop-blur-sm`}>
+                            {t('hero.cta_learn')}
+                        </a>
                     </motion.div>
 
                     {/* Floating stat cards */}
