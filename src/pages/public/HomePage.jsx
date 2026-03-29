@@ -207,7 +207,7 @@ export default function HomePage() {
                         <div>
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="h-px w-8 bg-blue-500" />
-                                <span className={`text-xs font-bold uppercase tracking-[0.2em] ${mode === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>How It Works</span>
+                                <span className={`text-xs font-bold uppercase tracking-[0.2em] ${mode === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>Simple 3-Step Process</span>
                             </div>
                             <h2 className={`text-3xl md:text-4xl font-bold tracking-tight leading-tight ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
                                 {t('how_it_works.title')}
