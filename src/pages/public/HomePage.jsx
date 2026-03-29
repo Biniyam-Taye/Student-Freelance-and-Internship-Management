@@ -103,41 +103,95 @@ export default function HomePage() {
 
             {/* Hero Section */}
             <section className={`relative min-h-screen flex items-center justify-center pt-20 ${mode === 'dark' ? 'bg-slate-900' : 'bg-white'} overflow-hidden`}>
-                {/* Hero Background Image */}
+                {/* Hero Background Image — untouched */}
                 <div
                     className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat pointer-events-none"
                     style={{ backgroundImage: "url('/hero-bg.jpg')", opacity: 0.22 }}
                 />
-                {/* Gradient overlay for readability */}
+                {/* Gradient overlay */}
                 <div className={`absolute inset-0 z-0 pointer-events-none ${mode === 'dark'
-                    ? 'bg-gradient-to-b from-slate-900/60 via-slate-900/30 to-slate-900/80'
-                    : 'bg-gradient-to-b from-white/60 via-white/20 to-white/80'
+                    ? 'bg-gradient-to-b from-slate-900/70 via-slate-900/40 to-slate-900/90'
+                    : 'bg-gradient-to-b from-white/70 via-white/30 to-white/90'
                     }`} />
 
-                <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-                    <h1 className={`text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-8 ${mode === 'dark' ? 'text-white drop-shadow-md' : 'text-slate-900 drop-shadow-sm'}`}>
-                        {t('hero.title_part1')} <br className="hidden lg:block" />
-                        <span className="text-blue-600 dark:text-blue-400 relative inline-block">
-                            {t('hero.title_highlight1')}
-                            <div className="absolute w-[105%] h-3 bg-blue-200/50 dark:bg-blue-800/50 -bottom-1 -left-2 rounded-full -z-10 rotate-[-1deg]"></div>
-                        </span> {t('hero.title_and')} <span className="text-blue-600 dark:text-blue-400 relative inline-block">
-                            {t('hero.title_highlight2')}
-                            <div className="absolute w-[105%] h-3 bg-blue-200/50 dark:bg-blue-800/50 -bottom-1 -left-2 rounded-full -z-10 rotate-[1deg]"></div>
-                        </span> {t('hero.title_part2')}
+                {/* Subtle radial glow behind content */}
+                <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
+                    <div className={`w-[600px] h-[600px] rounded-full blur-[120px] opacity-20 ${mode === 'dark' ? 'bg-blue-500' : 'bg-blue-300'}`} />
+                </div>
+
+                <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+
+                    {/* Pill badge */}
+                    <div className="inline-flex items-center gap-2 mb-6">
+                        <span className={`inline-flex items-center gap-2 text-xs font-semibold px-4 py-1.5 rounded-full border backdrop-blur-sm
+                            ${mode === 'dark'
+                                ? 'bg-blue-500/10 border-blue-500/30 text-blue-300'
+                                : 'bg-blue-50 border-blue-200 text-blue-600'}`}>
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                            Ethiopia&apos;s #1 Student Career Platform
+                        </span>
+                    </div>
+
+                    {/* Headline — refined size */}
+                    <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-[1.2] mb-5 ${mode === 'dark' ? 'text-white' : 'text-slate-900'}`}>
+                        {t('hero.title_part1')}
+                        <br />
+                        <span className="relative inline-block">
+                            <span className="text-blue-600 dark:text-blue-400">{t('hero.title_highlight1')}</span>
+                        </span>
+                        {' '}&amp;{' '}
+                        <span className="relative inline-block">
+                            <span className="text-blue-600 dark:text-blue-400">{t('hero.title_highlight2')}</span>
+                            {/* Underline decoration */}
+                            <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" preserveAspectRatio="none" height="6">
+                                <path d="M0,5 Q50,0 100,5 Q150,10 200,5" stroke="#3b82f6" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.6"/>
+                            </svg>
+                        </span>
+                        {' '}{t('hero.title_part2')}
                     </h1>
-                    <p className={`text-lg md:text-xl font-medium max-w-2xl mx-auto mb-10 ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
+
+                    {/* Subheadline */}
+                    <p className={`text-sm sm:text-base font-normal max-w-xl mx-auto mb-8 leading-relaxed ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>
                         {t('hero.subheadline')}
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <Link to="/register" className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-full text-lg font-bold transition-all shadow-xl shadow-blue-500/20 active:scale-95 whitespace-nowrap">
-                            {t('hero.cta_register')} <ArrowRight className="w-5 h-5 flex-shrink-0" />
+
+                    {/* CTA Buttons */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
+                        <Link to="/register" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-7 py-3 rounded-full text-sm font-semibold transition-all shadow-lg shadow-blue-500/30 active:scale-95 whitespace-nowrap">
+                            {t('hero.cta_register')} <ArrowRight className="w-4 h-4 flex-shrink-0" />
                         </Link>
-                        <Link to="/login" className={`w-full sm:w-auto flex items-center justify-center gap-2 border ${mode === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'} px-8 py-4 rounded-full text-lg font-bold transition-all active:scale-95 shadow-sm whitespace-nowrap`}>
+                        <Link to="/login" className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 border ${mode === 'dark' ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white' : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'} px-7 py-3 rounded-full text-sm font-semibold transition-all active:scale-95 shadow-sm whitespace-nowrap backdrop-blur-sm`}>
                             {t('hero.cta_login')}
                         </Link>
                     </div>
+
+                    {/* Floating stat cards */}
+                    <div className="flex flex-wrap items-center justify-center gap-3">
+                        {[
+                            { value: '720+', label: 'Active Students' },
+                            { value: '112+', label: 'Partner Companies' },
+                            { value: '85%', label: 'Placement Rate' },
+                        ].map(({ value, label }) => (
+                            <div key={label} className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border backdrop-blur-sm text-left
+                                ${mode === 'dark'
+                                    ? 'bg-slate-800/60 border-slate-700/60 text-white'
+                                    : 'bg-white/70 border-slate-200 text-slate-800'} shadow-sm`}>
+                                <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{value}</span>
+                                <span className={`text-xs font-medium ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>{label}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Scroll indicator */}
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 opacity-50">
+                    <span className={`text-[10px] font-semibold uppercase tracking-widest ${mode === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>Scroll</span>
+                    <div className={`w-5 h-8 rounded-full border-2 flex items-start justify-center pt-1.5 ${mode === 'dark' ? 'border-slate-600' : 'border-slate-300'}`}>
+                        <div className={`w-1 h-2 rounded-full animate-bounce ${mode === 'dark' ? 'bg-slate-400' : 'bg-slate-400'}`} />
+                    </div>
                 </div>
             </section>
+
 
             {/* How it Works Section */}
             <section id="how-it-works" className={`py-24 ${mode === 'dark' ? 'bg-slate-900' : 'bg-white'}`}>
