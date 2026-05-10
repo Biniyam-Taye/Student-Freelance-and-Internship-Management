@@ -20,6 +20,7 @@ export default function StudentProfile() {
     const [saved, setSaved] = useState(false);
     const [cvUploading, setCvUploading] = useState(false);
     const [cvError, setCvError] = useState(null);
+    const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
         name: '',
@@ -54,7 +55,12 @@ export default function StudentProfile() {
         }
     }, [user]);
 
-    const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleChange = (e) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        if (errors[e.target.name]) {
+            setErrors(prev => ({ ...prev, [e.target.name]: null }));
+        }
+    };
 
     const addSkill = (e) => {
         if ((e.key === 'Enter' || e.key === ',') && skillInput.trim()) {
@@ -104,8 +110,32 @@ export default function StudentProfile() {
     };
 
     const handleSave = async () => {
+        const newErrors = {};
+
+        if (formData.github) {
+            const githubRegex = /^https:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+\/?$/;
+            if (!githubRegex.test(formData.github.trim())) {
+                newErrors.github = "Please enter a valid GitHub profile URL";
+            }
+        }
+
+        if (formData.linkedin) {
+            const linkedinRegex = /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9_%-]+\/?$/;
+            if (!linkedinRegex.test(formData.linkedin.trim())) {
+                newErrors.linkedin = "Please enter a valid LinkedIn profile URL";
+            }
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
         try {
             const payload = isStudent ? { ...formData, skills } : formData;
+            if (payload.github) payload.github = payload.github.trim();
+            if (payload.linkedin) payload.linkedin = payload.linkedin.trim();
+            
             await dispatch(updateUserProfile(payload)).unwrap();
             setSaved(true);
             setTimeout(() => setSaved(false), 2500);
@@ -223,8 +253,8 @@ export default function StudentProfile() {
                             <Input label={t('profile.supervisor_role')} icon={Briefcase} name="position" value={formData.position} onChange={handleChange} placeholder="Your role or title" />
                         </>
                     )}
-                    <Input label={t('profile.linkedin')} icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="linkedin.com/in/yourname" />
-                    <Input label={t('profile.github')} icon={Github} name="github" value={formData.github} onChange={handleChange} placeholder="github.com/yourname" />
+                    <Input label={t('profile.linkedin')} icon={Linkedin} name="linkedin" value={formData.linkedin} onChange={handleChange} placeholder="https://linkedin.com/in/yourname" error={errors.linkedin} />
+                    <Input label={t('profile.github')} icon={Github} name="github" value={formData.github} onChange={handleChange} placeholder="https://github.com/yourname" error={errors.github} />
                 </div>
                 <div className="mt-4">
                     <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1.5">{t('profile.bio')}</label>
@@ -291,6 +321,7 @@ export default function StudentProfile() {
                         position: user?.position || ''
                     });
                     setSkills(user?.skills || []);
+                    setErrors({});
                 }}>Discard Changes</Button>
             </div>
         </div>
