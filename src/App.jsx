@@ -9,6 +9,7 @@ import RegisterPage from './pages/public/RegisterPage';
 import ForgotPasswordPage from './pages/public/ForgotPasswordPage';
 import ResetPasswordPage from './pages/public/ResetPasswordPage';
 import SuccessStoriesPage from './pages/public/SuccessStoriesPage';
+import ExploreJobsPage from './pages/public/ExploreJobsPage';
 
 // Layout
 import DashboardLayout from './layouts/DashboardLayout';
@@ -73,6 +74,7 @@ function App() {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
+      <Route path="/explore-jobs" element={<ExploreJobsPage />} />
       <Route path="/success-stories" element={<SuccessStoriesPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />

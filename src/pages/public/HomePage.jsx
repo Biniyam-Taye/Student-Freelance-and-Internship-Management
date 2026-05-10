@@ -62,6 +62,7 @@ export default function HomePage() {
 
                             {/* Desktop Navigation */}
                             <div className="hidden md:flex items-center gap-8 font-medium">
+                                <Link to="/explore-jobs" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Explore Jobs</Link>
                                 <a href="#how-it-works" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('how_it_works.title')}</a>
                                 <a href="#features" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('features.title')}</a>
                                 <Link to="/success-stories" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('testimonials.title')}</Link>
@@ -677,7 +678,7 @@ export default function HomePage() {
                             <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Platform</h4>
                             <ul className="space-y-3">
                                 {[
-                                    { label: 'Browse Jobs', to: '/student/browse' },
+                                    { label: 'Browse Jobs', to: '/explore-jobs' },
                                     { label: 'Post a Job', to: '/recruiter/post' },
                                     { label: 'Messages', to: '/student/messages' },
                                 ].map(({ label, to }) => (

@@ -108,6 +108,12 @@ export default function SuccessStoriesPage() {
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-8 font-medium">
                 <Link
+                  to="/explore-jobs"
+                  className={`hover:text-blue-500 transition-colors text-sm ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}
+                >
+                  Explore Jobs
+                </Link>
+                <Link
                   to="/#how-it-works"
                   className={`hover:text-blue-500 transition-colors text-sm ${mode === "dark" ? "text-slate-300" : "text-slate-600"}`}
                 >
@@ -526,7 +532,7 @@ export default function SuccessStoriesPage() {
               <ul className="space-y-3">
                 <li>
                   <Link
-                    to="/student/browse"
+                    to="/explore-jobs"
                     className="text-sm text-slate-400 hover:text-blue-400"
                   >
                     Browse Jobs

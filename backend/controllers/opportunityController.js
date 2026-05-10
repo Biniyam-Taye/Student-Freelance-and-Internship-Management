@@ -75,9 +75,7 @@ const createOpportunity = asyncHandler(async (req, res) => {
     res.status(201).json(createdOpportunity);
 });
 
-// @desc    Update an opportunity
-// @route   PUT /api/opportunities/:id
-// @access  Private/Recruiter
+
 const updateOpportunity = asyncHandler(async (req, res) => {
     const { position, company, description, category, type, location, stipend, duration, deadline, skills, status } = req.body;
 
