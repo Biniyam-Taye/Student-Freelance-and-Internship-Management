@@ -37,12 +37,12 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md', f
     return createPortal(
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-4 sm:p-6 overflow-y-auto"
             onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
         >
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" />
             <div className={clsx(
-                'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl',
+                'relative w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl my-4 sm:my-0 max-h-[calc(100vh-2rem)] overflow-y-auto',
                 'animate-fade-in-up',
                 sizes[size]
             )}>
