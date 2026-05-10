@@ -192,7 +192,7 @@ export default function SupervisorApplications() {
                 isOpen={!!selectedApp}
                 onClose={() => setSelectedApp(null)}
                 title="User details"
-                size="sm"
+                size="lg"
                 footer={<Button variant="secondary" onClick={() => setSelectedApp(null)}>Close</Button>}
             >
                 {selectedApp && (
@@ -237,6 +237,20 @@ export default function SupervisorApplications() {
                                 )}
                             </div>
                         )}
+                        <div className="rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/50 p-3">
+                            <p className="text-xs font-medium text-violet-800 dark:text-violet-300 uppercase tracking-wider mb-1.5">
+                                Cover letter
+                            </p>
+                            {selectedApp.coverLetter?.trim() ? (
+                                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                    {selectedApp.coverLetter}
+                                </p>
+                            ) : (
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    No cover letter provided by this user.
+                                </p>
+                            )}
+                        </div>
                         <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50 p-3">
                             <p className="text-xs font-medium text-blue-800 dark:text-blue-300 uppercase tracking-wider mb-2">CV / Resume</p>
                             {selectedApp.student?.cv ? (

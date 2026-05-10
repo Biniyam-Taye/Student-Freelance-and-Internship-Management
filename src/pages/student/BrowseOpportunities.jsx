@@ -11,6 +11,7 @@ import Button from '../../components/ui/Button';
 import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
 import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
 import { applyForJob } from '../../features/applications/applicationSlice';
+import { getMissingStudentProfileFields, INCOMPLETE_PROFILE_APPLY_MESSAGE } from '../../utils/profileCompletion';
 import clsx from 'clsx';
 
 export default function BrowseOpportunities() {
@@ -32,6 +33,7 @@ export default function BrowseOpportunities() {
     const [applied, setApplied] = useState(new Set());
     const [viewModal, setViewModal] = useState(null);
     const [coverLetter, setCoverLetter] = useState('');
+    const [applyError, setApplyError] = useState('');
     const PER_PAGE = 4;
 
     // Local deterministic skill-based match between a job and the current student
@@ -121,6 +123,7 @@ export default function BrowseOpportunities() {
         if (!openApplyId || loading || opportunities.length === 0) return;
         const opp = opportunities.find((o) => o._id === openApplyId);
         if (opp) {
+            setApplyError('');
             setApplyModal(opp);
             navigate(location.pathname, { replace: true, state: {} });
         }
@@ -178,6 +181,11 @@ export default function BrowseOpportunities() {
 
     const handleApply = async () => {
         if (applyModal) {
+            const missingFields = getMissingStudentProfileFields(user || {});
+            if (missingFields.length > 0) {
+                setApplyError(INCOMPLETE_PROFILE_APPLY_MESSAGE);
+                return;
+            }
             try {
                 // Dispatch real application to backend
                 await dispatch(applyForJob({
@@ -189,8 +197,9 @@ export default function BrowseOpportunities() {
                 setApplied((prev) => new Set([...prev, applyModal._id]));
                 setApplyModal(null);
                 setCoverLetter(''); // Reset form
+                setApplyError('');
             } catch (err) {
-                alert('Failed to apply. You may have already applied to this job.');
+                setApplyError(err || 'Failed to apply. You may have already applied to this job.');
             }
         }
     };
@@ -329,7 +338,7 @@ export default function BrowseOpportunities() {
                                     {isApplied ? (
                                         <Badge variant="accepted" dot>Applied</Badge>
                                     ) : (
-                                        <button onClick={() => setApplyModal(opp)}
+                                        <button onClick={() => { setApplyError(''); setApplyModal(opp); }}
                                             className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white text-xs font-semibold rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-200">
                                             <Send size={12} /> Apply
                                         </button>
@@ -344,10 +353,10 @@ export default function BrowseOpportunities() {
             <Pagination currentPage={page} totalPages={Math.ceil(filtered.length / PER_PAGE)} onPageChange={setPage} />
 
             {/* Quick Apply Modal */}
-            <Modal isOpen={!!applyModal} onClose={() => setApplyModal(null)}
+            <Modal isOpen={!!applyModal} onClose={() => { setApplyModal(null); setApplyError(''); }}
                 title={`Apply: ${applyModal?.position}`} size="md"
                 footer={<>
-                    <Button variant="secondary" onClick={() => setApplyModal(null)}>{t('common.cancel')}</Button>
+                    <Button variant="secondary" onClick={() => { setApplyModal(null); setApplyError(''); }}>{t('common.cancel')}</Button>
                     <Button variant="gradient" icon={Send} onClick={handleApply} disabled={applyLoading}>
                         {applyLoading ? 'Submitting...' : 'Submit Application'}
                     </Button>
@@ -372,6 +381,11 @@ export default function BrowseOpportunities() {
                     <div className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-xs text-gray-600 dark:text-gray-400">
                         Your profile, CV, and skills will be automatically attached to this application.
                     </div>
+                    {applyError && (
+                        <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-xs font-medium border border-red-100 dark:border-red-800/40">
+                            {applyError}
+                        </div>
+                    )}
                 </div>
             </Modal>
 
@@ -381,7 +395,7 @@ export default function BrowseOpportunities() {
                 footer={<>
                     <Button variant="secondary" onClick={() => setViewModal(null)}>Close</Button>
                     {!applied.has(viewModal?._id) && (
-                        <Button variant="gradient" icon={Send} onClick={() => { setApplyModal(viewModal); setViewModal(null); }}>Apply Now</Button>
+                        <Button variant="gradient" icon={Send} onClick={() => { setApplyError(''); setApplyModal(viewModal); setViewModal(null); }}>Apply Now</Button>
                     )}
                 </>}>
                 {viewModal && (

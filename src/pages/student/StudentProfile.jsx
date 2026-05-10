@@ -8,6 +8,7 @@ import Card from '../../components/ui/Card';
 import { updateUserProfile } from '../../features/auth/authSlice';
 import AvatarUpload from '../../components/common/AvatarUpload';
 import { uploadCV, downloadCV } from '../../services/uploadService';
+import { getMissingStudentProfileFields } from '../../utils/profileCompletion';
 
 export default function StudentProfile() {
     const { t } = useTranslation();
@@ -115,6 +116,8 @@ export default function StudentProfile() {
 
     const isStudent = user?.role === 'student';
     const isSupervisor = user?.role === 'supervisor';
+    const missingProfileFields = isStudent ? getMissingStudentProfileFields({ ...user, ...formData, skills }) : [];
+    const profileComplete = !isStudent || missingProfileFields.length === 0;
 
     return (
         <div className="space-y-6 page-enter max-w-3xl">
@@ -124,6 +127,17 @@ export default function StudentProfile() {
                     {isSupervisor ? 'Manage your profile and contact information' : 'Manage your personal information and portfolio'}
                 </p>
             </div>
+
+            {isStudent && (
+                <div className={profileComplete
+                    ? 'rounded-xl border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300'
+                    : 'rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-700 dark:text-amber-300'}
+                >
+                    {profileComplete
+                        ? 'Your profile is complete. You can apply for jobs.'
+                        : `Profile completion required before applying. Missing: ${missingProfileFields.join(', ')}`}
+                </div>
+            )}
 
             {/* Avatar (+ CV for students only) */}
             <Card>
@@ -183,6 +197,7 @@ export default function StudentProfile() {
                                         {t('profile.upload_cv')}
                                     </p>
                                     <p className="text-[10px] text-gray-400 mt-1">PDF up to 5MB</p>
+                                    <p className="text-[10px] text-amber-500 mt-1">Required for job applications</p>
                                 </label>
                             )}
                             {cvError && <p className="text-xs text-red-500">{cvError}</p>}
@@ -199,6 +214,9 @@ export default function StudentProfile() {
                     <Input label={t('auth.email')} icon={Mail} type="email" name="email" value={formData.email} disabled required />
                     <Input label={t('profile.phone')} icon={Phone} name="phone" value={formData.phone} onChange={handleChange} placeholder="+251 9XX XXX XXX" type="tel" />
                     <Input label={t('profile.location')} icon={MapPin} name="location" value={formData.location} onChange={handleChange} placeholder="Addis Ababa, Ethiopia" />
+                    {isStudent && (
+                        <Input label="Experience" icon={Briefcase} name="position" value={formData.position} onChange={handleChange} placeholder="e.g. Junior Frontend Developer, 1 year internship" />
+                    )}
                     {isSupervisor && (
                         <>
                             <Input label={t('profile.org_institution')} icon={Building2} name="company" value={formData.company} onChange={handleChange} placeholder="Company or organization" />

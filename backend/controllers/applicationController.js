@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Application = require('../models/Application');
 const Opportunity = require('../models/Opportunity');
+const { getMissingStudentProfileFields } = require('../utils/profileCompletion');
 
 // @desc    Apply to an Opportunity
 // @route   POST /api/applications/:opportunityId
@@ -8,6 +9,12 @@ const Opportunity = require('../models/Opportunity');
 const applyForOpportunity = asyncHandler(async (req, res) => {
     const { coverLetter, resumeUrl } = req.body;
     const opportunityId = req.params.opportunityId;
+
+    const missingFields = getMissingStudentProfileFields(req.user);
+    if (missingFields.length > 0) {
+        res.status(400);
+        throw new Error('You cannot apply yet. You must fully complete your profile in your Profile Settings before applying.');
+    }
 
     const opportunity = await Opportunity.findById(opportunityId);
 
