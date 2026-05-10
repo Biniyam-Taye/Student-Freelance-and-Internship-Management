@@ -108,21 +108,15 @@ export default function PublicFooter() {
                         </ul>
                     </motion.div>
 
-                    {/* Newsletter */}
+                    {/* Vision/Mission Section */}
                     <motion.div variants={fadeUp}>
-                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Stay Updated</h4>
-                        <p className="text-sm text-slate-400 mb-4 leading-relaxed">Get the latest opportunities and platform updates in your inbox.</p>
-                        <div className="flex flex-col gap-2">
-                            <input
-                                type="email"
-                                placeholder="your@email.com"
-                                className="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 placeholder:text-slate-500 transition-colors"
-                            />
-                            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                                Subscribe <ArrowRight size={14} />
-                            </button>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-3">No spam. Unsubscribe anytime.</p>
+                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Our Vision</h4>
+                        <p className="text-sm text-slate-400 mb-4 leading-relaxed">
+                            Empowering the next generation of Ethiopian talent by bridging the gap between academic learning and professional industry experience.
+                        </p>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Join over 700+ students already building their future on Frelaunch.
+                        </p>
                     </motion.div>
 
                 </div>
