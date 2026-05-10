@@ -5,7 +5,9 @@ import { MapPin, DollarSign, Clock, Users, Calendar, MoreVertical, Edit, Trash2,
 import Badge from '../../components/ui/Badge';
 import SearchFilter from '../../components/common/SearchFilter';
 import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
-import { fetchOpportunities, deleteOpportunity } from '../../features/opportunities/opportunitySlice';
+import Modal from '../../components/ui/Modal';
+import Button from '../../components/ui/Button';
+import { fetchOpportunities, deleteOpportunity, updateOpportunity } from '../../features/opportunities/opportunitySlice';
 import clsx from 'clsx';
 
 export default function MyPosts() {
@@ -14,6 +16,20 @@ export default function MyPosts() {
     const { items: allPosts, loading } = useSelector(state => state.opportunities);
     const { user } = useSelector(state => state.auth);
     const [search, setSearch] = useState('');
+    const [editingPost, setEditingPost] = useState(null);
+    const [savingEdit, setSavingEdit] = useState(false);
+    const [editForm, setEditForm] = useState({
+        position: '',
+        description: '',
+        location: '',
+        stipend: '',
+        duration: '',
+        deadline: '',
+        type: 'internship',
+        category: '',
+        skills: '',
+        status: 'open',
+    });
 
     useEffect(() => {
         dispatch(fetchOpportunities());
@@ -35,6 +51,59 @@ export default function MyPosts() {
     const removePost = (id) => {
         if (window.confirm("Are you sure you want to delete this post?")) {
             dispatch(deleteOpportunity(id));
+        }
+    };
+
+    const openEdit = (opp) => {
+        setEditingPost(opp);
+        setEditForm({
+            position: opp.position || '',
+            description: opp.description || '',
+            location: opp.location || '',
+            stipend: opp.stipend || '',
+            duration: opp.duration || '',
+            deadline: opp.deadline ? new Date(opp.deadline).toISOString().split('T')[0] : '',
+            type: opp.type || 'internship',
+            category: opp.category || '',
+            skills: Array.isArray(opp.skills) ? opp.skills.join(', ') : '',
+            status: opp.status || 'open',
+        });
+    };
+
+    const handleEditChange = (e) => {
+        const { name, value } = e.target;
+        setEditForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const saveEdit = async () => {
+        if (!editingPost) return;
+        if (!editForm.position.trim() || !editForm.description.trim() || !editForm.location.trim() || !editForm.deadline) {
+            alert('Please fill all required fields: title, description, location, and deadline.');
+            return;
+        }
+
+        setSavingEdit(true);
+        try {
+            await dispatch(updateOpportunity({
+                id: editingPost._id,
+                data: {
+                    position: editForm.position.trim(),
+                    description: editForm.description.trim(),
+                    location: editForm.location.trim(),
+                    stipend: editForm.stipend.trim(),
+                    duration: editForm.duration.trim(),
+                    deadline: editForm.deadline,
+                    type: editForm.type,
+                    category: editForm.category.trim(),
+                    status: editForm.status,
+                    skills: editForm.skills.split(',').map((s) => s.trim()).filter(Boolean),
+                },
+            })).unwrap();
+            setEditingPost(null);
+        } catch (err) {
+            alert(err || 'Failed to update post');
+        } finally {
+            setSavingEdit(false);
         }
     };
 
@@ -73,7 +142,7 @@ export default function MyPosts() {
                                     <MoreVertical size={15} />
                                 </button>
                             }>
-                                <DropdownItem icon={Edit}>Edit Post</DropdownItem>
+                                <DropdownItem icon={Edit} onClick={() => openEdit(opp)}>Edit Post</DropdownItem>
                                 <DropdownItem icon={Eye}>View Details</DropdownItem>
                                 <DropdownItem icon={Trash2} danger onClick={() => removePost(opp._id)}>Delete</DropdownItem>
                             </Dropdown>
@@ -112,6 +181,75 @@ export default function MyPosts() {
                     </div>
                 ))}
             </div>
+
+            <Modal
+                isOpen={!!editingPost}
+                onClose={() => setEditingPost(null)}
+                title="Edit Opportunity"
+                size="lg"
+                footer={
+                    <>
+                        <Button variant="secondary" onClick={() => setEditingPost(null)}>Cancel</Button>
+                        <Button onClick={saveEdit} loading={savingEdit}>Save Changes</Button>
+                    </>
+                }
+            >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="sm:col-span-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Title *</label>
+                        <input name="position" value={editForm.position} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Description *</label>
+                        <textarea name="description" value={editForm.description} onChange={handleEditChange} rows={4} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none" />
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Location *</label>
+                        <input name="location" value={editForm.location} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Deadline *</label>
+                        <input type="date" name="deadline" value={editForm.deadline} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Type</label>
+                        <select name="type" value={editForm.type} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm">
+                            <option value="internship">internship</option>
+                            <option value="freelance">freelance</option>
+                            <option value="part-time">part-time</option>
+                            <option value="full-time">full-time</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Status</label>
+                        <select name="status" value={editForm.status} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm">
+                            <option value="open">open</option>
+                            <option value="closed">closed</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Stipend</label>
+                        <input name="stipend" value={editForm.stipend} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Duration</label>
+                        <input name="duration" value={editForm.duration} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Category</label>
+                        <input name="category" value={editForm.category} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+                    <div className="sm:col-span-2">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Skills (comma separated)</label>
+                        <input name="skills" value={editForm.skills} onChange={handleEditChange} className="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm" />
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
