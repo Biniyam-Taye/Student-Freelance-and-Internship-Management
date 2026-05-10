@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Sun, Moon, Globe, ArrowRight, Play, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, ChevronDown, UserCircle2, Search, TrendingUp, Zap, Shield, Users } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { Sun, Moon, Globe, ArrowRight, Play, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, ChevronDown, UserCircle2, Search, TrendingUp, Zap, Shield, Users, Menu, X } from 'lucide-react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import { setLanguage } from '../../features/language/languageSlice';
@@ -13,6 +13,7 @@ export default function HomePage() {
     const dispatch = useDispatch();
     const { mode } = useSelector((state) => state.theme);
     const { lang } = useSelector((state) => state.language);
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     // Animation Variants
     const fadeUp = {
@@ -69,6 +70,14 @@ export default function HomePage() {
 
                             {/* Controls */}
                             <div className="flex items-center gap-3">
+                                {/* Mobile Menu Button */}
+                                <button 
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    className="md:hidden p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                                </button>
+
                                 <Dropdown
                                     align="right"
                                     trigger={
@@ -110,6 +119,29 @@ export default function HomePage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Mobile Menu */}
+                    <AnimatePresence>
+                        {isMenuOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="md:hidden border-t border-slate-200 dark:border-slate-700 overflow-hidden"
+                            >
+                                <div className="px-5 py-6 flex flex-col gap-4">
+                                    <Link to="/explore-jobs" onClick={() => setIsMenuOpen(false)} className={`text-sm font-medium ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Explore Jobs</Link>
+                                    <a href="#features" onClick={() => setIsMenuOpen(false)} className={`text-sm font-medium ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('features.title')}</a>
+                                    <Link to="/success-stories" onClick={() => setIsMenuOpen(false)} className={`text-sm font-medium ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('testimonials.title')}</Link>
+                                    <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
+                                    <Link to="/login" onClick={() => setIsMenuOpen(false)} className={`text-sm font-bold ${mode === 'dark' ? 'text-white' : 'text-slate-700'}`}>{t('auth.sign_in')}</Link>
+                                    <Link to="/register" onClick={() => setIsMenuOpen(false)} className="inline-flex items-center justify-center bg-blue-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30">
+                                        {t('auth.sign_up')}
+                                    </Link>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </nav>
             </div>
 
