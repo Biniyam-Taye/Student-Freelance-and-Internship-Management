@@ -15,6 +15,7 @@ import clsx from 'clsx';
 import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
 import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
+import { setPendingJobIntent } from '../../utils/jobIntent';
 
 const FILTERS = {
   jobType: ['Volunteer', 'Paid Intern', 'Unpaid Intern'],
@@ -179,11 +180,14 @@ export default function ExploreJobsPage() {
     }
   };
 
-  const openAuthPrompt = (action) => setAuthPrompt({ open: true, action });
+  const openAuthPrompt = (action, job) => {
+    setPendingJobIntent({ jobId: job?._id, action });
+    setAuthPrompt({ open: true, action });
+  };
 
   const handleViewDetails = (job) => {
     if (!isAuthenticated) {
-      openAuthPrompt('view details');
+      openAuthPrompt('view', job);
       return;
     }
     setSelectedJob(job);
@@ -191,7 +195,7 @@ export default function ExploreJobsPage() {
 
   const handleApply = (job) => {
     if (!isAuthenticated) {
-      openAuthPrompt('apply');
+      openAuthPrompt('apply', job);
       return;
     }
     navigate('/student/browse', { state: { openApplyId: job._id } });

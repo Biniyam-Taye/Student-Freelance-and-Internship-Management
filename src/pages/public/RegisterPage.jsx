@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,7 @@ import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
 import api from '../../services/api';
 import clsx from 'clsx';
+import { resolvePostAuthRedirect } from '../../utils/jobIntent';
 
 const schema = yup.object().shape({
     fullName: yup.string().min(2, 'Full name must be at least 2 characters').required('Full name is required'),
@@ -24,6 +25,7 @@ export default function RegisterPage() {
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const themeMode = useSelector(state => state.theme.mode);
     const { loading: authLoading, error: authError } = useSelector(state => state.auth);
     const [loading, setLoading] = useState(false);
@@ -107,7 +109,8 @@ export default function RegisterPage() {
                 });
             } else {
                 // Students can be logged in immediately
-                navigate(`/${role}`);
+                const redirect = resolvePostAuthRedirect(role);
+                navigate(redirect.path, redirect.state ? { state: redirect.state } : undefined);
             }
         } catch (err) {
             setLocalError(err || 'Failed to register');
@@ -410,7 +413,7 @@ export default function RegisterPage() {
 
                     <p className="text-left md:text-center font-medium text-slate-600 dark:text-slate-400 mt-8 pb-8">
                         {t('auth.have_account')}{' '}
-                        <Link to="/login" className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                        <Link to="/login" state={location.state} className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                             {t('auth.sign_in')}
                         </Link>
                     </p>

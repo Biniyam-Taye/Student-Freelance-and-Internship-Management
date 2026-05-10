@@ -9,6 +9,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight, GraduationCap, Briefcase, ShieldCh
 import { loginUser } from '../../features/auth/authSlice';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import Input from '../../components/ui/Input';
+import { resolvePostAuthRedirect } from '../../utils/jobIntent';
 
 const schema = yup.object().shape({
     email: yup.string().email('Invalid email address').required('Email is required'),
@@ -37,7 +38,8 @@ export default function LoginPage() {
         try {
             const resultAction = await dispatch(loginUser({ email: data.email, password: data.password })).unwrap();
             const role = resultAction.role || 'student';
-            navigate(`/${role}`);
+            const redirect = resolvePostAuthRedirect(role);
+            navigate(redirect.path, redirect.state ? { state: redirect.state } : undefined);
         } catch (err) {
             setLocalError(err || 'Failed to login');
         } finally {
@@ -206,7 +208,7 @@ export default function LoginPage() {
 
                     <p className="text-left md:text-center font-medium text-slate-600 dark:text-slate-400 mt-8 pb-6">
                         {t('auth.no_account')}{' '}
-                        <Link to="/register" className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
+                        <Link to="/register" state={location.state} className="font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
                             {t('auth.sign_up')}
                         </Link>
                     </p>

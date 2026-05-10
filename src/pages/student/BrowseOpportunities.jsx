@@ -126,6 +126,17 @@ export default function BrowseOpportunities() {
         }
     }, [openApplyId, loading, opportunities, navigate, location.pathname]);
 
+    // Open details modal when redirected from public Explore Jobs after auth
+    const openViewId = location.state?.openViewId;
+    useEffect(() => {
+        if (!openViewId || loading || opportunities.length === 0) return;
+        const opp = opportunities.find((o) => o._id === openViewId);
+        if (opp) {
+            setViewModal(opp);
+            navigate(location.pathname, { replace: true, state: {} });
+        }
+    }, [openViewId, loading, opportunities, navigate, location.pathname]);
+
     // Enrich opportunities with skill-based matchScore for the current student
     const scored = opportunities.map((o) => ({
         ...o,

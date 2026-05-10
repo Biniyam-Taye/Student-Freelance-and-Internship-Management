@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Users, Briefcase, TrendingUp, Star, ArrowUpRight, Clock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Area, AreaChart } from 'recharts';
@@ -116,6 +117,31 @@ export default function RecruiterOverview() {
                     </div>
                 </Card>
             </div>
+
+            <Card>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h2 className="text-base font-bold text-gray-900 dark:text-white">Posted Job Opportunities</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Manage your posted jobs and monitor applicants in one place.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            to="/recruiter/posts"
+                            className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
+                        >
+                            Manage Posts
+                        </Link>
+                        <Link
+                            to="/recruiter/applications"
+                            className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            View Applications
+                        </Link>
+                    </div>
+                </div>
+            </Card>
 
             {/* Recent Applications */}
             <Card>

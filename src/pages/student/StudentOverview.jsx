@@ -423,6 +423,20 @@ export default function StudentOverview() {
 
                         {/* Quick Links */}
                         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] p-4">
+                            <h2 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">Applied Jobs</h2>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                Continue managing the opportunities you already applied for.
+                            </p>
+                            <Link
+                                to="/student/applications"
+                                className="inline-flex items-center justify-center w-full px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
+                            >
+                                View Applied Jobs
+                            </Link>
+                        </div>
+
+                        {/* Quick Links */}
+                        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)] p-4">
                             <h2 className="font-semibold text-gray-900 dark:text-white text-sm mb-3">Quick Links</h2>
                             <div className="space-y-1">
                                 {[
