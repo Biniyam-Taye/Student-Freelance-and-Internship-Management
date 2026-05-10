@@ -2,18 +2,17 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Sun, Moon, Globe, ArrowRight, Play, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, ChevronDown, UserCircle2, Search, TrendingUp, Zap, Shield, Users, Menu, X } from 'lucide-react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import Dropdown, { DropdownItem } from '../../components/ui/Dropdown';
+import { ArrowRight, CheckCircle2, Target, BarChart2, ClipboardList, MessageCircle, Twitter, Linkedin, Github, Instagram, Mail, MapPin, Phone, Shield } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { toggleTheme } from '../../features/theme/themeSlice';
 import { setLanguage } from '../../features/language/languageSlice';
+import PublicNavbar from '../../components/layout/PublicNavbar';
+import PublicFooter from '../../components/layout/PublicFooter';
 
 export default function HomePage() {
     const { t, i18n } = useTranslation();
     const dispatch = useDispatch();
     const { mode } = useSelector((state) => state.theme);
-    const { lang } = useSelector((state) => state.language);
-    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     // Animation Variants
     const fadeUp = {
@@ -47,103 +46,8 @@ export default function HomePage() {
     };
 
     return (
-        <div className={`min-h-screen ${mode === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'} font-sans transition-colors duration-300`}>
-
-            {/* Navbar */}
-            <div className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 lg:px-10">
-                <nav className={`max-w-7xl mx-auto transition-all duration-300 ${mode === 'dark' ? 'bg-slate-900/85' : 'bg-white/85'} backdrop-blur-md border ${mode === 'dark' ? 'border-slate-700/60' : 'border-slate-200/80'} rounded-2xl shadow-lg shadow-black/10`}>
-                    <div className="px-5 sm:px-8">
-                        <div className="flex justify-between items-center h-16">
-                            <div className="flex items-center gap-2">
-                                <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
-                                    <span className="font-extrabold text-white text-lg">F</span>
-                                </div>
-                                <span className={`font-extrabold text-xl tracking-tight ${mode === 'dark' ? 'text-white' : 'text-slate-800'}`}>Frelaunch.</span>
-                            </div>
-
-                            {/* Desktop Navigation */}
-                            <div className="hidden md:flex items-center gap-8 font-medium">
-                                <Link to="/explore-jobs" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Explore Jobs</Link>
-                                <a href="#features" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('features.title')}</a>
-                                <Link to="/success-stories" className={`hover:text-blue-500 transition-colors text-sm ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('testimonials.title')}</Link>
-                            </div>
-
-                            {/* Controls */}
-                            <div className="flex items-center gap-3">
-                                {/* Mobile Menu Button */}
-                                <button 
-                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className="md:hidden p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-                                >
-                                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                                </button>
-
-                                <Dropdown
-                                    align="right"
-                                    trigger={
-                                        <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full px-3 py-1.5 transition-colors cursor-pointer">
-                                            <Globe className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase">{lang}</span>
-                                            <ChevronDown size={14} className="text-slate-400" />
-                                        </div>
-                                    }
-                                >
-                                    {[
-                                        { code: 'en', label: 'English' },
-                                        { code: 'am', label: 'አማርኛ' },
-                                        { code: 'or', label: 'Afaan Oromo' },
-                                    ].map((l) => (
-                                        <DropdownItem
-                                            key={l.code}
-                                            onClick={() => changeLanguage({ target: { value: l.code } })}
-                                        >
-                                            <div className="flex items-center justify-between w-full">
-                                                <span>{l.label}</span>
-                                                {lang === l.code && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
-                                            </div>
-                                        </DropdownItem>
-                                    ))}
-                                </Dropdown>
-
-                                <button onClick={handleToggleTheme} className="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-                                    {mode === 'light' ? <Moon className="w-5 h-5 text-slate-600" /> : <Sun className="w-5 h-5 text-yellow-400" />}
-                                </button>
-
-                                <Link to="/login" className={`hidden sm:block text-sm font-bold transition-colors whitespace-nowrap ${mode === 'dark' ? 'text-white hover:text-blue-400' : 'text-slate-700 hover:text-blue-600'}`}>
-                                    {t('auth.sign_in')}
-                                </Link>
-
-                                <Link to="/register" className="inline-flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-all shadow-md shadow-blue-500/30 whitespace-nowrap flex-shrink-0">
-                                    {t('auth.sign_up')}
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Mobile Menu */}
-                    <AnimatePresence>
-                        {isMenuOpen && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="md:hidden border-t border-slate-200 dark:border-slate-700 overflow-hidden"
-                            >
-                                <div className="px-5 py-6 flex flex-col gap-4">
-                                    <Link to="/explore-jobs" onClick={() => setIsMenuOpen(false)} className={`text-sm font-medium ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>Explore Jobs</Link>
-                                    <a href="#features" onClick={() => setIsMenuOpen(false)} className={`text-sm font-medium ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('features.title')}</a>
-                                    <Link to="/success-stories" onClick={() => setIsMenuOpen(false)} className={`text-sm font-medium ${mode === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>{t('testimonials.title')}</Link>
-                                    <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
-                                    <Link to="/login" onClick={() => setIsMenuOpen(false)} className={`text-sm font-bold ${mode === 'dark' ? 'text-white' : 'text-slate-700'}`}>{t('auth.sign_in')}</Link>
-                                    <Link to="/register" onClick={() => setIsMenuOpen(false)} className="inline-flex items-center justify-center bg-blue-600 text-white px-5 py-3 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30">
-                                        {t('auth.sign_up')}
-                                    </Link>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </nav>
-            </div>
+        <div className={`min-h-screen ${mode === 'dark' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900'} font-sans transition-colors duration-300 flex flex-col`}>
+            <PublicNavbar />
 
             {/* Hero Section */}
             <section className={`relative min-h-screen flex items-center justify-center pt-20 ${mode === 'dark' ? 'bg-slate-900' : 'bg-white'} overflow-hidden`}>
@@ -647,131 +551,7 @@ export default function HomePage() {
 
                 </div>
             </section>
-
-
-
-            {/* Footer */}
-            <footer className={`${mode === 'dark' ? 'bg-slate-950' : 'bg-slate-900'} text-white`}>
-
-                {/* Main Footer Grid */}
-                <motion.div 
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-50px" }}
-                    variants={staggerContainer}
-                    className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-10"
-                >
-                    <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-
-                        {/* Brand Column */}
-                        <div className="lg:col-span-2">
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center">
-                                    <span className="font-bold text-white text-base">F</span>
-                                </div>
-                                <span className="font-extrabold text-xl tracking-tight text-white">Frelaunch.</span>
-                            </div>
-                            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
-                                The ultimate platform connecting ambitious Ethiopian students with top companies through freelance and internship opportunities.
-                            </p>
-                            {/* Contact Info */}
-                            <div className="space-y-2 mb-6">
-                                <div className="flex items-center gap-2 text-sm text-slate-400">
-                                    <MapPin size={14} className="text-blue-400 flex-shrink-0" />
-                                    <span>Addis Ababa, Ethiopia</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-400">
-                                    <Mail size={14} className="text-blue-400 flex-shrink-0" />
-                                    <span>hello@frelaunch.et</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-sm text-slate-400">
-                                    <Phone size={14} className="text-blue-400 flex-shrink-0" />
-                                    <span>+251 91 234 5678</span>
-                                </div>
-                            </div>
-                            {/* Social Icons */}
-                            <div className="flex items-center gap-3">
-                                {[
-                                    { Icon: Twitter, href: '#' },
-                                    { Icon: Linkedin, href: '#' },
-                                    { Icon: Github, href: '#' },
-                                    { Icon: Instagram, href: '#' },
-                                ].map(({ Icon, href }, i) => (
-                                    <a key={i} href={href} className="w-9 h-9 rounded-lg bg-slate-800 hover:bg-blue-600 flex items-center justify-center transition-colors">
-                                        <Icon size={16} className="text-slate-400 group-hover:text-white" />
-                                    </a>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Platform Links */}
-                        <div>
-                            <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Platform</h4>
-                            <ul className="space-y-3">
-                                {[
-                                    { label: 'Browse Jobs', to: '/explore-jobs' },
-                                    { label: 'Post a Job', to: '/recruiter/post' },
-                                    { label: 'Messages', to: '/student/messages' },
-                                ].map(({ label, to }) => (
-                                    <li key={label}>
-                                        <Link to={to} className="text-sm text-slate-400 hover:text-blue-400 transition-colors">{label}</Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* Company Links */}
-                        <div>
-                            <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Useful Links</h4>
-                            <ul className="space-y-3">
-                                <li>
-                                    <a href="#how-it-works" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">How It Works</a>
-                                </li>
-                                <li>
-                                    <Link to="/success-stories" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Success Stories</Link>
-                                </li>
-                                <li>
-                                    <Link to="/register" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Register Now</Link>
-                                </li>
-                            </ul>
-                        </div>
-
-                        {/* Newsletter */}
-                        <div>
-                            <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Stay Updated</h4>
-                            <p className="text-sm text-slate-400 mb-4 leading-relaxed">Get the latest opportunities and platform updates in your inbox.</p>
-                            <div className="flex flex-col gap-2">
-                                <input
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    className="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 placeholder:text-slate-500 transition-colors"
-                                />
-                                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 px-4 rounded-xl transition-colors flex items-center justify-center gap-2">
-                                    Subscribe <ArrowRight size={14} />
-                                </button>
-                            </div>
-                            <p className="text-xs text-slate-500 mt-3">No spam. Unsubscribe anytime.</p>
-                        </div>
-
-                    </motion.div>
-                </motion.div>
-
-                {/* Bottom Bar */}
-                <div className="border-t border-slate-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <p className="text-sm text-slate-500">
-                            &copy; 2026 Frelaunch Inc. {t('footer.rights')}
-                        </p>
-                        <div className="flex gap-6 text-sm text-slate-500">
-                            <Link to="#" className="hover:text-blue-400 transition-colors">{t('footer.privacy')}</Link>
-                            <Link to="#" className="hover:text-blue-400 transition-colors">{t('footer.terms')}</Link>
-                            <Link to="#" className="hover:text-blue-400 transition-colors">{t('footer.contact')}</Link>
-                        </div>
-                    </div>
-                </div>
-
-            </footer>
-
+            <PublicFooter />
         </div>
     );
 }

@@ -16,6 +16,10 @@ import Modal from '../../components/ui/Modal';
 import Button from '../../components/ui/Button';
 import { fetchOpportunities } from '../../features/opportunities/opportunitySlice';
 import { setPendingJobIntent } from '../../utils/jobIntent';
+import PublicNavbar from '../../components/layout/PublicNavbar';
+import PublicFooter from '../../components/layout/PublicFooter';
+import { Filter, X as CloseIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const FILTERS = {
   jobType: ['Volunteer', 'Paid Intern', 'Unpaid Intern'],
@@ -93,6 +97,7 @@ export default function ExploreJobsPage() {
   const [savedJobs, setSavedJobs] = useState(new Set());
   const [selectedJob, setSelectedJob] = useState(null);
   const [authPrompt, setAuthPrompt] = useState({ open: false, action: 'view details' });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchOpportunities({ keyword: '', type: '' }));
@@ -209,30 +214,44 @@ export default function ExploreJobsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
-          <section className="space-y-5">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-                Explore Jobs
-              </h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Browse all opportunities. You can search and filter before signing in.
-              </p>
-              <label className="relative block mt-4">
-                <Search
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-                />
-                <input
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by title, company, skill, or keyword..."
-                  className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </label>
-            </div>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
+      <PublicNavbar />
+      
+      <div className="flex-1 pt-24 pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+            <section className="space-y-5">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 sm:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+                      Explore Jobs
+                    </h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      Browse all opportunities. You can search and filter before signing in.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setIsFilterOpen(true)}
+                    className="lg:hidden inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-700 dark:text-slate-300 shadow-sm"
+                  >
+                    <Filter size={16} /> Filters
+                  </button>
+                </div>
+
+                <label className="relative block">
+                  <Search
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+                  <input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search by title, company, skill, or keyword..."
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                  />
+                </label>
+              </div>
 
             {loading && (
               <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center text-slate-500 dark:text-slate-400">
@@ -377,36 +396,36 @@ export default function ExploreJobsPage() {
             </div>
           </section>
 
-          <aside className="lg:sticky lg:top-6">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+          <aside className="hidden lg:block lg:sticky lg:top-28">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Filter Jobs</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
                 Refine listings with quick checkboxes.
               </p>
 
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {Object.entries(FILTERS).map(([group, values]) => (
                   <div key={group}>
-                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-2.5">
+                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3">
                       {group === 'jobType'
                         ? 'Job Type'
                         : group === 'jobSite'
                           ? 'Job Site'
                           : 'Experience Level'}
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                       {values.map((value) => (
                         <label
                           key={value}
-                          className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300"
+                          className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-300 cursor-pointer group"
                         >
                           <input
                             type="checkbox"
                             checked={selectedFilters[group].has(value)}
                             onChange={() => toggleFilter(group, value)}
-                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                           />
-                          {value}
+                          <span className="group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{value}</span>
                         </label>
                       ))}
                     </div>
@@ -417,6 +436,79 @@ export default function ExploreJobsPage() {
           </aside>
         </div>
       </div>
+
+      {/* Mobile Filter Drawer */}
+      <AnimatePresence>
+        {isFilterOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsFilterOpen(false)}
+              className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 right-0 bottom-0 w-full max-w-xs bg-white dark:bg-slate-900 z-[70] shadow-2xl overflow-y-auto"
+            >
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">Filters</h3>
+                  <button 
+                    onClick={() => setIsFilterOpen(false)}
+                    className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+                  >
+                    <CloseIcon size={24} />
+                  </button>
+                </div>
+
+                <div className="space-y-8">
+                  {Object.entries(FILTERS).map(([group, values]) => (
+                    <div key={group}>
+                      <p className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4">
+                        {group === 'jobType'
+                          ? 'Job Type'
+                          : group === 'jobSite'
+                            ? 'Job Site'
+                            : 'Experience Level'}
+                      </p>
+                      <div className="space-y-3.5">
+                        {values.map((value) => (
+                          <label
+                            key={value}
+                            className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedFilters[group].has(value)}
+                              onChange={() => toggleFilter(group, value)}
+                              className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            {value}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-10">
+                  <Button className="w-full" onClick={() => setIsFilterOpen(false)}>
+                    Show Results
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <PublicFooter />
+    </div>
 
       <Modal
         isOpen={!!selectedJob}
