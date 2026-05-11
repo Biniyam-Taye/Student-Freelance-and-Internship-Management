@@ -131,7 +131,7 @@ export default function Messages() {
                                     key={contact._id}
                                     onClick={() => dispatch(setActiveContact(contact._id))}
                                     className={clsx(
-                                        'w-full flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors text-left border-b border-gray-50 dark:border-gray-700/20',
+                                        'w-full flex items-start gap-4 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors text-left border-b border-gray-50 dark:border-gray-700/20',
                                         activeContactId === contact._id && 'bg-blue-50/80 dark:bg-blue-900/20 border-l-2 border-l-blue-500'
                                     )}
                                 >
