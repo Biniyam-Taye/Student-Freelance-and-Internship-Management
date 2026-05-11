@@ -106,9 +106,13 @@
         "subtitle": "Hear from our community members"
     },
     "footer": {
-        "tagline": "Bridging talent and opportunity across Ethiopia.",
+        "tagline": "The premier ecosystem connecting Ethiopia's top student talent with industry leaders through freelance and elite internship opportunities.",
+        "location": "Addis Ababa, Ethiopia",
+        "vision_title": "Our Vision",
+        "vision_desc": "Empowering the next generation of Ethiopian talent by bridging the gap between academic theory and high-impact professional industry excellence.",
+        "community_invite": "Join over 720+ high-achieving students already building their future on Frelaunch.",
         "links_platform": "Platform",
-        "links_company": "Company",
+        "links_company": "Useful Links",
         "links_support": "Support",
         "about": "About Us",
         "contact": "Contact",
