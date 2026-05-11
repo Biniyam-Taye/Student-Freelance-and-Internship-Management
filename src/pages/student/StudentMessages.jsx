@@ -121,7 +121,7 @@ export default function Messages() {
                     <div className="flex-1 overflow-y-auto">
                         {loading && <div className="p-4 text-center text-sm text-gray-400">Loading conversations...</div>}
                         {!loading && filteredContacts.length === 0 && (
-                            <div className="p-4 text-center text-sm text-gray-40">No conversations yet.</div>
+                            <div className="p-4 text-center text-sm text-gray-400">No conversations yet.</div>
                         )}
                         {filteredContacts.map((contact) => {
                             const msgs = conversations[contact._id] || [];
