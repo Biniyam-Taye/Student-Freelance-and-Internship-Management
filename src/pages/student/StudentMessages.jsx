@@ -163,7 +163,7 @@ export default function Messages() {
 
                 {/* Right: Chat Window */}
                 {activeContact ? (
-                    <div className="flex-1 flex flex-col min-w-0">
+                    <div className="flex-1 flex flex-col min-w-0 h-[]">
 
                         {/* Chat Header */}
                         <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-100 dark:border-gray-700/60 flex-shrink-0 bg-white dark:bg-gray-800/80">
