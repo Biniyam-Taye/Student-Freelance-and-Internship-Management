@@ -119,7 +119,7 @@ export default function Messages() {
 
                     {/* Contact Items */}
                     <div className="flex-1 overflow-y-auto">
-                        {loading && <div className="p-4 text-center text-sm text-gray-400">Loading conversations...</div>}
+                        {loading && <div className="p-4 text-center text-sm text-gray-40">Loading conversations...</div>}
                         {!loading && filteredContacts.length === 0 && (
                             <div className="p-4 text-center text-sm text-gray-400">No conversations yet.</div>
                         )}
