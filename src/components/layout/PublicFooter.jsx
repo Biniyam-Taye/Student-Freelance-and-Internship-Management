@@ -40,13 +40,13 @@ export default function PublicFooter() {
                             <span className="font-extrabold text-xl tracking-tight text-white">Frelaunch.</span>
                         </div>
                         <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
-                            The ultimate platform connecting ambitious Ethiopian students with top companies through freelance and internship opportunities.
+                            {t('footer.tagline')}
                         </p>
                         {/* Contact Info */}
                         <div className="space-y-2 mb-6">
                             <div className="flex items-center gap-2 text-sm text-slate-400">
                                 <MapPin size={14} className="text-blue-400 flex-shrink-0" />
-                                <span>Addis Ababa, Ethiopia</span>
+                                <span>{t('footer.location')}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-slate-400">
                                 <Mail size={14} className="text-blue-400 flex-shrink-0" />
@@ -74,7 +74,7 @@ export default function PublicFooter() {
 
                     {/* Platform Links */}
                     <motion.div variants={fadeUp}>
-                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Platform</h4>
+                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">{t('footer.links_platform')}</h4>
                         <ul className="space-y-3">
                             {[
                                 { label: 'Browse Jobs', to: '/explore-jobs' },
@@ -94,7 +94,7 @@ export default function PublicFooter() {
 
                     {/* Company Links */}
                     <motion.div variants={fadeUp}>
-                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Useful Links</h4>
+                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">{t('footer.links_company')}</h4>
                         <ul className="space-y-3">
                             <li>
                                 <Link to="/success-stories" className="text-sm text-slate-400 hover:text-blue-400 transition-colors">Success Stories</Link>
@@ -110,12 +110,12 @@ export default function PublicFooter() {
 
                     {/* Vision/Mission Section */}
                     <motion.div variants={fadeUp}>
-                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">Our Vision</h4>
+                        <h4 className="font-bold text-white text-sm mb-5 uppercase tracking-wider">{t('footer.vision_title')}</h4>
                         <p className="text-sm text-slate-400 mb-4 leading-relaxed">
-                            Empowering the next generation of Ethiopian talent by bridging the gap between academic learning and professional industry experience.
+                            {t('footer.vision_desc')}
                         </p>
                         <p className="text-sm text-slate-400 leading-relaxed">
-                            Join over 700+ students already building their future on Frelaunch.
+                            {t('footer.community_invite')}
                         </p>
                     </motion.div>
 
