@@ -146,7 +146,7 @@ export default function Messages() {
                                                 {contact.name}
                                             </p>
                                             {lastMsg && (
-                                                <span className="text-[10px] text-gray-40 flex-shrink-0 ml-1">
+                                                <span className="text-[10px] text-gray-400 flex-shrink-0 ml-1">
                                                     {new Date(lastMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                 </span>
                                             )}
