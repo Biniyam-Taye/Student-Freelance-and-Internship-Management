@@ -281,17 +281,16 @@ export default function SuccessStoriesPage() {
             className="text-center mb-20"
           >
             <span className="text-blue-600 dark:text-blue-400 font-bold tracking-widest uppercase text-sm">
-              Your Journey
+              {t('success_journey.label')}
             </span>
             <h2 className="text-4xl md:text-5xl font-black mt-4 mb-6">
-              Built for Your{" "}
-              <span className="gradient-text">Professional Growth</span>
+              {t('success_journey.title')}{" "}
+              <span className="gradient-text">{t('success_journey.title_highlight')}</span>
             </h2>
             <p
               className={`text-lg max-w-2xl mx-auto ${mode === "dark" ? "text-slate-400" : "text-slate-600"}`}
             >
-              We don't just find you jobs. We provide a structured path to
-              transition from a student to a high-demand professional.
+              {t('success_journey.subtitle')}
             </p>
           </motion.div>
 
@@ -305,29 +304,29 @@ export default function SuccessStoriesPage() {
             {[
               {
                 step: "01",
-                title: "Identity Building",
-                desc: "Create a professional digital presence that highlights your skills, projects, and academic excellence.",
+                title: t('success_journey.step1_title'),
+                desc: t('success_journey.step1_desc'),
                 icon: Users,
                 color: "from-blue-500 to-cyan-500",
               },
               {
                 step: "02",
-                title: "Smart Discovery",
-                desc: "Our AI matches you with opportunities that align perfectly with your career goals and current skill level.",
+                title: t('success_journey.step2_title'),
+                desc: t('success_journey.step2_desc'),
                 icon: Target,
                 color: "from-indigo-500 to-violet-500",
               },
               {
                 step: "03",
-                title: "Skill Mastery",
-                desc: "Work on real-world projects with industry veterans to sharpen your technical and soft skills.",
+                title: t('success_journey.step3_title'),
+                desc: t('success_journey.step3_desc'),
                 icon: Zap,
                 color: "from-violet-500 to-purple-500",
               },
               {
                 step: "04",
-                title: "Success Launch",
-                desc: "Graduate with a proven track record, a rich portfolio, and direct connections to top hiring companies.",
+                title: t('success_journey.step4_title'),
+                desc: t('success_journey.step4_desc'),
                 icon: Award,
                 color: "from-purple-500 to-pink-500",
               },

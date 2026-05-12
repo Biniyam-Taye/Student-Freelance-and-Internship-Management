@@ -231,5 +231,19 @@
         "freelance": "Friilaansii",
         "post": "Carraa Maxxansi",
         "applicants": "Iyyattoota"
+    },
+    "success_journey": {
+        "label": "Imala Kee",
+        "title": "Siif Kan Ijaarame",
+        "title_highlight": "Guddina Ogummaa",
+        "subtitle": "Nuyi hojii qofa siif hin barbaadnu. Daandii barataa irraa gara ogeessaatti cehuu siif qopheessina.",
+        "step1_title": "Fooyya'iinsa Profaayilii",
+        "step1_desc": "Dandeettii kee addaa fi hoggansa barnootaa kee agarsiisu ijaari.",
+        "step2_title": "Walsimsiisa Ismaartii",
+        "step2_desc": "AI keenya imala ogummaa kee carraalee dhaabbilee waliin walsimsiisa.",
+        "step3_title": "Dandeettii Industriitti Xumuruu",
+        "step3_desc": "Pirojektoota dhiibbaa qabaniin dandeettii kee qari.",
+        "step4_title": "Bakka Bu'iinsa Elite",
+        "step4_desc": "Galmee hojii mirkanaa'aa fi quunnama dhaabbilee gubbaa waliin hojii jalqabi."
     }
 }
