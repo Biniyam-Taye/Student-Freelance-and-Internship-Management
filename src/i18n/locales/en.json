@@ -291,6 +291,15 @@
     },
     "success_stories": {
         "title": "Real Success Stories",
-        "view_all": "View All Stories"
+        "view_all": "View All Stories",
+        "testimonial1_name": "Aisha Sharma",
+        "testimonial1_role": "Lead Software Engineer",
+        "testimonial1_text": "I started as a complete beginner in coding. This platform didn't just give me a job; it gave me a career. The mentorship program was the turning point that transformed my potential into real-world impact.",
+        "testimonial2_name": "David Chen",
+        "testimonial2_role": "Product Manager",
+        "testimonial2_text": "The intelligent matching algorithm is uncanny. It connected me with a startup that valued my skills more than my degree. I went from being unsure about my future to leading a team in just six months.",
+        "testimonial3_name": "Priya Singh",
+        "testimonial3_role": "Senior Data Analyst",
+        "testimonial3_text": "Best decision ever! The real projects and industry exposure helped me build a portfolio that speaks for itself. I recommend this platform to every student who is serious about their career."
     }
 }
